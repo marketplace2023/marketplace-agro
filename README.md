@@ -1,3 +1,6 @@
+### This is custom project template ready to go with installed tailwindcss, prepared routers, layout, sidebar and apiClient
+All changes made there are from my [guide](https://github.com/Lewan24/ReactStartingCommands)
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
