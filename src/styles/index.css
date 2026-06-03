@@ -1,1 +1,191 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/inter";
+@import "@fontsource/poppins/600.css";
+@import "@fontsource/poppins/700.css";
+@import "@fontsource/poppins/800.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* ── Tipografía ─────────────────────────────────────────── */
+  --font-sans:    "Inter Variable", "Inter", system-ui, sans-serif;
+  --font-display: "Poppins", "Inter Variable", system-ui, sans-serif;
+  --font-heading: var(--font-display);
+
+  /* ── Colores semánticos ──────────────────────────────────── */
+  --color-background:                  var(--background);
+  --color-foreground:                  var(--foreground);
+  --color-card:                        var(--card);
+  --color-card-foreground:             var(--card-foreground);
+  --color-popover:                     var(--popover);
+  --color-popover-foreground:          var(--popover-foreground);
+  --color-primary:                     var(--primary);
+  --color-primary-foreground:          var(--primary-foreground);
+  --color-secondary:                   var(--secondary);
+  --color-secondary-foreground:        var(--secondary-foreground);
+  --color-muted:                       var(--muted);
+  --color-muted-foreground:            var(--muted-foreground);
+  --color-accent:                      var(--accent);
+  --color-accent-foreground:           var(--accent-foreground);
+  --color-destructive:                 var(--destructive);
+  --color-border:                      var(--border);
+  --color-input:                       var(--input);
+  --color-ring:                        var(--ring);
+  --color-chart-1:                     var(--chart-1);
+  --color-chart-2:                     var(--chart-2);
+  --color-chart-3:                     var(--chart-3);
+  --color-chart-4:                     var(--chart-4);
+  --color-chart-5:                     var(--chart-5);
+  --color-sidebar:                     var(--sidebar);
+  --color-sidebar-foreground:          var(--sidebar-foreground);
+  --color-sidebar-primary:             var(--sidebar-primary);
+  --color-sidebar-primary-foreground:  var(--sidebar-primary-foreground);
+  --color-sidebar-accent:              var(--sidebar-accent);
+  --color-sidebar-accent-foreground:   var(--sidebar-accent-foreground);
+  --color-sidebar-border:              var(--sidebar-border);
+  --color-sidebar-ring:                var(--sidebar-ring);
+
+  /* ── AgroBot — verde marca ──────────────────────────────── */
+  --color-agrobot-50:  #ECFDF5;
+  --color-agrobot-100: #D1FAE5;
+  --color-agrobot-500: #10B981;
+  --color-agrobot-600: #059669;
+  --color-agrobot-700: #047857;
+  --color-agrobot-800: #065F46;
+  --color-agrobot-900: #064E3B;
+
+  /* ── AgroBot — lima (acento agro) ───────────────────────── */
+  --color-agro-lime-100: #ECFCCB;
+  --color-agro-lime-500: #84CC16;
+  --color-agro-lime-600: #65A30D;
+
+  /* ── AgroBot — tierra (acento cálido) ───────────────────── */
+  --color-agro-earth-100: #FEF3C7;
+  --color-agro-earth-500: #D97706;
+  --color-agro-earth-700: #92400E;
+
+  /* ── AgroBot — azul tecnológico ─────────────────────────── */
+  --color-agro-tech-100: #E0F2FE;
+  --color-agro-tech-500: #0EA5E9;
+  --color-agro-tech-700: #0369A1;
+
+  /* ── Superficies ────────────────────────────────────────── */
+  --color-surface:      #F8FAFC;
+  --color-surface-soft: #F1F5F9;
+
+  /* ── Radios ─────────────────────────────────────────────── */
+  --radius-sm:  calc(var(--radius) * 0.6);
+  --radius-md:  calc(var(--radius) * 0.8);
+  --radius-lg:  var(--radius);
+  --radius-xl:  calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/* ── Modo claro ──────────────────────────────────────────────── */
+:root {
+  --background:           #F8FAFC;
+  --foreground:           #0F172A;
+  --card:                 #FFFFFF;
+  --card-foreground:      #0F172A;
+  --popover:              #FFFFFF;
+  --popover-foreground:   #0F172A;
+  --primary:              #059669;
+  --primary-foreground:   #FFFFFF;
+  --secondary:            #ECFDF5;
+  --secondary-foreground: #064E3B;
+  --muted:                #F1F5F9;
+  --muted-foreground:     #64748B;
+  --accent:               #D1FAE5;
+  --accent-foreground:    #065F46;
+  --destructive:          #DC2626;
+  --border:               #E2E8F0;
+  --input:                #CBD5E1;
+  --ring:                 #10B981;
+  --chart-1:              #10B981;
+  --chart-2:              #84CC16;
+  --chart-3:              #0EA5E9;
+  --chart-4:              #D97706;
+  --chart-5:              #064E3B;
+  --radius:               0.75rem;
+  --sidebar:                    #064E3B;
+  --sidebar-foreground:         #FFFFFF;
+  --sidebar-primary:            #10B981;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent:             #065F46;
+  --sidebar-accent-foreground:  #D1FAE5;
+  --sidebar-border:             rgba(209, 250, 229, 0.18);
+  --sidebar-ring:               #10B981;
+}
+
+/* ── Modo oscuro ─────────────────────────────────────────────── */
+.dark {
+  --background:           #0F172A;
+  --foreground:           #F8FAFC;
+  --card:                 #1E293B;
+  --card-foreground:      #F8FAFC;
+  --popover:              #1E293B;
+  --popover-foreground:   #F8FAFC;
+  --primary:              #10B981;
+  --primary-foreground:   #FFFFFF;
+  --secondary:            #065F46;
+  --secondary-foreground: #D1FAE5;
+  --muted:                #1E293B;
+  --muted-foreground:     #94A3B8;
+  --accent:               #064E3B;
+  --accent-foreground:    #D1FAE5;
+  --destructive:          #EF4444;
+  --border:               rgba(209, 250, 229, 0.1);
+  --input:                rgba(209, 250, 229, 0.15);
+  --ring:                 #10B981;
+  --chart-1:              #10B981;
+  --chart-2:              #84CC16;
+  --chart-3:              #0EA5E9;
+  --chart-4:              #D97706;
+  --chart-5:              #064E3B;
+  --sidebar:                    #064E3B;
+  --sidebar-foreground:         #D1FAE5;
+  --sidebar-primary:            #10B981;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent:             #065F46;
+  --sidebar-accent-foreground:  #D1FAE5;
+  --sidebar-border:             rgba(209, 250, 229, 0.18);
+  --sidebar-ring:               #10B981;
+}
+
+/* ── Estilos base ────────────────────────────────────────────── */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* ── Utilidades ──────────────────────────────────────────────── */
+@layer utilities {
+  .bg-hero-gradient {
+    background: linear-gradient(135deg, #ECFDF5 0%, #FFFFFF 55%, #F8FAFC 100%);
+  }
+  .bg-cta-gradient {
+    background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+  }
+  .bg-tech-gradient {
+    background: linear-gradient(135deg, #064E3B 0%, #047857 55%, #0EA5E9 140%);
+  }
+  .shadow-card {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  }
+  .shadow-card-hover {
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12);
+  }
+}
