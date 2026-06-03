@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, Tractor } from 'lucide-react'
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
 import { registerSchema, type RegisterFormSchema } from '../zod-schema/auth-schemas'
 import { useRegisterMutation, ME_QUERY_KEY } from '../queries/auth-queries'
 import { handleFormError } from '../../shared/util/handle-form-error'
@@ -55,15 +55,14 @@ export function RegisterPage() {
       <div
         className="hidden lg:flex lg:w-[52%] relative flex-col justify-between p-10 overflow-hidden"
         style={{
-          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(5,46,22,0.65) 60%, rgba(4,46,39,0.88) 100%), url('/farm-bg.jpg')`,
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(5,46,22,0.65) 60%, rgba(4,46,39,0.88) 100%), url('/farm-bg.png')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       >
         {/* Top logo */}
-        <div className="flex items-center gap-2.5 z-10">
-          <Tractor className="h-6 w-6 text-agrobot-400" />
-          <span className="font-display font-bold text-white text-lg tracking-tight">TierraMarket</span>
+        <div className="flex items-center z-10">
+          <img src="/logoagro.svg" alt="TierraMarket" className="h-9 w-auto brightness-0 invert" />
         </div>
 
         {/* Bottom text */}
@@ -81,16 +80,9 @@ export function RegisterPage() {
       <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white overflow-y-auto">
         <div className="w-full max-w-105">
 
-          {/* Mobile logo */}
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <Tractor className="h-5 w-5 text-agrobot-600" />
-            <span className="font-display font-bold text-lg text-agrobot-800">TierraMarket</span>
-          </div>
-
-          {/* Desktop logo */}
-          <div className="hidden lg:flex items-center gap-2 mb-6">
-            <Tractor className="h-5 w-5 text-agrobot-600" />
-            <span className="font-display font-bold text-lg text-agrobot-800">TierraMarket</span>
+          {/* Logo */}
+          <div className="flex items-center mb-8 lg:mb-6">
+            <img src="/logoagro.svg" alt="TierraMarket" className="h-8 w-auto" />
           </div>
 
           <div className="mb-7">

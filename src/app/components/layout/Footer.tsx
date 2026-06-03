@@ -10,7 +10,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-12">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="col-span-2 md:col-span-1">
-            <p className="font-display text-lg font-bold italic text-white">TierraMarket</p>
+            <img src="/logoagro.svg" alt="TierraMarket" className="h-8 w-auto brightness-0 invert" />
             <p className="mt-2 text-sm leading-relaxed text-agrobot-100">
               Conectando la producción agrícola de Latinoamérica con tecnología y confianza.
             </p>
@@ -37,7 +37,7 @@ export function Footer() {
           className="mt-8 border-t pt-6 text-center text-xs text-agrobot-100"
           style={{ borderColor: 'rgba(209, 250, 229, 0.18)' }}
         >
-          © 2024 TierraMarket. Todos los derechos reservados.
+          © 2026 TierraMarket. Todos los derechos reservados.
         </div>
       </div>
     </footer>

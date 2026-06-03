@@ -2,6 +2,9 @@ import { createBrowserRouter } from 'react-router'
 import { Toaster } from 'sonner'
 import { Layout } from '../app/components/layout/Layout'
 import { HomePage } from '../app/pages/HomePage'
+import { OfertasPage } from '../app/pages/OfertasPage'
+import { CategoriasPage } from '../app/pages/CategoriasPage'
+import { AyudaPage } from '../app/pages/AyudaPage'
 import { GuestOnlyRoute } from './components/guest-only-route'
 import { LoginPage } from '../modules/auth/pages/login'
 import { RegisterPage } from '../modules/auth/pages/register'
@@ -21,6 +24,9 @@ export const router = createBrowserRouter([
     Component: Layout,
     children: [
       { index: true, Component: HomePage },
+      { path: 'ofertas', Component: OfertasPage },
+      { path: 'categorias', Component: CategoriasPage },
+      { path: 'ayuda', Component: AyudaPage },
     ],
   },
   {

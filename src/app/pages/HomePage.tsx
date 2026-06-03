@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import {
   Search,
   MapPin,
@@ -11,11 +11,27 @@ import {
   Briefcase,
   FlaskConical,
   Bell,
-  Map,
   ClipboardList,
   ShieldCheck,
+  ArrowRight,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { Swiper, SwiperSlide } from 'swiper/react'
+import { Autoplay, Navigation, Pagination } from 'swiper/modules'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/pagination'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
+// Fix Leaflet default marker icons in Vite
+delete (L.Icon.Default.prototype as Record<string, unknown>)._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+})
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -155,13 +171,71 @@ const stores: Store[] = [
   },
 ]
 
-const popularZones = [
-  'Córdoba, AR',
-  'Sinaloa, MX',
-  'Tolima, CO',
-  'Mato Grosso, BR',
-  'Maule, CL',
-  'Manabí, EC',
+
+interface VzZone {
+  name: string
+  state: string
+  crops: string
+  lat: number
+  lng: number
+}
+
+const venezuelaZones: VzZone[] = [
+  { name: 'Acarigua–Araure',            state: 'Portuguesa',    crops: 'Maíz, arroz, sorgo, caña, agroindustria',        lat:  9.5545, lng: -69.1956 },
+  { name: 'Turén',                       state: 'Portuguesa',    crops: 'Maíz, arroz, soya, cereales',                    lat:  9.3310, lng: -69.1149 },
+  { name: 'Guanare',                     state: 'Portuguesa',    crops: 'Maíz, caña, ganadería, arroz',                   lat:  9.0437, lng: -69.7489 },
+  { name: 'Calabozo / Río Guárico',      state: 'Guárico',       crops: 'Arroz, maíz, ganadería',                         lat:  8.9242, lng: -67.4293 },
+  { name: 'Valle de la Pascua',          state: 'Guárico',       crops: 'Maíz, sorgo, ganadería',                         lat:  9.2217, lng: -65.9795 },
+  { name: 'Zaraza',                      state: 'Guárico',       crops: 'Ganadería, maíz, cereales',                      lat:  9.3503, lng: -65.3245 },
+  { name: 'San Carlos / Tinaco',         state: 'Cojedes',       crops: 'Arroz, maíz, caña, ganadería',                   lat:  9.6612, lng: -68.5827 },
+  { name: 'Barinas',                     state: 'Barinas',       crops: 'Maíz, arroz, ganadería, palma',                  lat:  8.6226, lng: -70.2075 },
+  { name: 'Sabaneta',                    state: 'Barinas',       crops: 'Maíz, arroz, ganadería',                         lat:  8.7537, lng: -69.9330 },
+  { name: 'El Vigía / Sur del Lago',     state: 'Mérida–Zulia',  crops: 'Plátano, cambur, cacao, ganadería',              lat:  8.6135, lng: -71.6570 },
+  { name: 'Caja Seca / Sur del Lago',    state: 'Zulia',         crops: 'Plátano, cacao, palma, ganadería',               lat:  9.1408, lng: -71.0794 },
+  { name: 'Machiques / Perijá',          state: 'Zulia',         crops: 'Ganadería bovina, leche, pastos',                lat: 10.0608, lng: -72.5521 },
+  { name: 'La Grita',                    state: 'Táchira',       crops: 'Hortalizas, papa, café, flores',                 lat:  8.1363, lng: -71.9837 },
+  { name: 'Bailadores',                  state: 'Mérida',        crops: 'Papa, ajo, zanahoria, fresas, hortalizas',       lat:  8.2564, lng: -71.8260 },
+  { name: 'Mucuchíes / Páramo merideño', state: 'Mérida',        crops: 'Papa, zanahoria, ajo, hortalizas de altura',     lat:  8.7519, lng: -70.9147 },
+  { name: 'Boconó',                      state: 'Trujillo',      crops: 'Café, hortalizas, frutas, caña',                 lat:  9.2440, lng: -70.2694 },
+  { name: 'Carora / Torres',             state: 'Lara',          crops: 'Café, hortalizas, uva, ganadería caprina',       lat: 10.1755, lng: -70.0804 },
+  { name: 'Quíbor',                      state: 'Lara',          crops: 'Cebolla, tomate, pimentón, hortalizas',          lat:  9.9276, lng: -69.6201 },
+  { name: 'El Tocuyo / Morán',           state: 'Lara',          crops: 'Caña, café, hortalizas, frutas',                 lat:  9.7876, lng: -69.7920 },
+  { name: 'Yaritagua / Bruzual',         state: 'Yaracuy',       crops: 'Caña de azúcar, maíz, frutas',                   lat: 10.0807, lng: -69.1261 },
+  { name: 'Nirgua',                      state: 'Yaracuy',       crops: 'Café, cítricos, cacao, frutas',                  lat: 10.1504, lng: -68.5668 },
+  { name: 'Barlovento / Caucagua',       state: 'Miranda',       crops: 'Cacao, coco, plátano, frutas tropicales',        lat: 10.2822, lng: -66.3797 },
+  { name: 'Chuao–Choroní / Aragua',      state: 'Aragua',        crops: 'Cacao fino, coco, frutas',                       lat: 10.4847, lng: -67.5250 },
+  { name: 'Río Caribe / Paria',          state: 'Sucre',         crops: 'Cacao, coco, frutas tropicales',                 lat: 10.6966, lng: -63.1090 },
+  { name: 'Tucupita / Delta Orinoco',    state: 'Delta Amacuro', crops: 'Arroz, cacao, raíces, pesca-agro',               lat:  9.0581, lng: -62.0504 },
+]
+
+const heroSlides = [
+  {
+    badge: 'Campaña Estacional',
+    title: 'Gran Venta de Cosecha 2026',
+    description: 'Maquinaria, semillas y fertilizantes con descuentos de hasta el 40%.',
+    cta: 'Ver ofertas',
+    ctaTo: '/ofertas',
+    bg: '/farm-bg.png',
+    overlay: 'rgba(5,46,22,0.55)',
+  },
+  {
+    badge: 'Mercado Agrícola',
+    title: 'Conecta con proveedores certificados',
+    description: 'Miles de productores y distribuidores verificados en toda Venezuela.',
+    cta: 'Explorar categorías',
+    ctaTo: '/categorias',
+    bg: '/bg-cafe.png',
+    overlay: 'rgba(4,30,18,0.60)',
+  },
+  {
+    badge: 'Nuevo servicio',
+    title: 'Radar Agrícola: Alertas en tiempo real',
+    description: 'Activá alertas por zona y categoría. Te avisamos cuando publiquen lo que necesitás.',
+    cta: 'Activar Radar',
+    ctaTo: '/radar',
+    bg: '/farm-bg.png',
+    overlay: 'rgba(2,20,10,0.68)',
+  },
 ]
 
 const steps: Step[] = [
@@ -272,51 +346,85 @@ function HeroSection() {
   const [location, setLocation] = useState('')
 
   return (
-    <section className="bg-hero-gradient py-16 text-center">
-      <div className="mx-auto max-w-6xl px-4">
-        <h1 className="font-display mx-auto max-w-xl text-4xl font-extrabold leading-tight tracking-tight text-agrobot-900 md:text-5xl">
-          Conectando la fuerza del campo con el futuro digital
-        </h1>
-        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-[#475569]">
-          La plataforma líder para transacciones agrícolas seguras y transparentes en toda
-          Latinoamérica.
-        </p>
-
-        {/* Buscador */}
-        <div
-          className="mx-auto mt-8 flex max-w-2xl items-center overflow-hidden rounded-2xl bg-white"
-          style={{ border: '1px solid #D1FAE5', boxShadow: '0 18px 45px rgba(15,23,42,0.10)' }}
-        >
-          <div className="flex flex-1 items-center gap-2 px-4">
-            <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="¿Qué producto, finca, insumo o servicio buscas?"
-              className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-          <div className="h-8 w-px bg-border" />
-          <div className="flex items-center gap-2 px-4">
-            <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
-            <input
-              type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="¿Dónde?"
-              className="w-28 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground"
-            />
-          </div>
-          <div className="pr-2">
-            <button
-              className="rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-colors"
-              style={{ background: '#10B981' }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#059669')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = '#10B981')}
+    <section>
+      {/* Carousel */}
+      <Swiper
+        modules={[Autoplay, Navigation, Pagination]}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
+        navigation
+        pagination={{ clickable: true }}
+        loop
+        style={{ height: 420 }}
+      >
+        {heroSlides.map((slide) => (
+          <SwiperSlide key={slide.title}>
+            <div
+              className="relative flex h-full w-full flex-col justify-end p-8 md:p-14"
+              style={{
+                backgroundImage: `linear-gradient(to top, ${slide.overlay} 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.05) 100%), url('${slide.bg}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }}
             >
-              Buscar
-            </button>
+              <span className="mb-3 inline-block w-fit rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur-sm">
+                {slide.badge}
+              </span>
+              <h1 className="font-display max-w-lg text-3xl font-extrabold leading-tight text-white md:text-4xl">
+                {slide.title}
+              </h1>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
+                {slide.description}
+              </p>
+              <a
+                href={slide.ctaTo}
+                className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-agrobot-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-agrobot-700"
+              >
+                {slide.cta}
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
+
+      {/* Buscador debajo del carousel */}
+      <div className="bg-white border-b border-border py-5">
+        <div className="mx-auto max-w-3xl px-4">
+          <div
+            className="flex items-center overflow-hidden rounded-2xl bg-white"
+            style={{ border: '1px solid #D1FAE5', boxShadow: '0 8px 30px rgba(15,23,42,0.08)' }}
+          >
+            <div className="flex flex-1 items-center gap-2 px-4">
+              <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="¿Qué producto, finca, insumo o servicio buscas?"
+                className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+            <div className="h-8 w-px bg-border" />
+            <div className="flex items-center gap-2 px-4">
+              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="¿Dónde?"
+                className="w-28 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground"
+              />
+            </div>
+            <div className="pr-2">
+              <button
+                className="rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-colors"
+                style={{ background: '#10B981' }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#059669')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = '#10B981')}
+              >
+                Buscar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -383,41 +491,94 @@ function FeaturedStoresSection() {
   )
 }
 
+const vzIcon = new L.DivIcon({
+  className: '',
+  html: `<div style="width:12px;height:12px;background:#15803d;border:2px solid #fff;border-radius:50%;box-shadow:0 0 5px rgba(0,0,0,0.35)"></div>`,
+  iconSize: [12, 12],
+  iconAnchor: [6, 6],
+})
+
+const vzStates = [...new Set(venezuelaZones.map(z => z.state))]
+
+function FlyToZone({ lat, lng, zoom }: { lat: number; lng: number; zoom: number }) {
+  const map = useMap()
+  useEffect(() => {
+    map.flyTo([lat, lng], zoom, { duration: 1.2 })
+  }, [lat, lng, zoom, map])
+  return null
+}
+
 function PopularZonesSection() {
+  const [activeState, setActiveState] = useState<string | null>(null)
+
+  const filtered = activeState
+    ? venezuelaZones.filter(z => z.state === activeState)
+    : venezuelaZones
+
+  const flyTarget = activeState
+    ? { lat: filtered[0].lat, lng: filtered[0].lng, zoom: 8 }
+    : { lat: 8.5, lng: -66.5, zoom: 6 }
+
   return (
     <section className="bg-surface py-10">
       <div className="mx-auto max-w-6xl px-4">
-        <h2 className="font-display mb-5 text-xl font-bold text-foreground">Zonas Populares</h2>
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="font-display text-xl font-bold text-foreground">Zonas Agrícolas · Venezuela</h2>
+          <span className="text-xs text-muted-foreground">{venezuelaZones.length} zonas registradas</span>
+        </div>
+
+        {/* State filter pills */}
         <div className="mb-4 flex flex-wrap gap-2">
-          {popularZones.map((zone) => (
+          <button
+            onClick={() => setActiveState(null)}
+            className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-all ${
+              activeState === null
+                ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-800'
+                : 'border-border text-[#334155] hover:border-agrobot-300 hover:bg-agrobot-50 hover:text-agrobot-800'
+            }`}
+          >
+            Todas
+          </button>
+          {vzStates.map((state) => (
             <button
-              key={zone}
-              className="rounded-full border border-border px-4 py-1.5 text-sm font-medium text-[#334155] transition-all hover:border-agrobot-500 hover:bg-agrobot-50 hover:text-agrobot-800"
+              key={state}
+              onClick={() => setActiveState(state)}
+              className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-all ${
+                activeState === state
+                  ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-800'
+                  : 'border-border text-[#334155] hover:border-agrobot-300 hover:bg-agrobot-50 hover:text-agrobot-800'
+              }`}
             >
-              {zone}
+              <MapPin className="h-3 w-3" />
+              {state}
             </button>
           ))}
         </div>
-        <div className="overflow-hidden rounded-2xl border border-border bg-white shadow-card">
-          <div className="flex min-h-55">
-            <div className="flex flex-1 items-center justify-center bg-surface">
-              <div className="text-center opacity-20">
-                <Map className="mx-auto h-28 w-28 text-agrobot-700" />
-                <p className="mt-2 text-xs font-semibold text-agrobot-700">Latinoamérica</p>
-              </div>
-            </div>
-            <div className="flex w-56 shrink-0 flex-col items-center justify-center gap-4 border-l border-border p-6">
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-agrobot-50">
-                <Map className="h-6 w-6 text-agrobot-600" />
-              </div>
-              <p className="text-center text-sm font-semibold text-foreground">
-                Explorar por Mapa Interactivo
-              </p>
-              <button className="text-sm font-semibold text-agrobot-600 hover:underline">
-                Activar Vista de Mapa
-              </button>
-            </div>
-          </div>
+
+        <div className="overflow-hidden rounded-2xl border border-border shadow-card" style={{ height: 420 }}>
+          <MapContainer
+            center={[8.5, -66.5]}
+            zoom={6}
+            style={{ height: '100%', width: '100%' }}
+            scrollWheelZoom={false}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {filtered.map((z) => (
+              <Marker key={z.name} position={[z.lat, z.lng]} icon={vzIcon}>
+                <Popup>
+                  <div style={{ minWidth: 170 }}>
+                    <p style={{ fontWeight: 700, marginBottom: 3, color: '#14532d', fontSize: 13 }}>{z.name}</p>
+                    <p style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Estado: <strong>{z.state}</strong></p>
+                    <p style={{ fontSize: 11, color: '#64748b' }}>Rubros: {z.crops}</p>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+            <FlyToZone lat={flyTarget.lat} lng={flyTarget.lng} zoom={flyTarget.zoom} />
+          </MapContainer>
         </div>
       </div>
     </section>
