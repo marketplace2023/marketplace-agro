@@ -7,6 +7,7 @@ import { AyudaPage } from '../app/pages/AyudaPage'
 import { BlogPage } from '../app/pages/BlogPage'
 import { BlogArticlePage } from '../app/pages/BlogArticlePage'
 import { RadarPage } from '../app/pages/RadarPage'
+import { CatalogoPage } from '../app/pages/CatalogoPage'
 import { GuestOnlyRoute } from './components/guest-only-route'
 import { LoginPage } from '../modules/auth/pages/login'
 import { RegisterPage } from '../modules/auth/pages/register'
@@ -22,6 +23,7 @@ export default function AppRoutes() {
         <Route path="blog" element={<BlogPage />} />
         <Route path="blog/articulo" element={<BlogArticlePage />} />
         <Route path="radar" element={<RadarPage />} />
+        <Route path="catalogo" element={<CatalogoPage />} />
       </Route>
 
       <Route

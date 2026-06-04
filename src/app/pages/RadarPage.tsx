@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Search, MapPin, Star, Heart, SlidersHorizontal, Store, Users, FlaskConical, BadgeCheck, MessageCircle, ExternalLink, ChevronLeft, ChevronRight, Layers, X } from 'lucide-react'
+import { Search, MapPin, Star, Heart, SlidersHorizontal, Store, Users, FlaskConical, BadgeCheck, MessageCircle, ExternalLink, ChevronLeft, ChevronRight, Layers, X, ClipboardCheck, Briefcase } from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css'
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 type BadgeType = 'VERIFICADO' | 'PARTNER' | null
-type FilterType = 'Todos' | 'Tiendas' | 'Productores' | 'Laboratorios' | 'Verificados'
+type FilterType = 'Todos' | 'Tiendas' | 'Productores' | 'Laboratorios' | 'Certificadores' | 'Inspectores' | 'Exportadores'
 type ActionType = 'whatsapp' | 'cotizar'
 
 interface Company {
@@ -29,11 +29,13 @@ interface Company {
 // ─── Data ────────────────────────────────────────────────────────────────────
 
 const filters: { label: FilterType; Icon: React.ElementType }[] = [
-  { label: 'Todos',        Icon: Store },
-  { label: 'Tiendas',      Icon: Store },
-  { label: 'Productores',  Icon: Users },
-  { label: 'Laboratorios', Icon: FlaskConical },
-  { label: 'Verificados',  Icon: BadgeCheck },
+  { label: 'Todos',          Icon: Store },
+  { label: 'Tiendas',        Icon: Store },
+  { label: 'Productores',    Icon: Users },
+  { label: 'Laboratorios',   Icon: FlaskConical },
+  { label: 'Certificadores', Icon: BadgeCheck },
+  { label: 'Inspectores',    Icon: ClipboardCheck },
+  { label: 'Exportadores',   Icon: Briefcase },
 ]
 
 const companies: Company[] = [

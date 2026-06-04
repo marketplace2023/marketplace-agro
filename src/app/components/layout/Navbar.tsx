@@ -2,6 +2,7 @@ import { NavLink } from 'react-router'
 
 const navLinks = [
   { label: 'Categorías', to: '/categorias' },
+  { label: 'Catálogo', to: '/catalogo' },
   { label: 'Ofertas', to: '/ofertas' },
   { label: 'Radar', to: '/radar' },
   { label: 'Publicar', to: '/login' },
