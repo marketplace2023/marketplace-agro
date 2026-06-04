@@ -14,6 +14,13 @@ import { ProveedorPerfilPage } from '../app/pages/perfiles/ProveedorPerfilPage'
 import { LaboratorioPerfilPage } from '../app/pages/perfiles/LaboratorioPerfilPage'
 import { CertificadorPerfilPage } from '../app/pages/perfiles/CertificadorPerfilPage'
 import { InspectorPerfilPage } from '../app/pages/perfiles/InspectorPerfilPage'
+import { AnuncioDetallePage } from '../app/pages/productos/AnuncioDetallePage'
+import { ProductoAgricolaDetallePage } from '../app/pages/productos/ProductoAgricolaDetallePage'
+import { FincaAgricolaDetallePage } from '../app/pages/productos/FincaAgricolaDetallePage'
+import { InsumoAgricolaDetallePage } from '../app/pages/productos/InsumoAgricolaDetallePage'
+import { MaquinariaAgricolaDetallePage } from '../app/pages/productos/MaquinariaAgricolaDetallePage'
+import { ServicioAgronomicoDetallePage } from '../app/pages/productos/ServicioAgronomicoDetallePage'
+import { TransporteAgricolaDetallePage } from '../app/pages/productos/TransporteAgricolaDetallePage'
 import { GuestOnlyRoute } from './components/guest-only-route'
 import { LoginPage } from '../modules/auth/pages/login'
 import { RegisterPage } from '../modules/auth/pages/register'
@@ -37,6 +44,14 @@ export default function AppRoutes() {
         <Route path="laboratorios/:slug" element={<LaboratorioPerfilPage />} />
         <Route path="certificadores/:slug" element={<CertificadorPerfilPage />} />
         <Route path="inspectores/:slug" element={<InspectorPerfilPage />} />
+        {/* P016–P022: Detalle de productos y servicios */}
+        <Route path="anuncios/:id" element={<AnuncioDetallePage />} />
+        <Route path="productos-agricolas/:id" element={<ProductoAgricolaDetallePage />} />
+        <Route path="fincas-agricolas/:id" element={<FincaAgricolaDetallePage />} />
+        <Route path="insumos-agricolas/:id" element={<InsumoAgricolaDetallePage />} />
+        <Route path="maquinaria-agricola/:id" element={<MaquinariaAgricolaDetallePage />} />
+        <Route path="servicios-agronomicos/:id" element={<ServicioAgronomicoDetallePage />} />
+        <Route path="transporte-agricola/:id" element={<TransporteAgricolaDetallePage />} />
       </Route>
 
       <Route
