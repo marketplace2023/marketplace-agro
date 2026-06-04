@@ -8,6 +8,12 @@ import { BlogPage } from '../app/pages/BlogPage'
 import { BlogArticlePage } from '../app/pages/BlogArticlePage'
 import { RadarPage } from '../app/pages/RadarPage'
 import { CatalogoPage } from '../app/pages/CatalogoPage'
+import { TiendaPerfilPage } from '../app/pages/perfiles/TiendaPerfilPage'
+import { ProductorPerfilPage } from '../app/pages/perfiles/ProductorPerfilPage'
+import { ProveedorPerfilPage } from '../app/pages/perfiles/ProveedorPerfilPage'
+import { LaboratorioPerfilPage } from '../app/pages/perfiles/LaboratorioPerfilPage'
+import { CertificadorPerfilPage } from '../app/pages/perfiles/CertificadorPerfilPage'
+import { InspectorPerfilPage } from '../app/pages/perfiles/InspectorPerfilPage'
 import { GuestOnlyRoute } from './components/guest-only-route'
 import { LoginPage } from '../modules/auth/pages/login'
 import { RegisterPage } from '../modules/auth/pages/register'
@@ -24,6 +30,13 @@ export default function AppRoutes() {
         <Route path="blog/articulo" element={<BlogArticlePage />} />
         <Route path="radar" element={<RadarPage />} />
         <Route path="catalogo" element={<CatalogoPage />} />
+        {/* P013–P015 y P023–P025: Perfiles públicos de empresa */}
+        <Route path="tiendas/:slug" element={<TiendaPerfilPage />} />
+        <Route path="productores/:slug" element={<ProductorPerfilPage />} />
+        <Route path="proveedores/:slug" element={<ProveedorPerfilPage />} />
+        <Route path="laboratorios/:slug" element={<LaboratorioPerfilPage />} />
+        <Route path="certificadores/:slug" element={<CertificadorPerfilPage />} />
+        <Route path="inspectores/:slug" element={<InspectorPerfilPage />} />
       </Route>
 
       <Route
