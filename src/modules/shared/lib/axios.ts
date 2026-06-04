@@ -3,7 +3,7 @@ import qs from 'qs'
 import { toast } from 'sonner'
 
 export const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api',
+  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:3000',
   withCredentials: true,
   paramsSerializer: (params) => qs.stringify(params, { arrayFormat: 'repeat' }),
 })

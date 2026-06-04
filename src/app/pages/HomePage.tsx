@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router'
 import {
   Search,
   MapPin,
@@ -14,6 +15,8 @@ import {
   ClipboardList,
   ShieldCheck,
   ArrowRight,
+  BadgeCheck,
+  ClipboardCheck,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -24,6 +27,11 @@ import 'swiper/css/pagination'
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { useCategoriesQuery } from '../../modules/categories/queries/category-queries'
+import { useFeaturedListingsQuery } from '../../modules/listings/queries/listing-queries'
+import { useFeaturedStoresQuery } from '../../modules/stores/queries/store-queries'
+import type { FeaturedListing } from '../../modules/listings/api/listings'
+import type { StoreListItem } from '../../modules/stores/api/stores'
 
 // Fix Leaflet default marker icons in Vite
 delete (L.Icon.Default.prototype as Record<string, unknown>)._getIconUrl
@@ -33,144 +41,49 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-// ─── Types ───────────────────────────────────────────────────────────────────
+// ─── Icon & style maps ────────────────────────────────────────────────────────
 
-type BadgeVariant = 'VERIFICADO' | 'LAB CERTIFICADO' | 'OFERTA'
-
-interface Product {
-  id: number
-  title: string
-  price: string
-  originalPrice?: string
-  unit: string
-  rating: number
-  reviews: number
-  location: string
-  badge?: BadgeVariant
-  gradient: string
-  Icon: LucideIcon
+const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
+  cosechas: Wheat,
+  fincas: TreePine,
+  insumos: Package,
+  maquinaria: Wrench,
+  servicios: Briefcase,
+  laboratorios: FlaskConical,
+  certificadores: BadgeCheck,
+  inspectores: ClipboardCheck,
 }
 
-interface Store {
-  id: number
-  name: string
-  reviews: number
-  description: string
-  zone: string
-  initials: string
-  avatarColor: string
+function getCategoryIcon(name: string): LucideIcon {
+  return CATEGORY_ICON_MAP[name.toLowerCase()] ?? Wheat
 }
 
-interface Category {
-  label: string
-  Icon: LucideIcon
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  cosechas: 'from-agrobot-700 to-agrobot-900',
+  fincas: 'from-green-600 to-green-900',
+  insumos: 'from-agrobot-600 to-agrobot-900',
+  maquinaria: 'from-agro-earth-500 to-agro-earth-700',
+  servicios: 'from-agro-tech-500 to-agro-tech-700',
+  laboratorios: 'from-agro-tech-500 to-agro-tech-700',
 }
 
-interface Step {
-  number: string
-  title: string
-  Icon: LucideIcon
-  description: string
+function getCategoryGradient(name: string | null): string {
+  if (!name) return 'from-agrobot-700 to-agrobot-900'
+  return CATEGORY_GRADIENTS[name.toLowerCase()] ?? 'from-agrobot-700 to-agrobot-900'
 }
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+const AVATAR_COLORS = ['bg-agro-tech-700', 'bg-agro-earth-500', 'bg-agrobot-600']
 
-const categories: Category[] = [
-  { label: 'Cosechas', Icon: Wheat },
-  { label: 'Fincas', Icon: TreePine },
-  { label: 'Insumos', Icon: Package },
-  { label: 'Maquinaria', Icon: Wrench },
-  { label: 'Servicios', Icon: Briefcase },
-  { label: 'Laboratorios', Icon: FlaskConical },
-]
-
-const badgeStyles: Record<BadgeVariant, string> = {
-  VERIFICADO:        'bg-agrobot-600 text-white',
-  'LAB CERTIFICADO': 'bg-agro-tech-700 text-white',
-  OFERTA:            'bg-agro-earth-500 text-white',
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase()
 }
 
-const products: Product[] = [
-  {
-    id: 1,
-    title: 'Cosecha de Maíz Híbrido',
-    price: '$450',
-    unit: '/ Ton',
-    rating: 4.9,
-    reviews: 12,
-    location: 'Córdoba, Argentina',
-    badge: 'VERIFICADO',
-    gradient: 'from-agrobot-700 to-agrobot-900',
-    Icon: Wheat,
-  },
-  {
-    id: 2,
-    title: 'Tractor John Deere 6125J',
-    price: '$72,000',
-    unit: '',
-    rating: 5.0,
-    reviews: 4,
-    location: 'Mato Grosso, Brasil',
-    gradient: 'from-agro-earth-500 to-agro-earth-700',
-    Icon: Wrench,
-  },
-  {
-    id: 3,
-    title: 'Análisis de Suelo NPK',
-    price: '$85',
-    unit: '/ Muestra',
-    rating: 4.7,
-    reviews: 28,
-    location: 'Sonora, México',
-    badge: 'LAB CERTIFICADO',
-    gradient: 'from-agro-tech-500 to-agro-tech-700',
-    Icon: FlaskConical,
-  },
-  {
-    id: 4,
-    title: 'Fertilizante Orgánico...',
-    price: '$320',
-    originalPrice: '$380',
-    unit: '',
-    rating: 4.8,
-    reviews: 56,
-    location: 'Cundinamarca, CO',
-    badge: 'OFERTA',
-    gradient: 'from-agrobot-600 to-agrobot-900',
-    Icon: Package,
-  },
-]
-
-const stores: Store[] = [
-  {
-    id: 1,
-    name: 'AgroIndustrias del Sur',
-    reviews: 129,
-    description: 'Especialistas en granos y oleaginosas con más de 20 años de experiencia.',
-    zone: 'PAMPA HÚMEDA',
-    initials: 'AS',
-    avatarColor: 'bg-agro-tech-700',
-  },
-  {
-    id: 2,
-    name: 'Suministros TecnoCampo',
-    reviews: 48,
-    description: 'Distribuidores autorizados de maquinaria y repuestos de alta gama.',
-    zone: 'VALLE CENTRAL',
-    initials: 'ST',
-    avatarColor: 'bg-agro-earth-500',
-  },
-  {
-    id: 3,
-    name: 'Laboratorios BioLatam',
-    reviews: 32,
-    description: 'Expertos en biotecnología y optimización de cultivos tropicales.',
-    zone: 'REGIÓN ANDINA',
-    initials: 'LB',
-    avatarColor: 'bg-agrobot-600',
-  },
-]
-
+// ─── Static data ──────────────────────────────────────────────────────────────
 
 interface VzZone {
   name: string
@@ -238,101 +151,115 @@ const heroSlides = [
   },
 ]
 
+interface Step {
+  number: string
+  title: string
+  Icon: LucideIcon
+  description: string
+}
+
 const steps: Step[] = [
   {
     number: '1',
     title: 'Busca',
     Icon: Search,
-    description:
-      'Encuentra productos, servicios o maquinaria con filtros avanzados de zona y reputación.',
+    description: 'Encuentra productos, servicios o maquinaria con filtros avanzados de zona y reputación.',
   },
   {
     number: '2',
     title: 'Cotiza',
     Icon: ClipboardList,
-    description:
-      'Compara precios, revisa reseñas de otros productores y solicita cotizaciones directas.',
+    description: 'Compara precios, revisa reseñas de otros productores y solicita cotizaciones directas.',
   },
   {
     number: '3',
     title: 'Conecta',
     Icon: ShieldCheck,
-    description:
-      'Cierra el trato de forma segura y coordina la logística directamente con el vendedor.',
+    description: 'Cierra el trato de forma segura y coordina la logística directamente con el vendedor.',
   },
 ]
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function ProductCard({ product }: { product: Product }) {
+function FeaturedListingCard({ listing }: { listing: FeaturedListing }) {
+  const gradient = getCategoryGradient(listing.categoryName)
+  const Icon = getCategoryIcon(listing.categoryName ?? '')
+
   return (
     <div className="group overflow-hidden rounded-xl border border-border bg-card shadow-card transition-all hover:-translate-y-0.5 hover:border-agrobot-100 hover:shadow-card-hover">
-      <div
-        className={`relative flex aspect-video items-center justify-center bg-linear-to-br ${product.gradient}`}
-      >
-        <product.Icon className="h-14 w-14 text-white/20" />
-        {product.badge && (
-          <span
-            className={`absolute left-2 top-2 rounded px-2 py-0.5 text-xs font-bold ${badgeStyles[product.badge]}`}
-          >
-            {product.badge}
+      <div className={`relative flex aspect-video items-center justify-center bg-linear-to-br ${gradient}`}>
+        <Icon className="h-14 w-14 text-white/20" />
+        {listing.categoryName && (
+          <span className="absolute left-2 top-2 rounded bg-agrobot-600 px-2 py-0.5 text-xs font-bold text-white">
+            {listing.categoryName.toUpperCase()}
           </span>
         )}
       </div>
       <div className="p-3">
-        <div className="flex items-center gap-1 text-xs">
-          <Star className="h-3 w-3 fill-agro-earth-500 text-agro-earth-500" />
-          <span className="font-semibold text-foreground">{product.rating}</span>
-          <span className="text-muted-foreground">({product.reviews})</span>
-        </div>
-        <p className="mt-1 text-sm font-semibold text-foreground">{product.title}</p>
-        <div className="mt-1 flex items-baseline gap-1">
-          <span className="text-base font-bold text-agrobot-700">{product.price}</span>
-          {product.originalPrice && (
-            <span className="text-xs text-muted-foreground line-through">
-              {product.originalPrice}
-            </span>
-          )}
-          {product.unit && <span className="text-xs text-muted-foreground">{product.unit}</span>}
-        </div>
-        <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-          <MapPin className="h-3 w-3" />
-          {product.location}
-        </div>
-        <button className="mt-3 w-full rounded-lg border border-border py-1.5 text-xs font-semibold text-foreground transition-colors hover:border-agrobot-200 hover:bg-agrobot-50 hover:text-agrobot-800">
+        <p className="mt-1 text-sm font-semibold text-foreground line-clamp-2">{listing.title}</p>
+        {listing.price && (
+          <div className="mt-1 flex items-baseline gap-1">
+            <span className="text-base font-bold text-agrobot-700">${listing.price}</span>
+            {listing.priceUnit && (
+              <span className="text-xs text-muted-foreground">{listing.priceUnit}</span>
+            )}
+          </div>
+        )}
+        {listing.department && (
+          <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+            <MapPin className="h-3 w-3" />
+            {listing.department}
+          </div>
+        )}
+        <a
+          href={`/anuncios/${listing.slug}`}
+          className="mt-3 block w-full rounded-lg border border-border py-1.5 text-center text-xs font-semibold text-foreground transition-colors hover:border-agrobot-200 hover:bg-agrobot-50 hover:text-agrobot-800"
+        >
           Ver Detalle
-        </button>
+        </a>
       </div>
     </div>
   )
 }
 
-function StoreCard({ store }: { store: Store }) {
+function StoreCard({ store, index }: { store: StoreListItem; index: number }) {
   return (
     <div className="rounded-xl border border-border bg-surface-soft p-4 shadow-card transition-shadow hover:shadow-card-hover">
       <div className="flex items-start gap-3">
-        <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${store.avatarColor}`}
-        >
-          {store.initials}
-        </div>
+        {store.logoUrl ? (
+          <img
+            src={store.logoUrl}
+            alt={store.name}
+            className="h-11 w-11 shrink-0 rounded-full object-cover"
+          />
+        ) : (
+          <div
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${AVATAR_COLORS[index % AVATAR_COLORS.length]}`}
+          >
+            {getInitials(store.name)}
+          </div>
+        )}
         <div className="min-w-0">
           <div className="flex items-center gap-1">
             <p className="truncate text-sm font-bold text-foreground">{store.name}</p>
-            <CheckCircle2 className="h-4 w-4 shrink-0 text-agrobot-600" />
+            {store.isVerified && <CheckCircle2 className="h-4 w-4 shrink-0 text-agrobot-600" />}
           </div>
-          <div className="mt-0.5 flex items-center gap-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className="h-3 w-3 fill-agro-earth-500 text-agro-earth-500" />
-            ))}
-            <span className="text-xs text-muted-foreground">{store.reviews} reseñas</span>
-          </div>
+          {store.department && (
+            <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              {store.municipality ? `${store.municipality}, ` : ''}{store.department}
+            </div>
+          )}
         </div>
       </div>
-      <p className="mt-3 text-xs leading-relaxed text-muted-foreground">{store.description}</p>
+      {store.description && (
+        <p className="mt-3 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+          {store.description}
+        </p>
+      )}
       <div className="mt-3">
         <span className="inline-block rounded-full bg-agrobot-50 px-2.5 py-0.5 text-xs font-bold text-agrobot-800">
-          ZONA: {store.zone}
+          {store.roleType?.toUpperCase().replace('_', ' ')}
         </span>
       </div>
     </div>
@@ -344,10 +271,17 @@ function StoreCard({ store }: { store: Store }) {
 function HeroSection() {
   const [query, setQuery] = useState('')
   const [location, setLocation] = useState('')
+  const navigate = useNavigate()
+
+  function handleSearch() {
+    const params = new URLSearchParams()
+    if (query) params.set('q', query)
+    if (location) params.set('location', location)
+    navigate(`/catalogo${params.toString() ? `?${params}` : ''}`)
+  }
 
   return (
     <section>
-      {/* Carousel */}
       <Swiper
         modules={[Autoplay, Navigation, Pagination]}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
@@ -372,9 +306,7 @@ function HeroSection() {
               <h1 className="font-display max-w-lg text-3xl font-extrabold leading-tight text-white md:text-4xl">
                 {slide.title}
               </h1>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">
-                {slide.description}
-              </p>
+              <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">{slide.description}</p>
               <a
                 href={slide.ctaTo}
                 className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-agrobot-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-agrobot-700"
@@ -387,7 +319,6 @@ function HeroSection() {
         ))}
       </Swiper>
 
-      {/* Buscador debajo del carousel */}
       <div className="bg-white border-b border-border py-5">
         <div className="mx-auto max-w-3xl px-4">
           <div
@@ -400,6 +331,7 @@ function HeroSection() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="¿Qué producto, finca, insumo o servicio buscas?"
                 className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground"
               />
@@ -411,12 +343,14 @@ function HeroSection() {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="¿Dónde?"
                 className="w-28 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground"
               />
             </div>
             <div className="pr-2">
               <button
+                onClick={handleSearch}
                 className="rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-colors"
                 style={{ background: '#10B981' }}
                 onMouseEnter={(e) => (e.currentTarget.style.background = '#059669')}
@@ -433,21 +367,46 @@ function HeroSection() {
 }
 
 function CategoriesSection() {
+  const { data: categories, isLoading } = useCategoriesQuery()
+
+  if (isLoading) {
+    return (
+      <section className="border-y border-border bg-white py-8">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="flex justify-center gap-6 md:gap-10">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <div className="h-14 w-14 rounded-full bg-gray-100 animate-pulse" />
+                <div className="h-3 w-14 rounded bg-gray-100 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  const items = categories ?? []
+
   return (
     <section className="border-y border-border bg-white py-8">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="flex justify-center gap-6 md:gap-10">
-          {categories.map(({ label, Icon }) => (
-            <button
-              key={label}
-              className="group flex flex-col items-center gap-2 text-muted-foreground transition-colors hover:text-agrobot-700"
-            >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-all group-hover:border-agrobot-100 group-hover:bg-agrobot-50">
-                <Icon className="h-6 w-6 group-hover:text-agrobot-600" />
-              </div>
-              <span className="text-xs font-semibold">{label}</span>
-            </button>
-          ))}
+        <div className="flex justify-center gap-6 md:gap-10 flex-wrap">
+          {items.map(({ id, name }) => {
+            const Icon = getCategoryIcon(name)
+            return (
+              <a
+                key={id}
+                href={`/catalogo?categoryId=${id}`}
+                className="group flex flex-col items-center gap-2 text-muted-foreground transition-colors hover:text-agrobot-700"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-all group-hover:border-agrobot-100 group-hover:bg-agrobot-50">
+                  <Icon className="h-6 w-6 group-hover:text-agrobot-600" />
+                </div>
+                <span className="text-xs font-semibold">{name}</span>
+              </a>
+            )
+          })}
         </div>
       </div>
     </section>
@@ -455,18 +414,47 @@ function CategoriesSection() {
 }
 
 function FeaturedProductsSection() {
+  const { data: listings, isLoading } = useFeaturedListingsQuery()
+
+  if (isLoading) {
+    return (
+      <section className="bg-surface py-10">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="mb-5 flex items-center justify-between">
+            <h2 className="font-display text-xl font-bold text-foreground">Anuncios Destacados</h2>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
+                <div className="aspect-video bg-gray-100 animate-pulse" />
+                <div className="p-3 space-y-2">
+                  <div className="h-3 w-3/4 bg-gray-100 animate-pulse rounded" />
+                  <div className="h-4 w-1/2 bg-gray-100 animate-pulse rounded" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  const items = listings ?? []
+
+  if (items.length === 0) return null
+
   return (
     <section className="bg-surface py-10">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mb-5 flex items-center justify-between">
           <h2 className="font-display text-xl font-bold text-foreground">Anuncios Destacados</h2>
-          <a href="#" className="text-sm font-semibold text-agrobot-600 hover:underline">
+          <a href="/catalogo" className="text-sm font-semibold text-agrobot-600 hover:underline">
             Ver todos
           </a>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+          {items.slice(0, 8).map((listing) => (
+            <FeaturedListingCard key={listing.id} listing={listing} />
           ))}
         </div>
       </div>
@@ -475,6 +463,38 @@ function FeaturedProductsSection() {
 }
 
 function FeaturedStoresSection() {
+  const { data: stores, isLoading } = useFeaturedStoresQuery()
+
+  if (isLoading) {
+    return (
+      <section className="bg-white py-10">
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 className="font-display mb-5 text-xl font-bold text-foreground">
+            Tiendas y Productores Destacados
+          </h2>
+          <div className="grid gap-4 md:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="rounded-xl border border-border p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="h-11 w-11 rounded-full bg-gray-100 animate-pulse shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-3/4 bg-gray-100 animate-pulse rounded" />
+                    <div className="h-3 w-1/2 bg-gray-100 animate-pulse rounded" />
+                  </div>
+                </div>
+                <div className="h-3 w-full bg-gray-100 animate-pulse rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  const items = stores ?? []
+
+  if (items.length === 0) return null
+
   return (
     <section className="bg-white py-10">
       <div className="mx-auto max-w-6xl px-4">
@@ -482,8 +502,10 @@ function FeaturedStoresSection() {
           Tiendas y Productores Destacados
         </h2>
         <div className="grid gap-4 md:grid-cols-3">
-          {stores.map((store) => (
-            <StoreCard key={store.id} store={store} />
+          {items.map((store, i) => (
+            <a key={store.id} href={`/tiendas/${store.slug}`}>
+              <StoreCard store={store} index={i} />
+            </a>
           ))}
         </div>
       </div>
@@ -498,7 +520,7 @@ const vzIcon = new L.DivIcon({
   iconAnchor: [6, 6],
 })
 
-const vzStates = [...new Set(venezuelaZones.map(z => z.state))]
+const vzStates = [...new Set(venezuelaZones.map((z) => z.state))]
 
 function FlyToZone({ lat, lng, zoom }: { lat: number; lng: number; zoom: number }) {
   const map = useMap()
@@ -512,7 +534,7 @@ function PopularZonesSection() {
   const [activeState, setActiveState] = useState<string | null>(null)
 
   const filtered = activeState
-    ? venezuelaZones.filter(z => z.state === activeState)
+    ? venezuelaZones.filter((z) => z.state === activeState)
     : venezuelaZones
 
   const flyTarget = activeState
@@ -523,11 +545,14 @@ function PopularZonesSection() {
     <section className="bg-surface py-10">
       <div className="mx-auto max-w-6xl px-4">
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-display text-xl font-bold text-foreground">Zonas Agrícolas · Venezuela</h2>
-          <span className="text-xs text-muted-foreground">{venezuelaZones.length} zonas registradas</span>
+          <h2 className="font-display text-xl font-bold text-foreground">
+            Zonas Agrícolas · Venezuela
+          </h2>
+          <span className="text-xs text-muted-foreground">
+            {venezuelaZones.length} zonas registradas
+          </span>
         </div>
 
-        {/* State filter pills */}
         <div className="mb-4 flex flex-wrap gap-2">
           <button
             onClick={() => setActiveState(null)}
@@ -555,7 +580,10 @@ function PopularZonesSection() {
           ))}
         </div>
 
-        <div className="overflow-hidden rounded-2xl border border-border shadow-card" style={{ height: 420 }}>
+        <div
+          className="overflow-hidden rounded-2xl border border-border shadow-card"
+          style={{ height: 420 }}
+        >
           <MapContainer
             center={[8.5, -66.5]}
             zoom={6}
@@ -570,8 +598,12 @@ function PopularZonesSection() {
               <Marker key={z.name} position={[z.lat, z.lng]} icon={vzIcon}>
                 <Popup>
                   <div style={{ minWidth: 170 }}>
-                    <p style={{ fontWeight: 700, marginBottom: 3, color: '#14532d', fontSize: 13 }}>{z.name}</p>
-                    <p style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Estado: <strong>{z.state}</strong></p>
+                    <p style={{ fontWeight: 700, marginBottom: 3, color: '#14532d', fontSize: 13 }}>
+                      {z.name}
+                    </p>
+                    <p style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>
+                      Estado: <strong>{z.state}</strong>
+                    </p>
                     <p style={{ fontSize: 11, color: '#64748b' }}>Rubros: {z.crops}</p>
                   </div>
                 </Popup>
@@ -623,12 +655,15 @@ function RadarCtaSection() {
               Radar Agrícola: No te pierdas nada
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-agrobot-100">
-              ¿No encuentras lo que buscas? Activa alertas personalizadas por zona y categoría.
-              Te avisaremos apenas alguien publique lo que necesitas.
+              ¿No encuentras lo que buscas? Activa alertas personalizadas por zona y categoría. Te
+              avisaremos apenas alguien publique lo que necesitas.
             </p>
-            <button className="mt-6 rounded-xl bg-agrobot-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#043927]">
+            <a
+              href="/radar"
+              className="mt-6 inline-block rounded-xl bg-agrobot-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#043927]"
+            >
               Activar Radar Ahora
-            </button>
+            </a>
           </div>
           <Bell className="absolute right-8 top-1/2 h-48 w-48 -translate-y-1/2 text-white opacity-10" />
         </div>

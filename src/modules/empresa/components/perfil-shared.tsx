@@ -8,7 +8,7 @@ import 'leaflet/dist/leaflet.css'
 
 interface HeroPerfilProps {
   bg?: string
-  children: React.ReactNode
+  children?: React.ReactNode
   height?: number
 }
 
@@ -148,12 +148,29 @@ export function AccionesRow() {
 
 // ─── WhatsApp + Cotizar buttons ───────────────────────────────────────────────
 
-export function CTAButtons({ cotizarLabel = 'Cotizar' }: { cotizarLabel?: string }) {
+export function CTAButtons({
+  cotizarLabel = 'Cotizar',
+  whatsappHref,
+}: {
+  cotizarLabel?: string
+  whatsappHref?: string
+}) {
   return (
     <div className="flex gap-2 flex-wrap">
-      <button className="flex items-center gap-2 rounded-xl bg-agrobot-700 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-agrobot-800">
-        <MessageCircle className="h-4 w-4" />WhatsApp
-      </button>
+      {whatsappHref ? (
+        <a
+          href={whatsappHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 rounded-xl bg-agrobot-700 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-agrobot-800"
+        >
+          <MessageCircle className="h-4 w-4" />WhatsApp
+        </a>
+      ) : (
+        <button className="flex items-center gap-2 rounded-xl bg-agrobot-700 px-5 py-2.5 text-sm font-bold text-white transition-colors hover:bg-agrobot-800">
+          <MessageCircle className="h-4 w-4" />WhatsApp
+        </button>
+      )}
       <button className="flex items-center gap-2 rounded-xl border border-agrobot-700 px-5 py-2.5 text-sm font-bold text-agrobot-700 transition-colors hover:bg-agrobot-50">
         {cotizarLabel}
       </button>
