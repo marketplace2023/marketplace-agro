@@ -5,6 +5,7 @@ const navLinks = [
   { label: 'Ofertas', to: '/ofertas' },
   { label: 'Radar', to: '/radar' },
   { label: 'Publicar', to: '/login' },
+  { label: 'Blog', to: '/blog' },
   { label: 'Ayuda', to: '/ayuda' },
 ]
 

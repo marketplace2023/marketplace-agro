@@ -1,52 +1,37 @@
-import { createBrowserRouter } from 'react-router'
-import { Toaster } from 'sonner'
+import { Route, Routes } from 'react-router'
 import { Layout } from '../app/components/layout/Layout'
 import { HomePage } from '../app/pages/HomePage'
 import { OfertasPage } from '../app/pages/OfertasPage'
 import { CategoriasPage } from '../app/pages/CategoriasPage'
 import { AyudaPage } from '../app/pages/AyudaPage'
+import { BlogPage } from '../app/pages/BlogPage'
+import { BlogArticlePage } from '../app/pages/BlogArticlePage'
+import { RadarPage } from '../app/pages/RadarPage'
 import { GuestOnlyRoute } from './components/guest-only-route'
 import { LoginPage } from '../modules/auth/pages/login'
 import { RegisterPage } from '../modules/auth/pages/register'
 
-function AuthShell({ children }: { children: React.ReactNode }) {
+export default function AppRoutes() {
   return (
-    <>
-      {children}
-      <Toaster richColors position="top-right" />
-    </>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<HomePage />} />
+        <Route path="ofertas" element={<OfertasPage />} />
+        <Route path="categorias" element={<CategoriasPage />} />
+        <Route path="ayuda" element={<AyudaPage />} />
+        <Route path="blog" element={<BlogPage />} />
+        <Route path="blog/articulo" element={<BlogArticlePage />} />
+        <Route path="radar" element={<RadarPage />} />
+      </Route>
+
+      <Route
+        path="login"
+        element={<GuestOnlyRoute><LoginPage /></GuestOnlyRoute>}
+      />
+      <Route
+        path="register"
+        element={<GuestOnlyRoute><RegisterPage /></GuestOnlyRoute>}
+      />
+    </Routes>
   )
 }
-
-export const router = createBrowserRouter([
-  {
-    path: '/',
-    Component: Layout,
-    children: [
-      { index: true, Component: HomePage },
-      { path: 'ofertas', Component: OfertasPage },
-      { path: 'categorias', Component: CategoriasPage },
-      { path: 'ayuda', Component: AyudaPage },
-    ],
-  },
-  {
-    path: '/login',
-    element: (
-      <AuthShell>
-        <GuestOnlyRoute>
-          <LoginPage />
-        </GuestOnlyRoute>
-      </AuthShell>
-    ),
-  },
-  {
-    path: '/register',
-    element: (
-      <AuthShell>
-        <GuestOnlyRoute>
-          <RegisterPage />
-        </GuestOnlyRoute>
-      </AuthShell>
-    ),
-  },
-])

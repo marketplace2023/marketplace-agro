@@ -1,9 +1,10 @@
-import { RouterProvider } from 'react-router'
+import { BrowserRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ZodError } from 'zod'
+import { Toaster } from 'sonner'
 import { AuthProvider } from '../modules/auth/context/auth-context'
-import { router } from '../routing/app-routes'
 import { isAxios401, isAxios404 } from '../modules/shared/lib/axios'
+import AppRoutes from '../routing/app-routes'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,7 +23,10 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <RouterProvider router={router} />
+        <BrowserRouter>
+          <Toaster richColors position="top-right" />
+          <AppRoutes />
+        </BrowserRouter>
       </AuthProvider>
     </QueryClientProvider>
   )
