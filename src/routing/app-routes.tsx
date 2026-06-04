@@ -24,11 +24,26 @@ import { TransporteAgricolaDetallePage } from '../app/pages/productos/Transporte
 import { GuestOnlyRoute } from './components/guest-only-route'
 import { LoginPage } from '../modules/auth/pages/login'
 import { RegisterPage } from '../modules/auth/pages/register'
+// Seller
 import { SellerLayout } from '../modules/seller/layout/seller-layout'
 import { SellerDashboard } from '../modules/seller/pages/seller-dashboard'
 import { SellerListings } from '../modules/seller/pages/seller-listings'
 import { SellerQuotes } from '../modules/seller/pages/seller-quotes'
 import { SellerStore } from '../modules/seller/pages/seller-store'
+// Comprador (P053–P064)
+import { BuyerLayout } from '../modules/buyer/layout/buyer-layout'
+import { BuyerDashboard } from '../modules/buyer/pages/buyer-dashboard'
+import { BuyerQuotes } from '../modules/buyer/pages/buyer-quotes'
+import { CompradorPerfil } from '../modules/buyer/pages/comprador-perfil'
+import { CompradorBusquedas } from '../modules/buyer/pages/comprador-busquedas'
+import { CompradorFavoritos } from '../modules/buyer/pages/comprador-favoritos'
+import { CompradorCotizacionDetalle } from '../modules/buyer/pages/comprador-cotizacion-detalle'
+import { CompradorRadar } from '../modules/buyer/pages/comprador-radar'
+import { CompradorRadarNuevo } from '../modules/buyer/pages/comprador-radar-nuevo'
+import { CompradorComparador } from '../modules/buyer/pages/comprador-comparador'
+import { CompradorContactos } from '../modules/buyer/pages/comprador-contactos'
+import { CompradorNotificaciones } from '../modules/buyer/pages/comprador-notificaciones'
+import { CompradorConfiguracion } from '../modules/buyer/pages/comprador-configuracion'
 
 export default function AppRoutes() {
   return (
@@ -42,14 +57,14 @@ export default function AppRoutes() {
         <Route path="blog/articulo" element={<BlogArticlePage />} />
         <Route path="radar" element={<RadarPage />} />
         <Route path="catalogo" element={<CatalogoPage />} />
-        {/* Perfiles públicos de empresa */}
+        {/* Perfiles públicos */}
         <Route path="tiendas/:slug" element={<TiendaPerfilPage />} />
         <Route path="productores/:slug" element={<ProductorPerfilPage />} />
         <Route path="proveedores/:slug" element={<ProveedorPerfilPage />} />
         <Route path="laboratorios/:slug" element={<LaboratorioPerfilPage />} />
         <Route path="certificadores/:slug" element={<CertificadorPerfilPage />} />
         <Route path="inspectores/:slug" element={<InspectorPerfilPage />} />
-        {/* Detalle de productos y servicios */}
+        {/* Detalle de productos */}
         <Route path="anuncios/:id" element={<AnuncioDetallePage />} />
         <Route path="productos-agricolas/:id" element={<ProductoAgricolaDetallePage />} />
         <Route path="fincas-agricolas/:id" element={<FincaAgricolaDetallePage />} />
@@ -68,14 +83,24 @@ export default function AppRoutes() {
         <Route path="tienda" element={<SellerStore />} />
       </Route>
 
-      <Route
-        path="login"
-        element={<GuestOnlyRoute><LoginPage /></GuestOnlyRoute>}
-      />
-      <Route
-        path="register"
-        element={<GuestOnlyRoute><RegisterPage /></GuestOnlyRoute>}
-      />
+      {/* Panel privado del comprador (P053–P064) */}
+      <Route path="app/comprador" element={<BuyerLayout />}>
+        <Route index element={<BuyerDashboard />} />
+        <Route path="perfil" element={<CompradorPerfil />} />
+        <Route path="cotizaciones" element={<BuyerQuotes />} />
+        <Route path="cotizaciones/:id" element={<CompradorCotizacionDetalle />} />
+        <Route path="busquedas" element={<CompradorBusquedas />} />
+        <Route path="favoritos" element={<CompradorFavoritos />} />
+        <Route path="radar" element={<CompradorRadar />} />
+        <Route path="radar/nuevo" element={<CompradorRadarNuevo />} />
+        <Route path="comparador" element={<CompradorComparador />} />
+        <Route path="contactos" element={<CompradorContactos />} />
+        <Route path="notificaciones" element={<CompradorNotificaciones />} />
+        <Route path="configuracion" element={<CompradorConfiguracion />} />
+      </Route>
+
+      <Route path="login" element={<GuestOnlyRoute><LoginPage /></GuestOnlyRoute>} />
+      <Route path="register" element={<GuestOnlyRoute><RegisterPage /></GuestOnlyRoute>} />
     </Routes>
   )
 }

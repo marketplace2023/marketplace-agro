@@ -13,40 +13,53 @@ import {
 } from '@/components/ui/sidebar'
 import {
   LayoutDashboard,
-  Package,
   FileText,
-  Store,
   LogOut,
+  ShoppingBag,
+  Heart,
+  Radar,
+  GitCompare,
+  PhoneCall,
+  Bell,
+  Settings,
+  User,
+  Search,
 } from 'lucide-react'
 import { useAuth } from '@/modules/auth/context/auth-context'
 
 const navItems = [
-  { title: 'Dashboard', url: '/app/seller/dashboard', icon: LayoutDashboard },
-  { title: 'Mis Publicaciones', url: '/app/seller/publicaciones', icon: Package },
-  { title: 'Cotizaciones', url: '/app/seller/cotizaciones', icon: FileText },
-  { title: 'Mi Tienda', url: '/app/seller/tienda', icon: Store },
+  { title: 'Dashboard', url: '/app/comprador', icon: LayoutDashboard },
+  { title: 'Mi Perfil', url: '/app/comprador/perfil', icon: User },
+  { title: 'Mis Cotizaciones', url: '/app/comprador/cotizaciones', icon: FileText },
+  { title: 'Búsquedas guardadas', url: '/app/comprador/busquedas', icon: Search },
+  { title: 'Mis Favoritos', url: '/app/comprador/favoritos', icon: Heart },
+  { title: 'Radar', url: '/app/comprador/radar', icon: Radar },
+  { title: 'Comparador', url: '/app/comprador/comparador', icon: GitCompare },
+  { title: 'Contactos', url: '/app/comprador/contactos', icon: PhoneCall },
+  { title: 'Notificaciones', url: '/app/comprador/notificaciones', icon: Bell },
+  { title: 'Configuración', url: '/app/comprador/configuracion', icon: Settings },
 ]
 
-export function SellerSidebar() {
+export function BuyerSidebar() {
   const auth = useAuth()
 
   return (
     <Sidebar>
       <SidebarHeader className="px-4 py-4 border-b">
         <NavLink to="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-agrobot-700">
-            <span className="text-xs font-bold text-white">AG</span>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-600">
+            <ShoppingBag className="h-4 w-4 text-white" />
           </div>
           <span className="font-display font-bold text-sm text-gray-900 leading-tight">
             AgroMarket<br />
-            <span className="text-[10px] font-normal text-gray-400">Panel del Vendedor</span>
+            <span className="text-[10px] font-normal text-gray-400">Panel del Comprador</span>
           </span>
         </NavLink>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Gestión</SidebarGroupLabel>
+          <SidebarGroupLabel>Mi cuenta</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => (
@@ -54,8 +67,9 @@ export function SellerSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
+                      end={item.url === '/app/comprador'}
                       className={({ isActive }) =>
-                        isActive ? 'text-agrobot-700 font-semibold' : ''
+                        isActive ? 'text-sky-700 font-semibold' : ''
                       }
                     >
                       <item.icon className="h-4 w-4" />
@@ -73,7 +87,7 @@ export function SellerSidebar() {
         {auth.isAuthenticated && (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-agrobot-100 text-agrobot-700">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-700">
                 <span className="text-xs font-bold">
                   {auth.user.name.slice(0, 2).toUpperCase()}
                 </span>
