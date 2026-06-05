@@ -21,8 +21,8 @@ export function LoginPage() {
 
   const onSubmit = (data: LoginFormSchema) => {
     loginUser(data, {
-      onSuccess: (authInfo) => {
-        queryClient.setQueryData(ME_QUERY_KEY, authInfo.user)
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: ME_QUERY_KEY })
         void navigate('/')
       },
       onError: (error) => {

@@ -38,6 +38,19 @@ import { SellerStoreGbp } from '../modules/seller/pages/seller-store-gbp'
 import { SellerAnalytics } from '../modules/seller/pages/seller-analytics'
 import { SellerReputation } from '../modules/seller/pages/seller-reputation'
 import { SellerConfig } from '../modules/seller/pages/seller-config'
+// Productor (P065–P075)
+import { ProducerLayout } from '../modules/producer/layout/producer-layout'
+import { ProducerDashboard } from '../modules/producer/pages/producer-dashboard'
+import { ProducerPerfil } from '../modules/producer/pages/producer-perfil'
+import { ProducerPublicaciones } from '../modules/producer/pages/producer-publicaciones'
+import { ProducerInventario } from '../modules/producer/pages/producer-inventario'
+import { ProducerLeads } from '../modules/producer/pages/producer-leads'
+import { ProducerCotizaciones } from '../modules/producer/pages/producer-cotizaciones'
+import { ProducerDocumentos } from '../modules/producer/pages/producer-documentos'
+import { ProducerPromociones } from '../modules/producer/pages/producer-promociones'
+import { ProducerAnalitica } from '../modules/producer/pages/producer-analitica'
+import { ProducerReputacion } from '../modules/producer/pages/producer-reputacion'
+import { ProducerConfiguracion } from '../modules/producer/pages/producer-configuracion'
 // Comprador (P053–P064)
 import { BuyerLayout } from '../modules/buyer/layout/buyer-layout'
 import { BuyerDashboard } from '../modules/buyer/pages/buyer-dashboard'
@@ -97,6 +110,22 @@ export default function AppRoutes() {
         <Route path="analitica" element={<SellerAnalytics />} />
         <Route path="reputacion" element={<SellerReputation />} />
         <Route path="configuracion" element={<SellerConfig />} />
+      </Route>
+
+      {/* Panel privado del productor (P065–P075) */}
+      <Route path="app/productor" element={<ProducerLayout />}>
+        <Route index element={<Navigate to="/app/productor/dashboard" replace />} />
+        <Route path="dashboard"      element={<ProducerDashboard />} />
+        <Route path="perfil"         element={<ProducerPerfil />} />
+        <Route path="publicaciones"  element={<ProducerPublicaciones />} />
+        <Route path="inventario"     element={<ProducerInventario />} />
+        <Route path="leads"          element={<ProducerLeads />} />
+        <Route path="cotizaciones"   element={<ProducerCotizaciones />} />
+        <Route path="documentos"     element={<ProducerDocumentos />} />
+        <Route path="promociones"    element={<ProducerPromociones />} />
+        <Route path="analitica"      element={<ProducerAnalitica />} />
+        <Route path="reputacion"     element={<ProducerReputacion />} />
+        <Route path="configuracion"  element={<ProducerConfiguracion />} />
       </Route>
 
       {/* Panel privado del comprador (P053–P064) */}
