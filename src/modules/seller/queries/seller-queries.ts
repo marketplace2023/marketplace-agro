@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { getMyListings, getMyStore, getReceivedQuotes } from '../api/seller-api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { createMyStore, getMyListings, getMyStore, getReceivedQuotes } from '../api/seller-api'
 
 export const SELLER_QUERY_KEYS = {
   myListings: ['seller', 'my-listings'] as const,
@@ -29,5 +29,15 @@ export function useReceivedQuotesQuery() {
     queryKey: SELLER_QUERY_KEYS.receivedQuotes,
     queryFn: getReceivedQuotes,
     staleTime: 2 * 60 * 1000,
+  })
+}
+
+export function useCreateStoreMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: createMyStore,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
+    },
   })
 }
