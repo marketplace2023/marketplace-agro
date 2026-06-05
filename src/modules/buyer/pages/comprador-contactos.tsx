@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+﻿import { Link } from 'react-router'
 import { PhoneCall, MessageCircle, ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -34,7 +34,7 @@ export function CompradorContactos() {
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <PhoneCall className="h-10 w-10 text-gray-300" />
             <p className="text-sm font-semibold text-gray-500">No has contactado proveedores aún</p>
-            <Link to="/catalogo" className="mt-1 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+            <Link to="/catalogo" className="mt-1 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
               Explorar catálogo
             </Link>
           </div>
@@ -56,7 +56,7 @@ export function CompradorContactos() {
                     <p className="text-sm font-semibold text-gray-900 line-clamp-1">{c.listingTitle}</p>
                   </TableCell>
                   <TableCell>
-                    <Link to={`/tiendas/${c.storeSlug}`} className="text-sm text-sky-600 hover:underline">
+                    <Link to={`/tiendas/${c.storeSlug}`} className="text-sm text-agrobot-600 hover:underline">
                       {c.storeName}
                     </Link>
                   </TableCell>
@@ -73,7 +73,7 @@ export function CompradorContactos() {
                     <Link
                       to={`/anuncios/${c.listingSlug}`}
                       target="_blank"
-                      className="flex items-center gap-1 text-xs font-semibold text-sky-600 hover:underline"
+                      className="flex items-center gap-1 text-xs font-semibold text-agrobot-600 hover:underline"
                     >
                       <ExternalLink className="h-3.5 w-3.5" /> Ver anuncio
                     </Link>

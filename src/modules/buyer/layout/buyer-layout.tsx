@@ -1,4 +1,4 @@
-import { Outlet, useLocation, Navigate } from 'react-router'
+﻿import { Outlet, useLocation, Navigate } from 'react-router'
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar'
 import { Separator } from '@/components/ui/separator'
 import { BuyerSidebar } from './buyer-sidebar'
@@ -23,14 +23,16 @@ export function BuyerLayout() {
           <div className="ml-auto flex items-center gap-2">
             <a
               href="/"
-              className="text-xs font-medium text-gray-500 hover:text-sky-600 transition-colors"
+              className="text-xs font-medium text-gray-500 hover:text-agrobot-600 transition-colors"
             >
               ← Volver al marketplace
             </a>
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-6">
-          <Outlet />
+        <div className="flex flex-1 flex-col p-6">
+          <div className="mx-auto w-full max-w-5xl">
+            <Outlet />
+          </div>
         </div>
       </SidebarInset>
     </SidebarProvider>

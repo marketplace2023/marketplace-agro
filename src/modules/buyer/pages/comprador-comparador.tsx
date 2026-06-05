@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router'
 import { GitCompare, Trash2, FileText, ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -36,7 +36,7 @@ export function CompradorComparador() {
         <div className="flex flex-col items-center gap-3 py-16 rounded-xl border border-dashed border-gray-200 text-center">
           <GitCompare className="h-10 w-10 text-gray-300" />
           <p className="text-sm font-semibold text-gray-500">No tienes comparaciones guardadas</p>
-          <Link to="/catalogo" className="mt-1 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+          <Link to="/catalogo" className="mt-1 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
             Explorar catálogo
           </Link>
         </div>
@@ -82,7 +82,7 @@ export function CompradorComparador() {
                         <td className="py-2.5 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <Link to={`/anuncios/${item.slug}`} target="_blank"
-                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-sky-400 hover:text-sky-600 transition-colors">
+                              className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-agrobot-500 hover:text-agrobot-600 transition-colors">
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Link>
                             <button className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-agrobot-400 hover:text-agrobot-700 transition-colors">

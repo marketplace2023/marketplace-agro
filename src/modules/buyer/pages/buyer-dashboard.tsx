@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+﻿import { Link } from 'react-router'
 import { FileText, Clock, CheckCircle2, XCircle, Search, Heart } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -53,7 +53,7 @@ export function BuyerDashboard() {
 
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Total enviadas" value={isLoading ? null : total} icon={FileText} color="text-sky-600" bg="bg-sky-50" />
+        <StatCard title="Total enviadas" value={isLoading ? null : total} icon={FileText} color="text-agrobot-600" bg="bg-agrobot-50" />
         <StatCard title="En espera de respuesta" value={isLoading ? null : pending} icon={Clock} color="text-amber-600" bg="bg-amber-50" />
         <StatCard title="Con respuesta" value={isLoading ? null : responded} icon={CheckCircle2} color="text-agrobot-700" bg="bg-agrobot-50" />
         <StatCard title="Aceptadas" value={isLoading ? null : accepted} icon={XCircle} color="text-violet-600" bg="bg-violet-50" />
@@ -63,11 +63,11 @@ export function BuyerDashboard() {
       <div className="grid gap-3 sm:grid-cols-2">
         <Link
           to="/catalogo"
-          className="flex items-center gap-3 rounded-xl border border-dashed border-sky-300 bg-sky-50/50 p-4 hover:bg-sky-50 transition-colors"
+          className="flex items-center gap-3 rounded-xl border border-dashed border-agrobot-100 bg-agrobot-50/50 p-4 hover:bg-agrobot-50 transition-colors"
         >
-          <Search className="h-5 w-5 text-sky-600" />
+          <Search className="h-5 w-5 text-agrobot-600" />
           <div>
-            <p className="text-sm font-bold text-sky-700">Buscar productos</p>
+            <p className="text-sm font-bold text-agrobot-700">Buscar productos</p>
             <p className="text-xs text-gray-400">Explora el catálogo de proveedores</p>
           </div>
         </Link>
@@ -91,7 +91,7 @@ export function BuyerDashboard() {
           <CardTitle className="text-base font-bold text-gray-900">
             Cotizaciones recientes
           </CardTitle>
-          <Link to="/app/comprador/cotizaciones" className="text-xs font-semibold text-sky-600 hover:underline">
+          <Link to="/app/comprador/cotizaciones" className="text-xs font-semibold text-agrobot-600 hover:underline">
             Ver todas →
           </Link>
         </CardHeader>
@@ -105,7 +105,7 @@ export function BuyerDashboard() {
           ) : recentQuotes.length === 0 ? (
             <div className="py-8 text-center text-sm text-gray-400">
               No has enviado cotizaciones aún.{' '}
-              <Link to="/catalogo" className="text-sky-600 hover:underline font-semibold">
+              <Link to="/catalogo" className="text-agrobot-600 hover:underline font-semibold">
                 Buscar proveedores
               </Link>
             </div>

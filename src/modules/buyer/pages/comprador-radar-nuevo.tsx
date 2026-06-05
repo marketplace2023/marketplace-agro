@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { ArrowLeft, ArrowRight, Save, Radar } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -36,7 +36,7 @@ export function CompradorRadarNuevo() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => navigate('/app/comprador/radar')}
-          className="text-sm text-gray-400 hover:text-sky-600 flex items-center gap-1"
+          className="text-sm text-gray-400 hover:text-agrobot-600 flex items-center gap-1"
         >
           <ArrowLeft className="h-4 w-4" /> Radar
         </button>
@@ -54,7 +54,7 @@ export function CompradorRadarNuevo() {
         {STEPS.map((s, i) => (
           <div key={s} className="flex items-center gap-2">
             <div className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold transition-colors ${
-              i === step ? 'bg-sky-600 text-white' : i < step ? 'bg-agrobot-700 text-white' : 'bg-gray-200 text-gray-500'
+              i === step ? 'bg-agrobot-600 text-white' : i < step ? 'bg-agrobot-700 text-white' : 'bg-gray-200 text-gray-500'
             }`}>
               {i + 1}
             </div>
@@ -78,7 +78,7 @@ export function CompradorRadarNuevo() {
                 {CATEGORIAS.map((c) => (
                   <button key={c} type="button" onClick={() => set('categoria', c)}
                     className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
-                      form.categoria === c ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-gray-200 text-gray-500 hover:border-sky-300'
+                      form.categoria === c ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-700' : 'border-gray-200 text-gray-500 hover:border-agrobot-100'
                     }`}>{c}</button>
                 ))}
               </div>
@@ -100,7 +100,7 @@ export function CompradorRadarNuevo() {
             <div>
               <label className="text-xs font-semibold text-gray-600 mb-1 block">Estado (opcional)</label>
               <select value={form.department} onChange={(e) => set('department', e.target.value)}
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-400">
+                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-agrobot-500">
                 <option value="">Cualquier estado</option>
                 {ESTADOS_VE.map((e) => <option key={e}>{e}</option>)}
               </select>
@@ -131,15 +131,15 @@ export function CompradorRadarNuevo() {
                 {CANALES.map((c) => (
                   <label key={c} className="flex items-center gap-2 cursor-pointer">
                     <input type="radio" name="canal" value={c} checked={form.canal === c} onChange={() => set('canal', c)}
-                      className="accent-sky-600" />
+                      className="accent-agrobot-600" />
                     <span className="text-sm text-gray-700">{c}</span>
                   </label>
                 ))}
               </div>
             </div>
-            <div className="rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-800">
+            <div className="rounded-lg border border-agrobot-100 bg-agrobot-50 p-3 text-sm text-agrobot-800">
               <p className="font-semibold flex items-center gap-1.5"><Radar className="h-4 w-4" /> Resumen de la alerta</p>
-              <ul className="mt-1.5 text-xs text-sky-700 list-disc list-inside space-y-0.5">
+              <ul className="mt-1.5 text-xs text-agrobot-700 list-disc list-inside space-y-0.5">
                 {form.name && <li>Nombre: <strong>{form.name}</strong></li>}
                 {form.categoria && <li>Categoría: <strong>{form.categoria}</strong></li>}
                 {form.keyword && <li>Palabra clave: <strong>{form.keyword}</strong></li>}
@@ -159,7 +159,7 @@ export function CompradorRadarNuevo() {
           </button>
           {step < STEPS.length - 1 ? (
             <button type="button" onClick={() => setStep((s) => s + 1)}
-              className="flex items-center gap-1.5 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+              className="flex items-center gap-1.5 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
               Siguiente <ArrowRight className="h-4 w-4" />
             </button>
           ) : (

@@ -1,4 +1,4 @@
-import { Link } from 'react-router'
+﻿import { Link } from 'react-router'
 import { FileText } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -81,7 +81,7 @@ export function BuyerQuotes() {
             </p>
             <Link
               to="/catalogo"
-              className="mt-1 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors"
+              className="mt-1 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors"
             >
               Explorar catálogo
             </Link>
@@ -111,7 +111,7 @@ export function BuyerQuotes() {
                     {quote.listingId ? (
                       <Link
                         to={`/catalogo`}
-                        className="text-xs text-sky-600 hover:underline"
+                        className="text-xs text-agrobot-600 hover:underline"
                       >
                         Anuncio #{quote.listingId}
                       </Link>

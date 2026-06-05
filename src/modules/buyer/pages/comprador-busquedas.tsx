@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router'
 import { Search, Radar, Trash2, Play, Edit2, Clock } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -58,7 +58,7 @@ export function CompradorBusquedas() {
             <p className="text-xs text-gray-400 max-w-xs">
               Al buscar en el catálogo, podrás guardar las búsquedas para repetirlas rápido.
             </p>
-            <Link to="/catalogo" className="mt-1 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+            <Link to="/catalogo" className="mt-1 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
               Ir al catálogo
             </Link>
           </div>
@@ -94,7 +94,7 @@ export function CompradorBusquedas() {
                   </TableCell>
                   <TableCell className="text-center">
                     {s.newResults > 0 ? (
-                      <Badge className="bg-sky-600 text-white text-[10px]">{s.newResults} nuevos</Badge>
+                      <Badge className="bg-agrobot-600 text-white text-[10px]">{s.newResults} nuevos</Badge>
                     ) : (
                       <span className="text-xs text-gray-400">—</span>
                     )}
@@ -104,7 +104,7 @@ export function CompradorBusquedas() {
                       <Link
                         to={buildUrl(s)}
                         title="Ejecutar"
-                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:border-sky-400 hover:text-sky-600 transition-colors"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:border-agrobot-500 hover:text-agrobot-600 transition-colors"
                       >
                         <Play className="h-3.5 w-3.5" />
                       </Link>

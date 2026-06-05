@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router'
 import { Heart, Trash2, GitCompare, FileText, Package, Store } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -136,7 +136,7 @@ function EmptyFavs({ label, to }: { label: string; to: string }) {
     <div className="flex flex-col items-center gap-3 py-16 rounded-xl border border-dashed border-gray-200 text-center">
       <Heart className="h-10 w-10 text-gray-300" />
       <p className="text-sm font-semibold text-gray-500">No tienes {label} guardadas</p>
-      <Link to={to} className="mt-1 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+      <Link to={to} className="mt-1 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
         Explorar catálogo
       </Link>
     </div>

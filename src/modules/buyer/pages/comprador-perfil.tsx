@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -26,7 +26,7 @@ export function CompradorPerfil() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-2xl">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display text-2xl font-bold text-gray-900">Mi Perfil</h1>
         <p className="text-sm text-gray-500 mt-0.5">Datos personales y preferencias de compra</p>
@@ -37,7 +37,7 @@ export function CompradorPerfil() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <User className="h-4 w-4 text-sky-600" /> Datos personales
+              <User className="h-4 w-4 text-agrobot-600" /> Datos personales
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3">
@@ -62,13 +62,13 @@ export function CompradorPerfil() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <MapPin className="h-4 w-4 text-sky-600" /> Ubicación
+              <MapPin className="h-4 w-4 text-agrobot-600" /> Ubicación
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-3 sm:grid-cols-2">
             <div>
               <label className="text-xs font-semibold text-gray-600 mb-1 block">Estado</label>
-              <select className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-sky-400">
+              <select className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-agrobot-500">
                 <option value="">Selecciona estado</option>
                 {ESTADOS_VE.map((e) => <option key={e}>{e}</option>)}
               </select>
@@ -84,7 +84,7 @@ export function CompradorPerfil() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <MessageCircle className="h-4 w-4 text-sky-600" /> WhatsApp de contacto
+              <MessageCircle className="h-4 w-4 text-agrobot-600" /> WhatsApp de contacto
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -100,7 +100,7 @@ export function CompradorPerfil() {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
-              <Wheat className="h-4 w-4 text-sky-600" /> Preferencias de compra
+              <Wheat className="h-4 w-4 text-agrobot-600" /> Preferencias de compra
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -113,8 +113,8 @@ export function CompradorPerfil() {
                   onClick={() => toggleCategoria(cat)}
                   className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
                     preferencias.includes(cat)
-                      ? 'border-sky-500 bg-sky-50 text-sky-700'
-                      : 'border-gray-200 text-gray-500 hover:border-sky-300'
+                      ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-700'
+                      : 'border-gray-200 text-gray-500 hover:border-agrobot-100'
                   }`}
                 >
                   {cat}
@@ -127,7 +127,7 @@ export function CompradorPerfil() {
         <div className="flex items-center gap-3">
           <button
             type="submit"
-            className="flex items-center gap-2 rounded-xl bg-sky-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-sky-700 transition-colors"
+            className="flex items-center gap-2 rounded-xl bg-agrobot-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors"
           >
             <Save className="h-4 w-4" />
             Guardar cambios

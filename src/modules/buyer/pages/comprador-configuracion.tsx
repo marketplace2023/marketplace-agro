@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -12,7 +12,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       type="button"
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
-        checked ? 'bg-sky-600' : 'bg-gray-200'
+        checked ? 'bg-agrobot-600' : 'bg-gray-200'
       }`}
     >
       <span className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transition-transform ${
@@ -72,7 +72,7 @@ export function CompradorConfiguracion() {
   }
 
   return (
-    <div className="flex flex-col gap-6 max-w-2xl">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display text-2xl font-bold text-gray-900">Configuración</h1>
         <p className="text-sm text-gray-500 mt-0.5">Seguridad, notificaciones y privacidad</p>
@@ -109,7 +109,7 @@ export function CompradorConfiguracion() {
             </div>
             <button type="submit"
               disabled={updatePassword.isPending}
-              className="flex items-center gap-2 self-start rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 disabled:opacity-60 transition-colors">
+              className="flex items-center gap-2 self-start rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 disabled:opacity-60 transition-colors">
               <Save className="h-4 w-4" />
               {updatePassword.isPending ? 'Guardando...' : 'Cambiar contraseña'}
             </button>
@@ -134,7 +134,7 @@ export function CompradorConfiguracion() {
               </div>
             ))}
             <div className="flex items-center gap-3 pt-2 border-t">
-              <button type="submit" className="flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+              <button type="submit" className="flex items-center gap-2 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
                 <Save className="h-4 w-4" /> Guardar preferencias
               </button>
               {saved && <Badge className="bg-agrobot-700 text-white animate-pulse">¡Guardado!</Badge>}
@@ -158,7 +158,7 @@ export function CompradorConfiguracion() {
               </div>
             ))}
             <div className="flex items-center gap-3 pt-2 border-t">
-              <button type="submit" className="flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+              <button type="submit" className="flex items-center gap-2 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
                 <Save className="h-4 w-4" /> Guardar
               </button>
               {saved && <Badge className="bg-agrobot-700 text-white animate-pulse">¡Guardado!</Badge>}

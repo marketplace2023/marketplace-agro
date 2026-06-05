@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router'
 import { Radar, PlusCircle, Pause, Play, RefreshCw, Eye, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
@@ -43,7 +43,7 @@ export function CompradorRadar() {
         </div>
         <Link
           to="/app/comprador/radar/nuevo"
-          className="flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors"
+          className="flex items-center gap-2 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors"
         >
           <PlusCircle className="h-4 w-4" /> Nueva alerta
         </Link>
@@ -52,7 +52,7 @@ export function CompradorRadar() {
       {/* KPIs */}
       <div className="grid gap-3 sm:grid-cols-3">
         <Card><CardContent className="pt-5 flex items-center gap-3">
-          <Radar className="h-8 w-8 text-sky-600 shrink-0" />
+          <Radar className="h-8 w-8 text-agrobot-600 shrink-0" />
           <div><p className="text-xs text-gray-500">Alertas activas</p><p className="text-2xl font-bold text-gray-900">{activeCount}</p></div>
         </CardContent></Card>
         <Card><CardContent className="pt-5 flex items-center gap-3">
@@ -70,7 +70,7 @@ export function CompradorRadar() {
           <div className="flex flex-col items-center gap-3 py-16 text-center">
             <Radar className="h-10 w-10 text-gray-300" />
             <p className="text-sm font-semibold text-gray-500">No tienes alertas Radar</p>
-            <Link to="/app/comprador/radar/nuevo" className="mt-1 rounded-xl bg-sky-600 px-4 py-2 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+            <Link to="/app/comprador/radar/nuevo" className="mt-1 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
               Crear primera alerta
             </Link>
           </div>
@@ -100,7 +100,7 @@ export function CompradorRadar() {
                   </TableCell>
                   <TableCell className="text-center">
                     {a.matches > 0
-                      ? <Badge className="bg-sky-600 text-white text-[10px]">{a.matches} nuevas</Badge>
+                      ? <Badge className="bg-agrobot-600 text-white text-[10px]">{a.matches} nuevas</Badge>
                       : <span className="text-xs text-gray-400">—</span>}
                   </TableCell>
                   <TableCell>
@@ -113,7 +113,7 @@ export function CompradorRadar() {
                       <button
                         title={a.status === 'active' ? 'Pausar' : 'Activar'}
                         onClick={() => toggleStatus(a.id)}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:border-sky-400 hover:text-sky-600 transition-colors"
+                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:border-agrobot-500 hover:text-agrobot-600 transition-colors"
                       >
                         {a.status === 'active' ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5" />}
                       </button>

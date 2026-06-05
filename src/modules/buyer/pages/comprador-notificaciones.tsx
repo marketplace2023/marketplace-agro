@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Bell, CheckCheck, Trash2, Radar, FileText, Tag } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 
@@ -16,7 +16,7 @@ const TYPE_ICON: Record<NotifType, React.ElementType> = {
 }
 const TYPE_COLOR: Record<NotifType, string> = {
   quote_response: 'bg-agrobot-50 text-agrobot-700',
-  radar_match: 'bg-sky-50 text-sky-700',
+  radar_match: 'bg-agrobot-50 text-agrobot-700',
   price_change: 'bg-amber-50 text-amber-600',
   system: 'bg-gray-100 text-gray-500',
 }
@@ -65,7 +65,7 @@ export function CompradorNotificaciones() {
         </div>
         {unreadCount > 0 && (
           <button onClick={markAllRead}
-            className="flex items-center gap-1.5 text-xs font-semibold text-sky-600 hover:underline">
+            className="flex items-center gap-1.5 text-xs font-semibold text-agrobot-600 hover:underline">
             <CheckCheck className="h-4 w-4" /> Marcar todo como leído
           </button>
         )}
@@ -76,7 +76,7 @@ export function CompradorNotificaciones() {
         {(['all', 'unread'] as const).map((f) => (
           <button key={f} onClick={() => setFilter(f)}
             className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
-              filter === f ? 'border-sky-500 bg-sky-50 text-sky-700' : 'border-gray-200 text-gray-500'
+              filter === f ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-700' : 'border-gray-200 text-gray-500'
             }`}>
             {f === 'all' ? 'Todas' : `Sin leer (${unreadCount})`}
           </button>
@@ -94,7 +94,7 @@ export function CompradorNotificaciones() {
           return (
             <div key={n.id}
               className={`flex items-start gap-3 rounded-xl border p-4 transition-colors ${
-                n.read ? 'border-gray-200 bg-white' : 'border-sky-200 bg-sky-50/60'
+                n.read ? 'border-gray-200 bg-white' : 'border-agrobot-100 bg-agrobot-50/60'
               }`}
             >
               <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${TYPE_COLOR[n.type]}`}>
@@ -103,7 +103,7 @@ export function CompradorNotificaciones() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <p className={`text-sm font-semibold ${n.read ? 'text-gray-700' : 'text-gray-900'}`}>{n.title}</p>
-                  {!n.read && <Badge className="bg-sky-600 text-white text-[10px]">Nueva</Badge>}
+                  {!n.read && <Badge className="bg-agrobot-600 text-white text-[10px]">Nueva</Badge>}
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5">{n.body}</p>
                 <p className="text-[10px] text-gray-400 mt-1">{formatAgo(n.createdAt)}</p>
@@ -111,7 +111,7 @@ export function CompradorNotificaciones() {
               <div className="flex items-center gap-1 shrink-0">
                 {!n.read && (
                   <button title="Marcar como leída" onClick={() => markRead(n.id)}
-                    className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-sky-400 hover:text-sky-600 transition-colors">
+                    className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:border-agrobot-500 hover:text-agrobot-600 transition-colors">
                     <CheckCheck className="h-3.5 w-3.5" />
                   </button>
                 )}

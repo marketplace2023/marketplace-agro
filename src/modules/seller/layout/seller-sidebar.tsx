@@ -32,15 +32,10 @@ export function SellerSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="px-4 py-4 border-b">
-        <NavLink to="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-agrobot-700">
-            <span className="text-xs font-bold text-white">AG</span>
-          </div>
-          <span className="font-display font-bold text-sm text-gray-900 leading-tight">
-            AgroMarket<br />
-            <span className="text-[10px] font-normal text-gray-400">Panel del Vendedor</span>
-          </span>
+      <SidebarHeader className="px-4 py-3 border-b">
+        <NavLink to="/" className="flex flex-col items-center gap-1">
+          <img src="/logoagro.svg" alt="AgroMarket" className="h-7 w-auto" />
+          <span className="text-[10px] font-medium text-sidebar-foreground/60">Panel del Vendedor</span>
         </NavLink>
       </SidebarHeader>
 

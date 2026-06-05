@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router'
+﻿import { NavLink } from 'react-router'
 import {
   Sidebar,
   SidebarContent,
@@ -15,7 +15,6 @@ import {
   LayoutDashboard,
   FileText,
   LogOut,
-  ShoppingBag,
   Heart,
   Radar,
   GitCompare,
@@ -45,15 +44,10 @@ export function BuyerSidebar() {
 
   return (
     <Sidebar>
-      <SidebarHeader className="px-4 py-4 border-b">
-        <NavLink to="/" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sky-600">
-            <ShoppingBag className="h-4 w-4 text-white" />
-          </div>
-          <span className="font-display font-bold text-sm text-gray-900 leading-tight">
-            AgroMarket<br />
-            <span className="text-[10px] font-normal text-gray-400">Panel del Comprador</span>
-          </span>
+      <SidebarHeader className="px-4 py-3 border-b">
+        <NavLink to="/" className="flex flex-col items-center gap-1">
+          <img src="/logoagro.svg" alt="AgroMarket" className="h-7 w-auto" />
+          <span className="text-[10px] font-medium text-sidebar-foreground/60">Panel del Comprador</span>
         </NavLink>
       </SidebarHeader>
 
@@ -69,7 +63,7 @@ export function BuyerSidebar() {
                       to={item.url}
                       end={item.url === '/app/comprador'}
                       className={({ isActive }) =>
-                        isActive ? 'text-sky-700 font-semibold' : ''
+                        isActive ? 'text-agrobot-700 font-semibold' : ''
                       }
                     >
                       <item.icon className="h-4 w-4" />
@@ -87,7 +81,7 @@ export function BuyerSidebar() {
         {auth.isAuthenticated && (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 min-w-0">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sky-100 text-sky-700">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-agrobot-100 text-agrobot-700">
                 <span className="text-xs font-bold">
                   {auth.user.name.slice(0, 2).toUpperCase()}
                 </span>

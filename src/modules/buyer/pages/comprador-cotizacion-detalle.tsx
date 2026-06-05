@@ -1,4 +1,4 @@
-import { Link, useParams } from 'react-router'
+﻿import { Link, useParams } from 'react-router'
 import { ArrowLeft, CheckCircle2, XCircle, MessageCircle, Loader2, FileText, Send, Paperclip } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -34,7 +34,7 @@ export function CompradorCotizacionDetalle() {
   if (isLoading) {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-sky-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-agrobot-600" />
       </div>
     )
   }
@@ -44,7 +44,7 @@ export function CompradorCotizacionDetalle() {
       <div className="flex flex-col items-center gap-3 py-16 text-center">
         <FileText className="h-10 w-10 text-gray-300" />
         <p className="text-sm font-semibold text-gray-500">Cotización no encontrada</p>
-        <Link to="/app/comprador/cotizaciones" className="text-sm text-sky-600 hover:underline">← Volver a cotizaciones</Link>
+        <Link to="/app/comprador/cotizaciones" className="text-sm text-agrobot-600 hover:underline">← Volver a cotizaciones</Link>
       </div>
     )
   }
@@ -55,7 +55,7 @@ export function CompradorCotizacionDetalle() {
   return (
     <div className="flex flex-col gap-6 max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link to="/app/comprador/cotizaciones" className="text-sm text-gray-400 hover:text-sky-600 flex items-center gap-1">
+        <Link to="/app/comprador/cotizaciones" className="text-sm text-gray-400 hover:text-agrobot-600 flex items-center gap-1">
           <ArrowLeft className="h-4 w-4" /> Cotizaciones
         </Link>
         <span className="text-gray-300">/</span>
@@ -84,7 +84,7 @@ export function CompradorCotizacionDetalle() {
                 const isActive = quote.status === step || ['sent', 'viewed'].includes(step)
                 return (
                   <li key={step} className="ml-4">
-                    <div className={`absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 ${isActive ? 'border-sky-500 bg-sky-500' : 'border-gray-300 bg-white'}`} />
+                    <div className={`absolute -left-1.5 mt-0.5 h-3 w-3 rounded-full border-2 ${isActive ? 'border-agrobot-500 bg-agrobot-500' : 'border-gray-300 bg-white'}`} />
                     <p className={`text-xs font-semibold ${isActive ? 'text-gray-800' : 'text-gray-400'}`}>
                       {TIMELINE_LABELS[step]}
                     </p>
@@ -158,9 +158,9 @@ export function CompradorCotizacionDetalle() {
           <div className="flex gap-2 mt-2">
             <input
               placeholder="Escribe un mensaje..."
-              className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-sky-400"
+              className="flex-1 rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:border-agrobot-500"
             />
-            <button className="flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-sky-700 transition-colors">
+            <button className="flex items-center gap-2 rounded-xl bg-agrobot-600 px-4 py-2.5 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors">
               <Send className="h-4 w-4" />
             </button>
           </div>
@@ -178,7 +178,7 @@ export function CompradorCotizacionDetalle() {
                 href={a.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-sky-600 hover:bg-gray-50 transition-colors"
+                className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-agrobot-600 hover:bg-gray-50 transition-colors"
               >
                 <Paperclip className="h-4 w-4 shrink-0" />
                 {a.filename}
