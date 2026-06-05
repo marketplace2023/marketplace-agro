@@ -4,6 +4,7 @@ import { Separator } from '@/components/ui/separator'
 import { SellerSidebar } from './seller-sidebar'
 import { useAuth } from '@/modules/auth/context/auth-context'
 import { SelectedStoreProvider } from '../context/selected-store-context'
+import { Search } from 'lucide-react'
 
 export function SellerLayout() {
   const auth = useAuth()
@@ -18,18 +19,22 @@ export function SellerLayout() {
       <SidebarProvider>
         <SellerSidebar />
         <SidebarInset>
-          <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-white px-4">
-            <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 h-4" />
-            <span className="text-sm font-semibold text-gray-700">Panel del Vendedor</span>
-            <div className="ml-auto flex items-center gap-2">
-              <a
-                href="/"
-                className="text-xs font-medium text-gray-500 hover:text-agrobot-700 transition-colors"
-              >
-                ← Volver al marketplace
-              </a>
+          <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-3 border-b border-gray-100 bg-white/95 backdrop-blur-sm px-4">
+            <SidebarTrigger className="-ml-1 text-gray-400 hover:text-gray-600" />
+            <Separator orientation="vertical" className="h-4 bg-gray-200" />
+            <div className="flex flex-1 items-center">
+              <div className="relative w-full max-w-xs">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-300" />
+                <input
+                  type="text"
+                  placeholder="Buscar..."
+                  className="h-8 w-full rounded-lg border border-gray-100 bg-gray-50 pl-8 pr-3 text-sm text-gray-700 placeholder:text-gray-300 focus:border-agrobot-300 focus:bg-white focus:outline-none focus:ring-1 focus:ring-agrobot-300 transition-colors"
+                />
+              </div>
             </div>
+            <a href="/" className="shrink-0 text-xs font-medium text-gray-400 hover:text-agrobot-600 transition-colors">
+              ← Marketplace
+            </a>
           </header>
           <div className="flex flex-1 flex-col p-6">
             <div className="mx-auto w-full max-w-5xl">

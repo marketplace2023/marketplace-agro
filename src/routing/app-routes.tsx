@@ -27,9 +27,17 @@ import { RegisterPage } from '../modules/auth/pages/register'
 // Seller
 import { SellerLayout } from '../modules/seller/layout/seller-layout'
 import { SellerDashboard } from '../modules/seller/pages/seller-dashboard'
+import { SellerPerfil } from '../modules/seller/pages/seller-perfil'
 import { SellerListings } from '../modules/seller/pages/seller-listings'
 import { SellerQuotes } from '../modules/seller/pages/seller-quotes'
 import { SellerStore } from '../modules/seller/pages/seller-store'
+import { SellerLeads } from '../modules/seller/pages/seller-leads'
+import { SellerOrders } from '../modules/seller/pages/seller-orders'
+import { SellerOffers } from '../modules/seller/pages/seller-offers'
+import { SellerStoreGbp } from '../modules/seller/pages/seller-store-gbp'
+import { SellerAnalytics } from '../modules/seller/pages/seller-analytics'
+import { SellerReputation } from '../modules/seller/pages/seller-reputation'
+import { SellerConfig } from '../modules/seller/pages/seller-config'
 // Comprador (P053–P064)
 import { BuyerLayout } from '../modules/buyer/layout/buyer-layout'
 import { BuyerDashboard } from '../modules/buyer/pages/buyer-dashboard'
@@ -74,13 +82,21 @@ export default function AppRoutes() {
         <Route path="transporte-agricola/:id" element={<TransporteAgricolaDetallePage />} />
       </Route>
 
-      {/* Panel privado del vendedor */}
+      {/* Panel privado del vendedor (P076–P087) */}
       <Route path="app/seller" element={<SellerLayout />}>
         <Route index element={<Navigate to="/app/seller/dashboard" replace />} />
         <Route path="dashboard" element={<SellerDashboard />} />
+        <Route path="perfil" element={<SellerPerfil />} />
         <Route path="publicaciones" element={<SellerListings />} />
         <Route path="cotizaciones" element={<SellerQuotes />} />
+        <Route path="leads" element={<SellerLeads />} />
+        <Route path="ordenes" element={<SellerOrders />} />
+        <Route path="ofertas" element={<SellerOffers />} />
         <Route path="tienda" element={<SellerStore />} />
+        <Route path="tienda-gbp" element={<SellerStoreGbp />} />
+        <Route path="analitica" element={<SellerAnalytics />} />
+        <Route path="reputacion" element={<SellerReputation />} />
+        <Route path="configuracion" element={<SellerConfig />} />
       </Route>
 
       {/* Panel privado del comprador (P053–P064) */}
