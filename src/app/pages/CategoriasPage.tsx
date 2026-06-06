@@ -1,161 +1,96 @@
 import { useState } from 'react'
-import { ArrowRight, Wheat, TreePine, Package, Wrench, Briefcase, FlaskConical, BadgeCheck, ClipboardCheck } from 'lucide-react'
+import { ArrowRight, Loader2 } from 'lucide-react'
+import * as Icons from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useCategoriesQuery } from '@/modules/categories/queries/category-queries'
+import type { Category } from '@/modules/categories/api/categories'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
-
-interface Categoria {
-  id: string
-  label: string
-  count: string
-  subcategories: string[]
-  image: string
-  gradient: string
-  Icon: LucideIcon
+// ─── Icon resolver ──────────────────────────────────────────────────────────
+// Maps the string icon name stored in the DB (e.g. "leaf") to a Lucide component.
+// Lucide exports icons in PascalCase; handle common kebab → PascalCase aliases.
+const ICON_ALIASES: Record<string, string> = {
+  'flask-conical':  'FlaskConical',
+  'flask':          'FlaskConical',
+  'check-square':   'SquareCheck',
+  'map-pin':        'MapPin',
+  'building':       'Building2',
+  'leaf':           'Leaf',
+  'tractor':        'Tractor',
+  'clipboard':      'ClipboardList',
+  'truck':          'Truck',
+  'award':          'Award',
 }
 
-interface Oportunidad {
-  badge: string
-  badgeColor: string
-  title: string
-  description: string
-  cta: string
-  bg: string
+function toPascalCase(str: string): string {
+  return str.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('')
 }
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+function resolveIcon(name: string | null): LucideIcon {
+  if (!name) return Icons.Package as LucideIcon
+  const key = ICON_ALIASES[name] ?? toPascalCase(name)
+  return ((Icons as Record<string, unknown>)[key] as LucideIcon | undefined) ?? Icons.Package as LucideIcon
+}
 
-const categorias: Categoria[] = [
-  {
-    id: 'cosechas',
-    label: 'Cosechas',
-    count: '1,240',
-    subcategories: ['Granos y Cereales', 'Frutas de Temporada', 'Hortalizas Frescas'],
-    image: '/cat-cosechas.jpg',
-    gradient: 'from-agrobot-600 to-agrobot-900',
-    Icon: Wheat,
-  },
-  {
-    id: 'fincas',
-    label: 'Fincas',
-    count: '452',
-    subcategories: ['Venta de Tierras', 'Alquiler Productivo', 'Invernaderos'],
-    image: '/cat-fincas.jpg',
-    gradient: 'from-emerald-600 to-emerald-900',
-    Icon: TreePine,
-  },
-  {
-    id: 'insumos',
-    label: 'Insumos',
-    count: '3,120',
-    subcategories: ['Fertilizantes', 'Semillas Certificadas', 'Agroquímicos'],
-    image: '/cat-insumos.jpg',
-    gradient: 'from-lime-600 to-lime-900',
-    Icon: Package,
-  },
-  {
-    id: 'maquinaria',
-    label: 'Maquinaria',
-    count: '890',
-    subcategories: ['Tractores y Cosecha', 'Implementos', 'Repuestos'],
-    image: '/cat-maquinaria.jpg',
-    gradient: 'from-orange-600 to-orange-900',
-    Icon: Wrench,
-  },
-  {
-    id: 'servicios',
-    label: 'Servicios',
-    count: '645',
-    subcategories: ['Asesoría Técnica', 'Logística y Transporte', 'Mantenimiento'],
-    image: '/cat-servicios.jpg',
-    gradient: 'from-sky-600 to-sky-900',
-    Icon: Briefcase,
-  },
-  {
-    id: 'laboratorios',
-    label: 'Laboratorios',
-    count: '124',
-    subcategories: ['Análisis de Suelos', 'Calidad de Agua', 'Fitopatología'],
-    image: '/cat-laboratorios.jpg',
-    gradient: 'from-violet-600 to-violet-900',
-    Icon: FlaskConical,
-  },
-  {
-    id: 'certificadores',
-    label: 'Certificadores',
-    count: '86',
-    subcategories: ['Orgánico / Global GAP', 'Sostenibilidad', 'Huella de Carbono'],
-    image: '/cat-certificadores.jpg',
-    gradient: 'from-teal-600 to-teal-900',
-    Icon: BadgeCheck,
-  },
-  {
-    id: 'inspectores',
-    label: 'Inspectores',
-    count: '215',
-    subcategories: ['Control de Calidad', 'Auditoría de Carga', 'Peritajes Agrícolas'],
-    image: '/cat-inspectores.jpg',
-    gradient: 'from-rose-600 to-rose-900',
-    Icon: ClipboardCheck,
-  },
+// ─── Gradient palette (cycled by sortOrder) ─────────────────────────────────
+const GRADIENTS = [
+  'from-agrobot-600 to-agrobot-900',
+  'from-lime-600 to-lime-900',
+  'from-orange-600 to-orange-900',
+  'from-emerald-600 to-emerald-900',
+  'from-sky-600 to-sky-900',
+  'from-cyan-600 to-cyan-900',
+  'from-violet-600 to-violet-900',
+  'from-teal-600 to-teal-900',
+  'from-rose-600 to-rose-900',
+  'from-indigo-600 to-indigo-900',
 ]
 
-const oportunidades: Oportunidad[] = [
-  {
-    badge: 'EVENTO',
-    badgeColor: 'bg-orange-500',
-    title: 'Cosecha de Maíz 2026',
-    description: 'Accede a precios preferenciales en logística para el transporte de grano.',
-    cta: 'Explorar beneficios',
-    bg: '/farm-bg.png',
-  },
-  {
-    badge: 'OFERTA',
-    badgeColor: 'bg-agrobot-600',
-    title: 'Fertilizantes Orgánicos',
-    description: 'Descuentos de hasta el 15% en compras por volumen para esta siembra.',
-    cta: 'Ver distribuidores',
-    bg: '/bg-cafe.png',
-  },
-]
-
-// ─── Sub-components ───────────────────────────────────────────────────────────
-
-function CategoriaCard({ cat }: { cat: Categoria }) {
+// ─── Category card ──────────────────────────────────────────────────────────
+function CategoriaCard({ cat, index }: { cat: Category; index: number }) {
   const [imgError, setImgError] = useState(false)
+  const Icon = resolveIcon(cat.icon)
+  const gradient = GRADIENTS[index % GRADIENTS.length]
+  const visibleSubs = cat.subcategories.slice(0, 3)
 
   return (
     <div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer">
-      {/* Image area */}
+      {/* Image / gradient fallback */}
       <div className="relative overflow-hidden" style={{ height: 140 }}>
-        {!imgError ? (
+        {cat.imageUrl && !imgError ? (
           <img
-            src={cat.image}
-            alt={cat.label}
+            src={cat.imageUrl}
+            alt={cat.name}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${cat.gradient}`}>
-            <cat.Icon className="h-14 w-14 text-white/30" />
+          <div className={`flex h-full w-full items-center justify-center bg-linear-to-br ${gradient}`}>
+            <Icon className="h-14 w-14 text-white/30" />
           </div>
         )}
-        {/* Count badge */}
-        <span className="absolute top-2.5 right-2.5 rounded-full bg-black/40 backdrop-blur-sm px-2.5 py-0.5 text-[11px] font-semibold text-white">
-          {cat.count} anuncios
-        </span>
+        {cat.subcategories.length > 0 && (
+          <span className="absolute top-2.5 right-2.5 rounded-full bg-black/40 backdrop-blur-sm px-2.5 py-0.5 text-[11px] font-semibold text-white">
+            {cat.subcategories.length} subcategorías
+          </span>
+        )}
       </div>
 
       {/* Content */}
       <div className="p-4">
-        <h3 className="font-display text-base font-bold text-gray-900 mb-2">{cat.label}</h3>
-        <ul className="space-y-1 mb-4">
-          {cat.subcategories.map((sub) => (
-            <li key={sub} className="text-xs text-gray-500 hover:text-agrobot-700 cursor-pointer transition-colors">
-              {sub}
-            </li>
-          ))}
-        </ul>
+        <h3 className="font-display text-base font-bold text-gray-900 mb-2">{cat.name}</h3>
+        {visibleSubs.length > 0 ? (
+          <ul className="space-y-1 mb-4">
+            {visibleSubs.map((sub) => (
+              <li key={sub.id} className="text-xs text-gray-500 hover:text-agrobot-700 cursor-pointer transition-colors">
+                {sub.name}
+              </li>
+            ))}
+          </ul>
+        ) : cat.description ? (
+          <p className="text-xs text-gray-500 mb-4 line-clamp-2">{cat.description}</p>
+        ) : (
+          <div className="mb-4 h-12" />
+        )}
         <div className="flex items-center gap-1 text-xs font-semibold text-agrobot-700 hover:underline">
           Ver todo
           <ArrowRight className="h-3.5 w-3.5" />
@@ -165,34 +100,25 @@ function CategoriaCard({ cat }: { cat: Categoria }) {
   )
 }
 
-function OportunidadCard({ op }: { op: Oportunidad }) {
+// ─── Skeleton ───────────────────────────────────────────────────────────────
+function SkeletonCard() {
   return (
-    <div
-      className="relative overflow-hidden rounded-2xl flex-1 min-h-[220px] flex flex-col justify-end p-6 cursor-pointer group"
-      style={{
-        backgroundImage: `linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.30) 60%, rgba(0,0,0,0.10) 100%), url('${op.bg}')`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-    >
-      <div className="relative z-10">
-        <span className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white mb-2 ${op.badgeColor}`}>
-          {op.badge}
-        </span>
-        <h3 className="font-display text-lg font-bold text-white leading-tight">{op.title}</h3>
-        <p className="mt-1 text-xs text-white/75 leading-relaxed max-w-xs">{op.description}</p>
-        <button className="mt-3 flex items-center gap-1 text-sm font-bold text-white hover:gap-2 transition-all">
-          {op.cta}
-          <ArrowRight className="h-4 w-4" />
-        </button>
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm animate-pulse">
+      <div className="h-36 bg-gray-100" />
+      <div className="p-4 space-y-2">
+        <div className="h-4 w-2/3 rounded bg-gray-100" />
+        <div className="h-3 w-full rounded bg-gray-100" />
+        <div className="h-3 w-5/6 rounded bg-gray-100" />
+        <div className="h-3 w-4/6 rounded bg-gray-100" />
       </div>
     </div>
   )
 }
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
+// ─── Page ────────────────────────────────────────────────────────────────────
 export function CategoriasPage() {
+  const { data: categorias, isLoading, isError } = useCategoriesQuery()
+
   return (
     <div className="bg-white min-h-screen pb-10">
       <div className="mx-auto max-w-6xl px-4">
@@ -207,27 +133,40 @@ export function CategoriasPage() {
           </p>
         </div>
 
-        {/* Category grid */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {categorias.map((cat) => (
-            <CategoriaCard key={cat.id} cat={cat} />
-          ))}
-        </div>
+        {/* Loading state */}
+        {isLoading && (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)}
+          </div>
+        )}
 
-        {/* Oportunidades de Temporada */}
-        <div className="mt-12">
-          <h2 className="font-display text-xl font-bold text-gray-900 mb-4">
-            Oportunidades de Temporada
-          </h2>
-          <div className="flex gap-4">
-            {oportunidades.map((op) => (
-              <OportunidadCard key={op.title} op={op} />
+        {/* Error state */}
+        {isError && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <Loader2 className="h-8 w-8 text-gray-300 mb-3" />
+            <p className="text-sm font-semibold text-gray-500">No se pudieron cargar las categorías.</p>
+            <p className="text-xs text-gray-400 mt-1">Verifica tu conexión o intenta más tarde.</p>
+          </div>
+        )}
+
+        {/* Category grid */}
+        {categorias && categorias.length > 0 && (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {categorias.map((cat, i) => (
+              <CategoriaCard key={cat.id} cat={cat} index={i} />
             ))}
           </div>
-        </div>
+        )}
+
+        {/* Empty state */}
+        {categorias && categorias.length === 0 && (
+          <div className="py-20 text-center">
+            <p className="text-sm text-gray-400">No hay categorías configuradas aún.</p>
+          </div>
+        )}
 
         {/* CTA Banner */}
-        <div className="mt-8 rounded-2xl bg-agrobot-700 px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="mt-12 rounded-2xl bg-agrobot-700 px-8 py-10 flex flex-col md:flex-row items-center justify-between gap-6">
           <div>
             <h2 className="font-display text-2xl font-bold text-white">¿Tienes algo que ofrecer?</h2>
             <p className="mt-1.5 text-sm text-white/75 max-w-sm leading-relaxed">

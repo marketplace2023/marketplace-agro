@@ -75,7 +75,7 @@ export default function AppRoutes() {
         <Route path="categorias" element={<CategoriasPage />} />
         <Route path="ayuda" element={<AyudaPage />} />
         <Route path="blog" element={<BlogPage />} />
-        <Route path="blog/articulo" element={<BlogArticlePage />} />
+        <Route path="blog/:slug" element={<BlogArticlePage />} />
         <Route path="radar" element={<RadarPage />} />
         <Route path="catalogo" element={<CatalogoPage />} />
         {/* Perfiles públicos */}

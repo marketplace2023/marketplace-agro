@@ -1,5 +1,13 @@
 import { axiosInstance } from '../../shared/lib/axios'
 
+export interface Subcategory {
+  id: number
+  categoryId: number
+  name: string
+  slug: string
+  sortOrder: number
+}
+
 export interface Category {
   id: number
   name: string
@@ -8,6 +16,7 @@ export interface Category {
   icon: string | null
   imageUrl: string | null
   sortOrder: number
+  subcategories: Subcategory[]
 }
 
 export async function getCategories(): Promise<Category[]> {
