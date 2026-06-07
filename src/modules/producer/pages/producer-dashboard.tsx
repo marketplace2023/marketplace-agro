@@ -1,34 +1,86 @@
-import { Eye, FileText, Users, Warehouse, Plus, AlertTriangle, TrendingUp } from 'lucide-react'
-import { NavLink } from 'react-router'
+import { Link } from 'react-router'
+import {
+  Eye, FileText, Warehouse, Plus, TrendingUp,
+  ArrowUpRight, ShieldCheck, AlertCircle,
+} from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useMyListingsQuery, useMyStoreQuery, useReceivedQuotesQuery } from '@/modules/seller/queries/seller-queries'
+import { useAuth } from '@/modules/auth/context/auth-context'
+import type { ListingStatus, QuoteStatus } from '@/modules/seller/api/seller-api'
 
-const KPIS = [
-  { title: 'Publicaciones activas', value: '8',    icon: Eye,       trend: '+2 este mes' },
-  { title: 'Cotizaciones recibidas',value: '14',   icon: FileText,  trend: '3 sin responder' },
-  { title: 'Leads generados',       value: '23',   icon: Users,     trend: '+7 esta semana' },
-  { title: 'Inventario (tons.)',    value: '124',  icon: Warehouse, trend: '4 cultivos registrados' },
-]
-
-const MOCK_RECENT = [
-  { id: 1, tipo: 'Cosecha', titulo: 'Maíz amarillo duro', estado: 'activo',    fecha: '2026-05-30', tons: '40 ton' },
-  { id: 2, tipo: 'Producto', titulo: 'Cacao fermentado',  estado: 'pausado',   fecha: '2026-05-22', tons: '12 ton' },
-  { id: 3, tipo: 'Finca',   titulo: 'Finca Los Almendros',estado: 'activo',    fecha: '2026-05-18', tons: '200 ha' },
-  { id: 4, tipo: 'Cosecha', titulo: 'Plátano hartón',     estado: 'agotado',   fecha: '2026-05-10', tons: '0 ton' },
-]
-
-const ESTADO_COLOR: Record<string, string> = {
-  activo:  'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200',
-  pausado: 'bg-amber-50 text-amber-700 ring-1 ring-amber-200',
-  agotado: 'bg-red-50 text-red-600 ring-1 ring-red-200',
+const LISTING_STATUS_COLORS: Record<ListingStatus, string> = {
+  draft:          'bg-gray-100 text-gray-500',
+  pending_review: 'bg-amber-50 text-amber-700',
+  published:      'bg-agrobot-50 text-agrobot-700',
+  paused:         'bg-gray-100 text-gray-500',
+  rejected:       'bg-red-50 text-red-600',
+  expired:        'bg-gray-100 text-gray-400',
+  deleted:        'bg-red-50 text-red-400',
+}
+const LISTING_STATUS_LABEL: Record<ListingStatus, string> = {
+  draft: 'Borrador', pending_review: 'En revisión', published: 'Publicado',
+  paused: 'Pausado', rejected: 'Rechazado', expired: 'Expirado', deleted: 'Eliminado',
+}
+const QUOTE_STATUS_COLORS: Record<QuoteStatus, string> = {
+  sent:       'bg-blue-50 text-blue-600',
+  viewed:     'bg-gray-100 text-gray-600',
+  responded:  'bg-agrobot-50 text-agrobot-700',
+  accepted:   'bg-agrobot-100 text-agrobot-800',
+  rejected:   'bg-red-50 text-red-600',
+  cancelled:  'bg-gray-100 text-gray-500',
+  expired:    'bg-gray-100 text-gray-400',
+}
+const QUOTE_STATUS_LABEL: Record<QuoteStatus, string> = {
+  sent: 'Recibida', viewed: 'Vista', responded: 'Respondida',
+  accepted: 'Aceptada', rejected: 'Rechazada', cancelled: 'Cancelada', expired: 'Expirada',
 }
 
-const QUICK_LINKS = [
-  { label: 'Nueva publicación',   to: '/app/productor/publicaciones', icon: Plus },
-  { label: 'Agregar cosecha',     to: '/app/productor/inventario',    icon: Warehouse },
-  { label: 'Ver leads',           to: '/app/productor/leads',         icon: Users },
-  { label: 'Cotizaciones',        to: '/app/productor/cotizaciones',  icon: FileText },
-]
+function fmtDate(d: string) {
+  return new Date(d).toLocaleDateString('es-VE', { day: '2-digit', month: 'short' })
+}
+
+function StatCard({
+  title, value, icon: Icon, trend, trendNeutral = false,
+}: {
+  title: string
+  value: number | null
+  icon: React.ElementType
+  trend: string
+  trendNeutral?: boolean
+}) {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white p-5">
+      <div className="flex items-start justify-between">
+        <p className="text-sm font-medium text-gray-500">{title}</p>
+        <Icon className="h-4 w-4 text-gray-300" />
+      </div>
+      {value === null ? (
+        <Skeleton className="mt-3 h-8 w-16" />
+      ) : (
+        <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
+      )}
+      <p className={`mt-1 text-xs font-medium ${trendNeutral ? 'text-gray-400' : 'text-agrobot-600'}`}>
+        {trend}
+      </p>
+    </div>
+  )
+}
 
 export function ProducerDashboard() {
+  const { data: listings, isLoading: loadingL } = useMyListingsQuery()
+  const { data: store,    isLoading: loadingS } = useMyStoreQuery()
+  const { data: quotes,   isLoading: loadingQ } = useReceivedQuotesQuery()
+  const auth = useAuth()
+  const userName = auth.isAuthenticated ? auth.user.name.split(' ')[0] : ''
+
+  const published  = listings?.filter((l) => l.status === 'published').length ?? 0
+  const inReview   = listings?.filter((l) => l.status === 'pending_review').length ?? 0
+  const totalViews = listings?.reduce((s, l) => s + (l.viewCount ?? 0), 0) ?? 0
+  const newQuotes  = quotes?.filter((q) => q.status === 'sent' || q.status === 'viewed').length ?? 0
+
+  const recentListings = listings?.slice(0, 5) ?? []
+  const recentQuotes   = quotes?.slice(0, 4) ?? []
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -36,106 +88,139 @@ export function ProducerDashboard() {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-gray-900">Dashboard Productor</h1>
-          <p className="text-sm text-gray-400 mt-0.5">Resumen de tu operación agrícola</p>
+          <p className="text-sm text-gray-400 mt-0.5">Bienvenido, {userName} 👋</p>
         </div>
-        <NavLink
+        <Link
           to="/app/productor/publicaciones"
           className="flex shrink-0 items-center gap-2 rounded-xl bg-agrobot-600 px-4 py-2 text-sm font-bold text-white hover:bg-agrobot-700 transition-colors"
         >
           <Plus className="h-4 w-4" />
           Nueva publicación
-        </NavLink>
+        </Link>
       </div>
 
-      {/* Alert: inventory low */}
-      <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
-        <AlertTriangle className="h-4 w-4 shrink-0 text-amber-500" />
-        <p className="text-sm text-amber-800">
-          Tienes <strong>1 cosecha agotada</strong> en inventario. Actualiza el volumen disponible para seguir recibiendo solicitudes.
-        </p>
-        <NavLink to="/app/productor/inventario" className="ml-auto shrink-0 text-xs font-semibold text-amber-700 hover:text-amber-900 transition-colors">
-          Ir al inventario →
-        </NavLink>
-      </div>
-
-      {/* KPIs */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {KPIS.map((kpi) => (
-          <div key={kpi.title} className="rounded-xl border border-gray-200 bg-white p-5">
-            <div className="flex items-start justify-between">
-              <p className="text-sm font-medium text-gray-500">{kpi.title}</p>
-              <kpi.icon className="h-4 w-4 text-gray-300" />
-            </div>
-            <p className="mt-2 text-3xl font-bold text-gray-900">{kpi.value}</p>
-            <p className="mt-1 flex items-center gap-1 text-xs font-medium text-agrobot-600">
-              <TrendingUp className="h-3 w-3" />
-              {kpi.trend}
-            </p>
+      {/* Store banner */}
+      {!loadingS && !store && (
+        <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+          <AlertCircle className="h-5 w-5 shrink-0 text-amber-500" />
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-amber-800">No tienes un perfil registrado</p>
+            <p className="text-xs text-amber-600 mt-0.5">Configura tu perfil de productor para gestionar publicaciones.</p>
           </div>
-        ))}
+          <Link to="/app/productor/perfil" className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-600 transition-colors">
+            Configurar
+          </Link>
+        </div>
+      )}
+      {!loadingS && store && (
+        <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
+          {store.logoUrl ? (
+            <img src={store.logoUrl} alt={store.name} className="h-9 w-9 rounded-lg object-cover" />
+          ) : (
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-agrobot-50">
+              <Warehouse className="h-4 w-4 text-agrobot-600" />
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-bold text-gray-900">{store.name}</p>
+              {store.isVerified && <ShieldCheck className="h-3.5 w-3.5 text-agrobot-600" />}
+            </div>
+            <p className="text-xs text-gray-400">{store.department ?? 'Sin ubicación'}</p>
+          </div>
+          <Link to={`/productores/${store.slug}`} target="_blank" className="shrink-0 text-xs font-semibold text-agrobot-600 hover:underline flex items-center gap-0.5">
+            Ver perfil <ArrowUpRight className="h-3 w-3" />
+          </Link>
+        </div>
+      )}
+
+      {/* KPI cards */}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard title="Publicaciones activas" value={loadingL ? null : published}  icon={Eye}       trend="en el marketplace" />
+        <StatCard title="En revisión"           value={loadingL ? null : inReview}   icon={TrendingUp} trend={inReview > 0 ? 'pendientes de aprobación' : 'Al día'} trendNeutral />
+        <StatCard title="Vistas totales"        value={loadingL ? null : totalViews} icon={Eye}        trend="en todas tus publicaciones" trendNeutral />
+        <StatCard title="Cotizaciones nuevas"   value={loadingQ ? null : newQuotes}  icon={FileText}   trend={newQuotes > 0 ? 'esperan respuesta' : 'Al día'} trendNeutral={newQuotes === 0} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
 
         {/* Recent listings */}
-        <div className="lg:col-span-2 rounded-xl border border-gray-200 bg-white">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+        <div className="lg:col-span-2 rounded-xl border border-gray-200 bg-white p-5">
+          <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-bold text-gray-900">Publicaciones recientes</h2>
-            <NavLink to="/app/productor/publicaciones" className="text-xs text-agrobot-600 font-semibold hover:text-agrobot-800">
-              Ver todas →
-            </NavLink>
+            <Link to="/app/productor/publicaciones" className="text-xs font-semibold text-agrobot-600 hover:underline flex items-center gap-0.5">
+              Ver todas <ArrowUpRight className="h-3 w-3" />
+            </Link>
           </div>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-[11px] font-semibold uppercase tracking-wide text-gray-400">
-                <th className="px-5 py-3">Título</th>
-                <th className="px-3 py-3">Tipo</th>
-                <th className="px-3 py-3">Volumen</th>
-                <th className="px-3 py-3">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {MOCK_RECENT.map((r) => (
-                <tr key={r.id} className="border-t border-gray-50 hover:bg-gray-50/50 transition-colors">
-                  <td className="px-5 py-3 font-medium text-gray-800">{r.titulo}</td>
-                  <td className="px-3 py-3 text-gray-500 text-xs">{r.tipo}</td>
-                  <td className="px-3 py-3 text-gray-500 text-xs font-mono">{r.tons}</td>
-                  <td className="px-3 py-3">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-semibold capitalize ${ESTADO_COLOR[r.estado]}`}>
-                      {r.estado}
+          {loadingL ? (
+            <div className="flex flex-col gap-3">
+              {[1,2,3].map((i) => <Skeleton key={i} className="h-10 w-full rounded-lg" />)}
+            </div>
+          ) : recentListings.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <Warehouse className="h-8 w-8 text-gray-200 mb-2" />
+              <p className="text-xs text-gray-400">Sin publicaciones aún</p>
+            </div>
+          ) : (
+            <div className="flex flex-col divide-y divide-gray-100">
+              {recentListings.map((l) => (
+                <div key={l.id} className="flex items-center gap-3 py-2.5">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-semibold text-gray-800 truncate">{l.title}</p>
+                    <p className="text-[11px] text-gray-400">
+                      {l.price ? `$${l.price}${l.priceUnit ? ' / ' + l.priceUnit : ''}` : 'A consultar'}
+                      {l.department ? ` · ${l.department}` : ''}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="flex items-center gap-0.5 text-[11px] text-gray-400">
+                      <Eye className="h-3 w-3" />{l.viewCount}
                     </span>
-                  </td>
-                </tr>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${LISTING_STATUS_COLORS[l.status]}`}>
+                      {LISTING_STATUS_LABEL[l.status]}
+                    </span>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          )}
         </div>
 
-        {/* Quick links */}
-        <div className="rounded-xl border border-gray-200 bg-white p-5">
-          <h2 className="text-sm font-bold text-gray-900 mb-4">Accesos rápidos</h2>
-          <div className="flex flex-col gap-2">
-            {QUICK_LINKS.map((link) => (
-              <NavLink
-                key={link.label}
-                to={link.to}
-                className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 px-3 py-2.5 text-sm font-medium text-gray-700 hover:border-agrobot-200 hover:bg-agrobot-50 hover:text-agrobot-700 transition-all"
-              >
-                <link.icon className="h-4 w-4 text-gray-400" />
-                {link.label}
-              </NavLink>
-            ))}
+        {/* Recent quotes */}
+        <div className="rounded-xl border border-gray-200 bg-white p-5 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-gray-900">Cotizaciones</h2>
+            <Link to="/app/productor/cotizaciones" className="text-xs font-semibold text-agrobot-600 hover:underline flex items-center gap-0.5">
+              Ver todas <ArrowUpRight className="h-3 w-3" />
+            </Link>
           </div>
-          <div className="mt-4 rounded-lg bg-agrobot-50 border border-agrobot-100 p-3">
-            <p className="text-xs font-semibold text-agrobot-800 mb-1">¿Necesitas ayuda?</p>
-            <p className="text-[11px] text-agrobot-700">
-              Consulta nuestras guías para productores o contacta soporte desde el menú de configuración.
-            </p>
-          </div>
+          {loadingQ ? (
+            <div className="flex flex-col gap-3">
+              {[1,2,3].map((i) => <Skeleton key={i} className="h-10 w-full rounded-lg" />)}
+            </div>
+          ) : recentQuotes.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center py-8 text-center">
+              <FileText className="h-8 w-8 text-gray-200 mb-2" />
+              <p className="text-xs text-gray-400">Sin cotizaciones aún</p>
+            </div>
+          ) : (
+            <div className="flex flex-col divide-y divide-gray-100">
+              {recentQuotes.map((q) => (
+                <div key={q.id} className="py-2.5">
+                  <div className="flex items-center justify-between mb-0.5">
+                    <p className="text-[11px] font-mono text-gray-400">#{q.id}</p>
+                    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${QUOTE_STATUS_COLORS[q.status]}`}>
+                      {QUOTE_STATUS_LABEL[q.status]}
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-gray-700 line-clamp-1">{q.message ?? 'Sin mensaje'}</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">{fmtDate(q.createdAt)}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-
-      <p className="text-center text-xs text-gray-400">Datos en tiempo real disponibles próximamente. Valores de muestra.</p>
     </div>
   )
 }

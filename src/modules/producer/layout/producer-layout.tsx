@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/s
 import { Separator } from '@/components/ui/separator'
 import { ProducerSidebar } from './producer-sidebar'
 import { useAuth } from '@/modules/auth/context/auth-context'
+import { SelectedStoreProvider } from '@/modules/seller/context/selected-store-context'
 import { Search } from 'lucide-react'
 
 export function ProducerLayout() {
@@ -14,6 +15,7 @@ export function ProducerLayout() {
   }
 
   return (
+    <SelectedStoreProvider>
     <SidebarProvider>
       <ProducerSidebar />
       <SidebarInset>
@@ -41,5 +43,6 @@ export function ProducerLayout() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+    </SelectedStoreProvider>
   )
 }

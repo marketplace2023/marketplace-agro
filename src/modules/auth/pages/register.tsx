@@ -62,7 +62,7 @@ export function RegisterPage() {
       >
         {/* Top logo */}
         <div className="flex items-center z-10">
-          <img src="/logoagro.svg" alt="TierraMarket" className="h-9 w-auto brightness-0 invert" />
+          <img src="/logoagro.svg" alt="TierraMarket" className="h-12 w-auto brightness-0 invert" />
         </div>
 
         {/* Bottom text */}
@@ -81,8 +81,8 @@ export function RegisterPage() {
         <div className="w-full max-w-105">
 
           {/* Logo */}
-          <div className="flex items-center mb-8 lg:mb-6">
-            <img src="/logoagro.svg" alt="TierraMarket" className="h-8 w-auto" />
+          <div className="flex justify-center items-center mb-8 lg:mb-6">
+            <img src="/logoagro.svg" alt="TierraMarket" className="h-12 w-auto" />
           </div>
 
           <div className="mb-7">

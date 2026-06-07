@@ -1,34 +1,46 @@
 import { useState, useEffect } from 'react'
-import { Star, Heart, MapPin, CheckCircle2, Zap, ArrowRight, Tractor, Package, Wheat, Droplets, Wrench } from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import {
+  Heart, MapPin, CheckCircle2, Zap, ArrowRight,
+  Tractor, Package, Wheat, Droplets, Building2, ShieldCheck, Tag, Star,
+} from 'lucide-react'
+import { Skeleton } from '@/components/ui/skeleton'
+import { axiosInstance } from '@/modules/shared/lib/axios'
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+// ─── API types ────────────────────────────────────────────────────────────────
 
-type BadgeType = '20% OFF' | 'OFERTA' | 'LIQUIDACIÓN' | '15% OFF'
-type SellerType = 'distribuidor' | 'tienda' | 'location'
-
-interface OfertaProduct {
+interface ApiListing {
   id: number
-  badge: BadgeType
-  rating: number
-  reviews: number
   title: string
-  sellerType: SellerType
-  sellerLabel: string
-  originalPrice: string
-  currentPrice: string
-  unit?: string
-  gradient: string
-  Icon: LucideIcon
+  price: string | null
+  priceUnit: string | null
+  listingType: string
+  department: string | null
+  slug: string
+  categoryName: string | null
+  storeName: string | null
+  storeSlug: string | null
+  storeLogoUrl: string | null
+  storeIsVerified: boolean | null
+  primaryImage: string | null
 }
 
-interface TiendaOficial {
+interface ApiStore {
   id: number
   name: string
-  description: string
-  avatarGradient: string
-  initials: string
-  Icon: LucideIcon
+  slug: string
+  logoUrl: string | null
+  isVerified: boolean
+  roleType: string
+  description: string | null
+  avgRating: number | null
+  reviewCount: number
+  specialties: string[]
+}
+
+interface ApiCategory {
+  id: number
+  name: string
+  slug: string
 }
 
 interface CountdownTime {
@@ -38,108 +50,7 @@ interface CountdownTime {
   seconds: number
 }
 
-// ─── Data ────────────────────────────────────────────────────────────────────
-
-const categories = [
-  { label: 'Todas las Ofertas', Icon: Zap, active: true },
-  { label: 'Maquinaria', Icon: Tractor, active: false },
-  { label: 'Insumos', Icon: Package, active: false },
-  { label: 'Cosechas', Icon: Wheat, active: false },
-  { label: 'Fincas', Icon: MapPin, active: false },
-  { label: 'Riego', Icon: Droplets, active: false },
-]
-
-const badgeStyles: Record<BadgeType, string> = {
-  '20% OFF':    'bg-orange-500 text-white',
-  'OFERTA':     'bg-agrobot-600 text-white',
-  'LIQUIDACIÓN':'bg-red-500 text-white',
-  '15% OFF':    'bg-orange-500 text-white',
-}
-
-const products: OfertaProduct[] = [
-  {
-    id: 1,
-    badge: '20% OFF',
-    rating: 4.8,
-    reviews: 12,
-    title: 'John Deere 5075E 4WD',
-    sellerType: 'distribuidor',
-    sellerLabel: 'Distribuidor Oficial',
-    originalPrice: 'USD $45,000',
-    currentPrice: 'USD $36,000',
-    gradient: 'from-green-700 to-green-900',
-    Icon: Tractor,
-  },
-  {
-    id: 2,
-    badge: 'OFERTA',
-    rating: 4.5,
-    reviews: 45,
-    title: 'Urea Granulada - Tonelada',
-    sellerType: 'location',
-    sellerLabel: 'Córdoba, AR',
-    originalPrice: 'USD $850',
-    currentPrice: 'USD $699',
-    gradient: 'from-slate-500 to-slate-700',
-    Icon: Package,
-  },
-  {
-    id: 3,
-    badge: 'LIQUIDACIÓN',
-    rating: 4.9,
-    reviews: 120,
-    title: 'Maíz Híbrido Dekalb 72-10',
-    sellerType: 'tienda',
-    sellerLabel: 'Tienda Oficial',
-    originalPrice: 'USD $210',
-    currentPrice: 'USD $175',
-    unit: '/ Bolsa',
-    gradient: 'from-yellow-600 to-yellow-800',
-    Icon: Wheat,
-  },
-  {
-    id: 4,
-    badge: '15% OFF',
-    rating: 4.7,
-    reviews: 8,
-    title: 'Kit de Riego Goteo...',
-    sellerType: 'location',
-    sellerLabel: 'Sinaloa, MX',
-    originalPrice: 'USD $1,200',
-    currentPrice: 'USD $995',
-    gradient: 'from-sky-600 to-sky-900',
-    Icon: Droplets,
-  },
-]
-
-const tiendas: TiendaOficial[] = [
-  {
-    id: 1,
-    name: 'John Deere Store',
-    description: 'Hasta 24 cuotas fijas en repuestos originales.',
-    avatarGradient: 'from-green-600 to-green-800',
-    initials: 'JD',
-    Icon: Tractor,
-  },
-  {
-    id: 2,
-    name: 'Syngenta Direct',
-    description: 'Pack Herbicidas con 30% de descuento por volumen.',
-    avatarGradient: 'from-sky-600 to-sky-800',
-    initials: 'SY',
-    Icon: Wrench,
-  },
-  {
-    id: 3,
-    name: 'Bayer CropScience',
-    description: 'Nuevos fungicidas con envío bonificado a campo.',
-    avatarGradient: 'from-blue-700 to-blue-900',
-    initials: 'BC',
-    Icon: Package,
-  },
-]
-
-// ─── Countdown hook ───────────────────────────────────────────────────────────
+// ─── Utils ───────────────────────────────────────────────────────────────────
 
 function useCountdown(targetDate: Date): CountdownTime {
   const getTimeLeft = (): CountdownTime => {
@@ -151,15 +62,32 @@ function useCountdown(targetDate: Date): CountdownTime {
       seconds: Math.floor((diff / 1000) % 60),
     }
   }
-
   const [time, setTime] = useState<CountdownTime>(getTimeLeft)
-
   useEffect(() => {
     const id = setInterval(() => setTime(getTimeLeft()), 1000)
     return () => clearInterval(id)
   }, [])
-
   return time
+}
+
+const CATEGORY_ICON: Record<string, React.ElementType> = {
+  maquinaria: Tractor,
+  insumos: Package,
+  semillas: Wheat,
+  cosecha: Wheat,
+  riego: Droplets,
+  'tierras-y-fincas': MapPin,
+  fincas: MapPin,
+}
+
+function getCategoryIcon(slug: string): React.ElementType {
+  return CATEGORY_ICON[slug] ?? Package
+}
+
+function formatPrice(price: string | null, priceUnit: string | null): string {
+  if (!price) return 'A consultar'
+  const formatted = `$${Number(price).toLocaleString('es-AR')}`
+  return priceUnit ? `${formatted} / ${priceUnit}` : formatted
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -177,16 +105,43 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
   )
 }
 
-function OfertaCard({ product }: { product: OfertaProduct }) {
+function OfertaCardSkeleton() {
+  return (
+    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+      <Skeleton className="aspect-[4/3] w-full" />
+      <div className="p-3.5 flex flex-col gap-2">
+        <Skeleton className="h-3 w-20" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-3 w-28" />
+        <Skeleton className="h-5 w-24" />
+        <div className="flex gap-2 mt-1">
+          <Skeleton className="h-7 flex-1" />
+          <Skeleton className="h-7 flex-1" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function OfertaCard({ listing }: { listing: ApiListing }) {
   const [wished, setWished] = useState(false)
+  const Icon = getCategoryIcon(listing.categoryName?.toLowerCase().replace(/\s+/g, '-') ?? '')
 
   return (
     <div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
-      {/* Image area */}
-      <div className={`relative flex aspect-[4/3] items-center justify-center bg-gradient-to-br ${product.gradient}`}>
-        <product.Icon className="h-16 w-16 text-white/20" />
-        <span className={`absolute left-2.5 top-2.5 rounded px-2 py-0.5 text-[11px] font-bold ${badgeStyles[product.badge]}`}>
-          {product.badge}
+      {/* Image */}
+      <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-agrobot-700 to-agrobot-900">
+        {listing.primaryImage ? (
+          <img
+            src={listing.primaryImage}
+            alt={listing.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <Icon className="h-16 w-16 text-white/20" />
+        )}
+        <span className="absolute left-2.5 top-2.5 rounded px-2 py-0.5 text-[11px] font-bold bg-agrobot-600 text-white">
+          OFERTA
         </span>
         <button
           onClick={() => setWished((v) => !v)}
@@ -198,34 +153,31 @@ function OfertaCard({ product }: { product: OfertaProduct }) {
 
       {/* Info */}
       <div className="p-3.5">
-        <div className="flex items-center gap-1 text-xs">
-          <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-          <span className="font-semibold text-gray-800">{product.rating}</span>
-          <span className="text-gray-400">({product.reviews} reviews)</span>
-        </div>
-
-        <p className="mt-1.5 text-sm font-bold text-gray-900 leading-tight">{product.title}</p>
+        {listing.categoryName && (
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-agrobot-600 mb-1">
+            {listing.categoryName}
+          </p>
+        )}
+        <p className="text-sm font-bold text-gray-900 leading-tight line-clamp-2">{listing.title}</p>
 
         <div className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-          {product.sellerType === 'location' ? (
-            <>
-              <MapPin className="h-3 w-3 shrink-0" />
-              <span>{product.sellerLabel}</span>
-            </>
-          ) : (
+          {listing.storeIsVerified && listing.storeName ? (
             <>
               <CheckCircle2 className="h-3 w-3 shrink-0 text-agrobot-600" />
-              <span className="text-agrobot-700 font-medium">{product.sellerLabel}</span>
+              <span className="text-agrobot-700 font-medium truncate">{listing.storeName}</span>
             </>
-          )}
+          ) : listing.department ? (
+            <>
+              <MapPin className="h-3 w-3 shrink-0" />
+              <span className="truncate">{listing.department}</span>
+            </>
+          ) : listing.storeName ? (
+            <span className="truncate text-gray-600">{listing.storeName}</span>
+          ) : null}
         </div>
 
         <div className="mt-2">
-          <p className="text-xs text-gray-400 line-through">{product.originalPrice}</p>
-          <p className="text-base font-bold text-gray-900">
-            {product.currentPrice}
-            {product.unit && <span className="text-xs font-normal text-gray-500 ml-1">{product.unit}</span>}
-          </p>
+          <p className="text-base font-bold text-gray-900">{formatPrice(listing.price, listing.priceUnit)}</p>
         </div>
 
         <div className="mt-3 flex gap-2">
@@ -241,15 +193,34 @@ function OfertaCard({ product }: { product: OfertaProduct }) {
   )
 }
 
-function TiendaCard({ tienda }: { tienda: TiendaOficial }) {
+function TiendaCard({ store }: { store: ApiStore }) {
+  const initials = store.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
+  const description = store.description ?? (store.specialties.length > 0 ? store.specialties.join(', ') : null)
+
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3 transition-shadow hover:shadow-md">
-      <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${tienda.avatarGradient} shadow`}>
-        <tienda.Icon className="h-7 w-7 text-white" />
+      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full overflow-hidden bg-gradient-to-br from-agrobot-600 to-agrobot-800 shadow">
+        {store.logoUrl ? (
+          <img src={store.logoUrl} alt={store.name} className="h-full w-full object-cover" />
+        ) : (
+          <span className="text-lg font-bold text-white">{initials}</span>
+        )}
       </div>
       <div>
-        <p className="font-bold text-gray-900 text-sm">{tienda.name}</p>
-        <p className="mt-1 text-xs text-gray-500 leading-relaxed">{tienda.description}</p>
+        <div className="flex items-center justify-center gap-1">
+          <p className="font-bold text-gray-900 text-sm">{store.name}</p>
+          {store.isVerified && <ShieldCheck className="h-3.5 w-3.5 text-agrobot-600" />}
+        </div>
+        {store.avgRating !== null && (
+          <div className="flex items-center justify-center gap-1 mt-0.5">
+            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+            <span className="text-xs font-semibold text-gray-700">{Number(store.avgRating).toFixed(1)}</span>
+            <span className="text-xs text-gray-400">({store.reviewCount})</span>
+          </div>
+        )}
+        {description && (
+          <p className="mt-1 text-xs text-gray-500 leading-relaxed line-clamp-2">{description}</p>
+        )}
       </div>
       <button className="w-full rounded-lg border border-gray-200 py-2 text-xs font-semibold text-gray-600 transition-colors hover:border-agrobot-300 hover:text-agrobot-700">
         Visitar Tienda
@@ -265,10 +236,7 @@ function HeroBanner() {
   const { days, hours, minutes } = useCountdown(target)
 
   return (
-    <section
-      className="relative overflow-hidden rounded-2xl mx-auto max-w-6xl mt-6 px-4"
-      style={{ minHeight: 300 }}
-    >
+    <section className="relative overflow-hidden rounded-2xl mx-auto max-w-6xl mt-6 px-4" style={{ minHeight: 300 }}>
       <div
         className="relative overflow-hidden rounded-2xl w-full"
         style={{
@@ -288,8 +256,6 @@ function HeroBanner() {
           <p className="text-white/80 text-sm max-w-sm mb-6 leading-relaxed">
             Equipate con lo mejor para esta temporada. Maquinaria, semillas y fertilizantes con descuentos de hasta el 40%.
           </p>
-
-          {/* Countdown */}
           <div className="inline-flex flex-col gap-1.5 bg-black/30 backdrop-blur-sm rounded-xl px-5 py-3.5 w-fit mb-6">
             <span className="text-[10px] font-semibold tracking-widest text-white/60 uppercase">
               La oferta termina en:
@@ -302,7 +268,6 @@ function HeroBanner() {
               <CountdownUnit value={minutes} label="Min" />
             </div>
           </div>
-
           <button className="flex w-fit items-center gap-2 rounded-xl bg-agrobot-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-agrobot-700">
             Ver Catálogo de Cosecha
             <ArrowRight className="h-4 w-4" />
@@ -313,9 +278,14 @@ function HeroBanner() {
   )
 }
 
-function CategoryFilter() {
-  const [active, setActive] = useState('Todas las Ofertas')
+interface CategoryFilterProps {
+  categories: ApiCategory[]
+  selectedId: number | null
+  onChange: (id: number | null) => void
+  loading: boolean
+}
 
+function CategoryFilter({ categories, selectedId, onChange, loading }: CategoryFilterProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 mt-8">
       <div className="flex items-center justify-between mb-4">
@@ -323,61 +293,115 @@ function CategoryFilter() {
         <button className="text-sm font-semibold text-agrobot-700 hover:underline">Ver todas</button>
       </div>
       <div className="flex gap-2 flex-wrap">
-        {categories.map(({ label, Icon }) => {
-          const isActive = active === label
-          return (
-            <button
-              key={label}
-              onClick={() => setActive(label)}
-              className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
-                isActive
-                  ? 'bg-agrobot-700 text-white shadow-sm'
-                  : 'border border-gray-200 bg-white text-gray-600 hover:border-agrobot-300 hover:text-agrobot-700'
-              }`}
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </button>
-          )
-        })}
+        <button
+          onClick={() => onChange(null)}
+          className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+            selectedId === null
+              ? 'bg-agrobot-700 text-white shadow-sm'
+              : 'border border-gray-200 bg-white text-gray-600 hover:border-agrobot-300 hover:text-agrobot-700'
+          }`}
+        >
+          <Zap className="h-4 w-4" />
+          Todas las Ofertas
+        </button>
+        {loading
+          ? [1, 2, 3, 4].map((i) => <Skeleton key={i} className="h-9 w-24 rounded-full" />)
+          : categories.map((cat) => {
+              const Icon = getCategoryIcon(cat.slug)
+              const isActive = selectedId === cat.id
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => onChange(cat.id)}
+                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
+                    isActive
+                      ? 'bg-agrobot-700 text-white shadow-sm'
+                      : 'border border-gray-200 bg-white text-gray-600 hover:border-agrobot-300 hover:text-agrobot-700'
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {cat.name}
+                </button>
+              )
+            })}
       </div>
     </section>
   )
 }
 
-function OfertasDelDia() {
+interface OfertasDelDiaProps {
+  listings: ApiListing[]
+  loading: boolean
+}
+
+function OfertasDelDia({ listings, loading }: OfertasDelDiaProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 mt-8">
       <div className="flex items-center gap-2 mb-4">
         <Zap className="h-5 w-5 text-amber-500 fill-amber-500" />
-        <h2 className="font-display text-lg font-bold text-gray-900">Ofertas del Día</h2>
+        <h2 className="font-display text-lg font-bold text-gray-900">Ofertas Destacadas</h2>
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {products.map((product) => (
-          <OfertaCard key={product.id} product={product} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => <OfertaCardSkeleton key={i} />)}
+        </div>
+      ) : listings.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Tag className="h-10 w-10 text-gray-200 mb-3" />
+          <p className="text-sm font-semibold text-gray-400">No hay ofertas destacadas en este momento</p>
+          <p className="text-xs text-gray-400 mt-1">Volvé más tarde para ver nuevas publicaciones</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+          {listings.map((listing) => (
+            <OfertaCard key={listing.id} listing={listing} />
+          ))}
+        </div>
+      )}
     </section>
   )
 }
 
-function TiendasOficiales() {
+interface TiendasOficialesProps {
+  stores: ApiStore[]
+  loading: boolean
+}
+
+function TiendasOficiales({ stores, loading }: TiendasOficialesProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 mt-10 mb-10">
       <div className="rounded-2xl border border-gray-200 bg-gray-50 p-6">
         <div className="flex items-center justify-between mb-1">
-          <h2 className="font-display text-lg font-bold text-gray-900">Promociones de Tiendas Oficiales</h2>
+          <h2 className="font-display text-lg font-bold text-gray-900">Tiendas Verificadas</h2>
           <button className="flex items-center gap-1 text-sm font-semibold text-agrobot-700 hover:underline">
             Ver todas las tiendas
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
         <p className="text-xs text-gray-500 mb-5">Compra directo de las mejores marcas del sector con garantía oficial.</p>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {tiendas.map((tienda) => (
-            <TiendaCard key={tienda.id} tienda={tienda} />
-          ))}
-        </div>
+        {loading ? (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="rounded-xl border border-gray-200 bg-white p-5 flex flex-col items-center gap-3">
+                <Skeleton className="h-16 w-16 rounded-full" />
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-3 w-40" />
+                <Skeleton className="h-8 w-full" />
+              </div>
+            ))}
+          </div>
+        ) : stores.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <Building2 className="h-10 w-10 text-gray-200 mb-2" />
+            <p className="text-xs text-gray-400">No hay tiendas verificadas aún</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {stores.map((store) => (
+              <TiendaCard key={store.id} store={store} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
@@ -386,12 +410,51 @@ function TiendasOficiales() {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function OfertasPage() {
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null)
+
+  const [categories, setCategories] = useState<ApiCategory[]>([])
+  const [catLoading, setCatLoading] = useState(true)
+
+  const [listings, setListings] = useState<ApiListing[]>([])
+  const [listingsLoading, setListingsLoading] = useState(true)
+
+  const [stores, setStores] = useState<ApiStore[]>([])
+  const [storesLoading, setStoresLoading] = useState(true)
+
+  useEffect(() => {
+    axiosInstance.get<ApiCategory[]>('/categories')
+      .then((res) => setCategories(res.data))
+      .catch(() => {})
+      .finally(() => setCatLoading(false))
+
+    axiosInstance.get<{ stores: ApiStore[] }>('/stores', { params: { isVerified: true, limit: 3 } })
+      .then((res) => setStores(res.data.stores))
+      .catch(() => {})
+      .finally(() => setStoresLoading(false))
+  }, [])
+
+  useEffect(() => {
+    setListingsLoading(true)
+    const params: Record<string, unknown> = { isFeatured: true, limit: 8 }
+    if (selectedCategoryId !== null) params.categoryId = selectedCategoryId
+
+    axiosInstance.get<{ listings: ApiListing[] }>('/search', { params })
+      .then((res) => setListings(res.data.listings))
+      .catch(() => setListings([]))
+      .finally(() => setListingsLoading(false))
+  }, [selectedCategoryId])
+
   return (
     <div className="bg-white min-h-screen pb-10">
       <HeroBanner />
-      <CategoryFilter />
-      <OfertasDelDia />
-      <TiendasOficiales />
+      <CategoryFilter
+        categories={categories}
+        selectedId={selectedCategoryId}
+        onChange={setSelectedCategoryId}
+        loading={catLoading}
+      />
+      <OfertasDelDia listings={listings} loading={listingsLoading} />
+      <TiendasOficiales stores={stores} loading={storesLoading} />
     </div>
   )
 }

@@ -392,7 +392,7 @@ function CategoriesSection() {
     <section className="border-y border-border bg-white py-8">
       <div className="mx-auto max-w-6xl px-4">
         <div className="flex justify-center gap-6 md:gap-10 flex-wrap">
-          {items.map(({ id, name }) => {
+          {items.map(({ id, name, imageUrl }) => {
             const Icon = getCategoryIcon(name)
             return (
               <a
@@ -400,8 +400,12 @@ function CategoriesSection() {
                 href={`/catalogo?categoryId=${id}`}
                 className="group flex flex-col items-center gap-2 text-muted-foreground transition-colors hover:text-agrobot-700"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-all group-hover:border-agrobot-100 group-hover:bg-agrobot-50">
-                  <Icon className="h-6 w-6 group-hover:text-agrobot-600" />
+                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-all group-hover:border-agrobot-100 group-hover:bg-agrobot-50 overflow-hidden">
+                  {imageUrl ? (
+                    <img src={imageUrl} alt={name} className="h-full w-full object-cover rounded-full" />
+                  ) : (
+                    <Icon className="h-6 w-6 group-hover:text-agrobot-600" />
+                  )}
                 </div>
                 <span className="text-xs font-semibold">{name}</span>
               </a>

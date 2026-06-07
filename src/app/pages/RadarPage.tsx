@@ -1,32 +1,56 @@
-import { useState } from 'react'
-import { Search, MapPin, Star, Heart, SlidersHorizontal, Store, Users, FlaskConical, BadgeCheck, MessageCircle, ExternalLink, ChevronLeft, ChevronRight, Layers, X, ClipboardCheck, Briefcase } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import {
+  Search, MapPin, Star, Heart, SlidersHorizontal, Store, Users, FlaskConical,
+  BadgeCheck, MessageCircle, ExternalLink, ChevronLeft, ChevronRight,
+  Layers, X, ClipboardCheck, Briefcase, Building2,
+} from 'lucide-react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { Link } from 'react-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import { Skeleton } from '@/components/ui/skeleton'
+import { axiosInstance } from '@/modules/shared/lib/axios'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type BadgeType = 'VERIFICADO' | 'PARTNER' | null
-type FilterType = 'Todos' | 'Tiendas' | 'Productores' | 'Laboratorios' | 'Certificadores' | 'Inspectores' | 'Exportadores'
-type ActionType = 'whatsapp' | 'cotizar'
+type FilterType = 'Todos' | 'Tiendas' | 'Productores' | 'Laboratorios' | 'Certificadores' | 'Inspectores'
 
-interface Company {
+interface StoreResult {
   id: number
   name: string
-  badge: BadgeType
-  rating: number
-  reviews: number
-  description: string
-  tags: string[]
-  location: string
-  distance: string
-  action: ActionType
-  image: string
-  lat: number
-  lng: number
+  slug: string
+  description: string | null
+  logoUrl: string | null
+  roleType: string
+  department: string | null
+  municipality: string | null
+  isVerified: boolean
+  specialties: string | null
+  lat: string | null
+  lng: string | null
+  avgRating: string | null
+  reviewCount: number
 }
 
-// ─── Data ────────────────────────────────────────────────────────────────────
+interface StoresResponse {
+  stores: StoreResult[]
+  total: number
+  page: number
+  limit: number
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const LIMIT = 10
+
+const FILTER_TO_ROLE: Record<FilterType, string | undefined> = {
+  'Todos':          undefined,
+  'Tiendas':        'seller',
+  'Productores':    'producer',
+  'Laboratorios':   'laboratory',
+  'Certificadores': 'certifier',
+  'Inspectores':    'quality_inspector',
+}
 
 const filters: { label: FilterType; Icon: React.ElementType }[] = [
   { label: 'Todos',          Icon: Store },
@@ -35,88 +59,25 @@ const filters: { label: FilterType; Icon: React.ElementType }[] = [
   { label: 'Laboratorios',   Icon: FlaskConical },
   { label: 'Certificadores', Icon: BadgeCheck },
   { label: 'Inspectores',    Icon: ClipboardCheck },
-  { label: 'Exportadores',   Icon: Briefcase },
 ]
 
-const companies: Company[] = [
-  {
-    id: 1,
-    name: 'AgroTec Insumos Integrales',
-    badge: 'VERIFICADO',
-    rating: 4.8,
-    reviews: 86,
-    description: 'Líderes en distribución de semillas certificadas y tecnología de precisión para el campo. 15 años de trayectoria en el sector.',
-    tags: ['Semillas', 'Riego Tech', 'Bio-Insumos'],
-    location: 'Acarigua, Portuguesa',
-    distance: '12.4 km',
-    action: 'whatsapp',
-    image: '/farm-bg.png',
-    lat: 9.5545,
-    lng: -69.1956,
-  },
-  {
-    id: 2,
-    name: 'BioLab Certificaciones',
-    badge: 'PARTNER',
-    rating: 5.0,
-    reviews: 42,
-    description: 'Análisis de suelos, aguas y certificación de huella de carbono para exportación directa. Rapidez y validez internacional.',
-    tags: ['Exportación', 'Carbono', 'Suelos'],
-    location: 'Barinas, Barinas',
-    distance: '45 km',
-    action: 'cotizar',
-    image: '/bg-cafe.png',
-    lat: 8.6226,
-    lng: -70.2075,
-  },
-  {
-    id: 3,
-    name: 'Establecimiento Don Julio',
-    badge: null,
-    rating: 4.2,
-    reviews: 15,
-    description: 'Productores directos de hortalizas orgánicas. Venta mayorista y minorista con despacho inmediato.',
-    tags: ['Orgánico', 'Venta Directa'],
-    location: 'Quíbor, Lara',
-    distance: '22 km',
-    action: 'whatsapp',
-    image: '/farm-bg.png',
-    lat: 9.9276,
-    lng: -69.6201,
-  },
-  {
-    id: 4,
-    name: 'Syngenta Venezuela',
-    badge: 'VERIFICADO',
-    rating: 4.6,
-    reviews: 130,
-    description: 'Distribución de agroquímicos, semillas híbridas y servicios de asesoría técnica a nivel nacional.',
-    tags: ['Agroquímicos', 'Semillas', 'Asesoría'],
-    location: 'Valencia, Carabobo',
-    distance: '67 km',
-    action: 'cotizar',
-    image: '/bg-cafe.png',
-    lat: 10.1620,
-    lng: -67.9953,
-  },
-  {
-    id: 5,
-    name: 'Finca El Maizal',
-    badge: null,
-    rating: 4.4,
-    reviews: 28,
-    description: 'Producción de maíz blanco y amarillo con tecnología de riego por goteo. Entregas directas al consumidor.',
-    tags: ['Maíz', 'Riego Goteo', 'Mayorista'],
-    location: 'Turén, Portuguesa',
-    distance: '8 km',
-    action: 'whatsapp',
-    image: '/farm-bg.png',
-    lat: 9.3310,
-    lng: -69.1149,
-  },
-]
+const ROLE_LABELS: Record<string, string> = {
+  seller:            'Vendedor',
+  producer:          'Productor',
+  farm_owner:        'Dueño de Finca',
+  input_supplier:    'Proveedor',
+  machinery_supplier:'Maquinaria',
+  agronomist:        'Agrónomo',
+  transporter:       'Transportista',
+  cooperative:       'Cooperativa',
+  laboratory:        'Laboratorio',
+  certifier:         'Certificador',
+  quality_inspector: 'Inspector',
+}
 
-// ─── Custom numbered marker ───────────────────────────────────────────────────
+const especialidades = ['Semillas', 'Fertilizantes', 'Riego Tech', 'Agroquímicos', 'Bio-Insumos', 'Exportación', 'Carbono', 'Suelos', 'Orgánico', 'Ganadería', 'Maquinaria', 'Asesoría']
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function numberedIcon(n: number) {
   return new L.DivIcon({
@@ -127,21 +88,19 @@ function numberedIcon(n: number) {
   })
 }
 
+function StarRating({ value }: { value: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} className={`h-3 w-3 ${i < Math.floor(value) ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`} />
+      ))}
+    </div>
+  )
+}
+
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-const badgeStyles: Record<NonNullable<BadgeType>, string> = {
-  VERIFICADO: 'bg-agrobot-100 text-agrobot-800',
-  PARTNER:    'bg-orange-100 text-orange-700',
-}
-
-const especialidades = ['Semillas', 'Fertilizantes', 'Riego Tech', 'Agroquímicos', 'Bio-Insumos', 'Exportación', 'Carbono', 'Suelos', 'Orgánico', 'Ganadería', 'Maquinaria', 'Asesoría']
-
-interface FiltrosPanelProps {
-  open: boolean
-  onClose: () => void
-}
-
-function FiltrosPanel({ open, onClose }: FiltrosPanelProps) {
+function FiltrosPanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [rating, setRating] = useState(0)
   const [distancia, setDistancia] = useState(100)
   const [soloVerificados, setSoloVerificados] = useState(false)
@@ -150,30 +109,10 @@ function FiltrosPanel({ open, onClose }: FiltrosPanelProps) {
   const toggleTag = (tag: string) =>
     setSelectedTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag])
 
-  const handleReset = () => {
-    setRating(0)
-    setDistancia(100)
-    setSoloVerificados(false)
-    setSelectedTags([])
-  }
-
   return (
     <>
-      {/* Backdrop */}
-      {open && (
-        <div
-          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm"
-          onClick={onClose}
-        />
-      )}
-
-      {/* Drawer */}
-      <div
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col bg-white shadow-2xl transition-transform duration-300 ${
-          open ? 'translate-x-0' : 'translate-x-full'
-        }`}
-      >
-        {/* Header */}
+      {open && <div className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm" onClick={onClose} />}
+      <div className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-sm flex-col bg-white shadow-2xl transition-transform duration-300 ${open ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4">
           <div className="flex items-center gap-2">
             <SlidersHorizontal className="h-4 w-4 text-agrobot-700" />
@@ -183,56 +122,25 @@ function FiltrosPanel({ open, onClose }: FiltrosPanelProps) {
             <X className="h-4 w-4" />
           </button>
         </div>
-
-        {/* Body */}
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
-
-          {/* Rating mínimo */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Rating mínimo</h3>
             <div className="flex gap-2">
               {[0, 3, 4, 4.5, 5].map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setRating(v)}
-                  className={`flex-1 rounded-lg border py-2 text-xs font-semibold transition-all ${
-                    rating === v
-                      ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-800'
-                      : 'border-gray-200 text-gray-600 hover:border-agrobot-300'
-                  }`}
-                >
-                  {v === 0 ? 'Todos' : (
-                    <span className="flex items-center justify-center gap-0.5">
-                      <Star className="h-3 w-3 fill-amber-400 text-amber-400" />{v}+
-                    </span>
-                  )}
+                <button key={v} onClick={() => setRating(v)} className={`flex-1 rounded-lg border py-2 text-xs font-semibold transition-all ${rating === v ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-800' : 'border-gray-200 text-gray-600 hover:border-agrobot-300'}`}>
+                  {v === 0 ? 'Todos' : <span className="flex items-center justify-center gap-0.5"><Star className="h-3 w-3 fill-amber-400 text-amber-400" />{v}+</span>}
                 </button>
               ))}
             </div>
           </div>
-
-          {/* Distancia */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500">Distancia máxima</h3>
               <span className="text-sm font-bold text-agrobot-700">{distancia} km</span>
             </div>
-            <input
-              type="range"
-              min={5}
-              max={500}
-              step={5}
-              value={distancia}
-              onChange={(e) => setDistancia(Number(e.target.value))}
-              className="w-full accent-agrobot-600"
-            />
-            <div className="flex justify-between text-[10px] text-gray-400 mt-1">
-              <span>5 km</span>
-              <span>500 km</span>
-            </div>
+            <input type="range" min={5} max={500} step={5} value={distancia} onChange={(e) => setDistancia(Number(e.target.value))} className="w-full accent-agrobot-600" />
+            <div className="flex justify-between text-[10px] text-gray-400 mt-1"><span>5 km</span><span>500 km</span></div>
           </div>
-
-          {/* Solo verificados */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Confiabilidad</h3>
             <label className="flex items-center justify-between cursor-pointer rounded-xl border border-gray-200 px-4 py-3 hover:border-agrobot-300 transition-colors">
@@ -240,62 +148,27 @@ function FiltrosPanel({ open, onClose }: FiltrosPanelProps) {
                 <BadgeCheck className="h-4 w-4 text-agrobot-600" />
                 <span className="text-sm font-medium text-gray-700">Solo empresas verificadas</span>
               </div>
-              <div
-                onClick={() => setSoloVerificados(v => !v)}
-                className={`relative h-5 w-9 rounded-full transition-colors ${soloVerificados ? 'bg-agrobot-600' : 'bg-gray-200'}`}
-              >
+              <div onClick={() => setSoloVerificados(v => !v)} className={`relative h-5 w-9 rounded-full transition-colors cursor-pointer ${soloVerificados ? 'bg-agrobot-600' : 'bg-gray-200'}`}>
                 <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${soloVerificados ? 'translate-x-4' : 'translate-x-0.5'}`} />
               </div>
             </label>
           </div>
-
-          {/* Tipo de empresa */}
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Tipo de empresa</h3>
-            <div className="grid grid-cols-2 gap-2">
-              {['Tiendas', 'Productores', 'Laboratorios', 'Certificadores', 'Inspectores', 'Exportadores'].map((tipo) => (
-                <label key={tipo} className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-2.5 cursor-pointer hover:border-agrobot-300 transition-colors">
-                  <input type="checkbox" className="accent-agrobot-600 h-3.5 w-3.5" />
-                  <span className="text-xs font-medium text-gray-700">{tipo}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          {/* Especialidades */}
           <div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-3">Especialidades</h3>
             <div className="flex flex-wrap gap-2">
               {especialidades.map((tag) => (
-                <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
-                  className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${
-                    selectedTags.includes(tag)
-                      ? 'bg-agrobot-700 text-white'
-                      : 'border border-gray-200 text-gray-600 hover:border-agrobot-300 hover:text-agrobot-700'
-                  }`}
-                >
+                <button key={tag} onClick={() => toggleTag(tag)} className={`rounded-full px-3 py-1 text-xs font-medium transition-all ${selectedTags.includes(tag) ? 'bg-agrobot-700 text-white' : 'border border-gray-200 text-gray-600 hover:border-agrobot-300 hover:text-agrobot-700'}`}>
                   {tag}
                 </button>
               ))}
             </div>
           </div>
-
         </div>
-
-        {/* Footer */}
         <div className="border-t border-gray-100 px-5 py-4 flex gap-3">
-          <button
-            onClick={handleReset}
-            className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50"
-          >
+          <button onClick={() => { setRating(0); setDistancia(100); setSoloVerificados(false); setSelectedTags([]) }} className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50">
             Limpiar filtros
           </button>
-          <button
-            onClick={onClose}
-            className="flex-1 rounded-xl bg-agrobot-700 py-2.5 text-sm font-bold text-white transition-colors hover:bg-agrobot-800"
-          >
+          <button onClick={onClose} className="flex-1 rounded-xl bg-agrobot-700 py-2.5 text-sm font-bold text-white hover:bg-agrobot-800">
             Aplicar filtros
           </button>
         </div>
@@ -304,19 +177,37 @@ function FiltrosPanel({ open, onClose }: FiltrosPanelProps) {
   )
 }
 
-function CompanyCard({ company, index }: { company: Company; index: number }) {
+function StoreCard({ store, index }: { store: StoreResult; index: number }) {
   const [wished, setWished] = useState(false)
+  const rating = store.avgRating ? parseFloat(store.avgRating) : 0
+  const tags = store.specialties
+    ? store.specialties.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3)
+    : []
+  const roleLabel = ROLE_LABELS[store.roleType] ?? store.roleType
+
+  const profilePath = store.roleType === 'producer'
+    ? `/productores/${store.slug}`
+    : store.roleType === 'laboratory'
+    ? `/laboratorios/${store.slug}`
+    : store.roleType === 'certifier'
+    ? `/certificadores/${store.slug}`
+    : store.roleType === 'quality_inspector'
+    ? `/inspectores/${store.slug}`
+    : `/tiendas/${store.slug}`
 
   return (
     <div className="flex gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
-      {/* Index number */}
       <div className="hidden sm:flex h-7 w-7 shrink-0 mt-0.5 items-center justify-center rounded-full bg-agrobot-700 text-xs font-bold text-white">
         {index + 1}
       </div>
 
-      {/* Image */}
-      <div className="h-28 w-28 shrink-0 overflow-hidden rounded-lg">
-        <img src={company.image} alt={company.name} className="h-full w-full object-cover" />
+      {/* Logo / avatar */}
+      <div className="h-28 w-28 shrink-0 overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
+        {store.logoUrl ? (
+          <img src={store.logoUrl} alt={store.name} className="h-full w-full object-cover" />
+        ) : (
+          <Building2 className="h-10 w-10 text-gray-300" />
+        )}
       </div>
 
       {/* Content */}
@@ -324,57 +215,52 @@ function CompanyCard({ company, index }: { company: Company; index: number }) {
         <div>
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="text-sm font-bold text-gray-900">{company.name}</h3>
-              {company.badge && (
-                <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${badgeStyles[company.badge]}`}>
-                  {company.badge}
-                </span>
+              <h3 className="text-sm font-bold text-gray-900">{store.name}</h3>
+              {store.isVerified && (
+                <span className="rounded-full bg-agrobot-100 px-2 py-0.5 text-[10px] font-bold text-agrobot-800">VERIFICADO</span>
               )}
+              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-semibold text-gray-500">{roleLabel}</span>
             </div>
             <button onClick={() => setWished(v => !v)} className="shrink-0 text-gray-300 hover:text-red-400 transition-colors">
               <Heart className={`h-4 w-4 ${wished ? 'fill-red-400 text-red-400' : ''}`} />
             </button>
           </div>
 
-          <div className="mt-1 flex items-center gap-1">
-            {Array.from({ length: 5 }).map((_, i) => (
-              <Star key={i} className={`h-3 w-3 ${i < Math.floor(company.rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`} />
-            ))}
-            <span className="text-xs font-semibold text-gray-700 ml-1">{company.rating}</span>
-            <span className="text-xs text-gray-400">({company.reviews} reseñas)</span>
-          </div>
+          {store.reviewCount > 0 ? (
+            <div className="mt-1 flex items-center gap-1.5">
+              <StarRating value={rating} />
+              <span className="text-xs font-semibold text-gray-700">{rating.toFixed(1)}</span>
+              <span className="text-xs text-gray-400">({store.reviewCount} reseñas)</span>
+            </div>
+          ) : (
+            <p className="mt-1 text-xs text-gray-400">Sin reseñas aún</p>
+          )}
 
-          <p className="mt-1.5 text-xs text-gray-500 leading-relaxed line-clamp-2">{company.description}</p>
+          <p className="mt-1.5 text-xs text-gray-500 leading-relaxed line-clamp-2">
+            {store.description ?? 'Sin descripción disponible.'}
+          </p>
 
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {company.tags.map(tag => (
-              <span key={tag} className="rounded-full border border-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-600">
-                {tag}
-              </span>
-            ))}
-          </div>
+          {tags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {tags.map(tag => (
+                <span key={tag} className="rounded-full border border-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-600">{tag}</span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="mt-3 flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-1 text-xs text-gray-400">
             <MapPin className="h-3 w-3 shrink-0" />
-            <span>{company.location}</span>
-            <span className="text-gray-300">·</span>
-            <span>{company.distance}</span>
+            <span>{[store.municipality, store.department].filter(Boolean).join(', ') || 'Ubicación no disponible'}</span>
           </div>
           <div className="flex gap-2">
-            {company.action === 'whatsapp' ? (
-              <button className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:border-agrobot-400 hover:text-agrobot-700">
-                <MessageCircle className="h-3.5 w-3.5" />WhatsApp
-              </button>
-            ) : (
-              <button className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:border-agrobot-400 hover:text-agrobot-700">
-                Cotizar
-              </button>
-            )}
-            <button className="flex items-center gap-1.5 rounded-lg bg-agrobot-700 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-agrobot-800">
-              <ExternalLink className="h-3.5 w-3.5" />Visitar Perfil
+            <button className="flex items-center gap-1.5 rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:border-agrobot-400 hover:text-agrobot-700">
+              <MessageCircle className="h-3.5 w-3.5" />Contactar
             </button>
+            <Link to={profilePath} className="flex items-center gap-1.5 rounded-lg bg-agrobot-700 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-agrobot-800">
+              <ExternalLink className="h-3.5 w-3.5" />Visitar Perfil
+            </Link>
           </div>
         </div>
       </div>
@@ -382,30 +268,17 @@ function CompanyCard({ company, index }: { company: Company; index: number }) {
   )
 }
 
-function Pagination({ current, total }: { current: number; total: number }) {
-  const pages = [1, 2, 3, '...', total]
+function StoreCardSkeleton() {
   return (
-    <div className="flex items-center justify-center gap-1.5 py-6">
-      <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-agrobot-400 hover:text-agrobot-700">
-        <ChevronLeft className="h-4 w-4" />
-      </button>
-      {pages.map((p, i) => (
-        <button
-          key={i}
-          className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-            p === current
-              ? 'bg-agrobot-700 text-white'
-              : p === '...'
-              ? 'text-gray-400 cursor-default'
-              : 'border border-gray-200 text-gray-600 hover:border-agrobot-400 hover:text-agrobot-700'
-          }`}
-        >
-          {p}
-        </button>
-      ))}
-      <button className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-agrobot-400 hover:text-agrobot-700">
-        <ChevronRight className="h-4 w-4" />
-      </button>
+    <div className="flex gap-4 rounded-xl border border-gray-200 bg-white p-4">
+      <Skeleton className="hidden sm:block h-7 w-7 rounded-full shrink-0" />
+      <Skeleton className="h-28 w-28 shrink-0 rounded-lg" />
+      <div className="flex-1 flex flex-col gap-2 pt-1">
+        <Skeleton className="h-4 w-48" />
+        <Skeleton className="h-3 w-32" />
+        <Skeleton className="h-3 w-full" />
+        <Skeleton className="h-3 w-3/4" />
+      </div>
     </div>
   )
 }
@@ -413,19 +286,62 @@ function Pagination({ current, total }: { current: number; total: number }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function RadarPage() {
-  const [query, setQuery] = useState('')
-  const [location, setLocation] = useState('Portuguesa, Venezuela')
+  const [query,        setQuery]        = useState('')
+  const [location,     setLocation]     = useState('')
   const [activeFilter, setActiveFilter] = useState<FilterType>('Todos')
-  const [satellite, setSatellite] = useState(false)
-  const [filtrosOpen, setFiltrosOpen] = useState(false)
+  const [satellite,    setSatellite]    = useState(false)
+  const [filtrosOpen,  setFiltrosOpen]  = useState(false)
+  const [page,         setPage]         = useState(1)
+
+  const [stores,   setStores]   = useState<StoreResult[]>([])
+  const [total,    setTotal]    = useState(0)
+  const [loading,  setLoading]  = useState(true)
+  const [error,    setError]    = useState<string | null>(null)
+
+  const totalPages = Math.max(1, Math.ceil(total / LIMIT))
+
+  const fetchStores = useCallback(async (p: number) => {
+    setLoading(true)
+    setError(null)
+    try {
+      const params: Record<string, string> = { page: String(p), limit: String(LIMIT) }
+      if (query.trim())    params.search     = query.trim()
+      if (location.trim()) params.department = location.trim()
+      const roleType = FILTER_TO_ROLE[activeFilter]
+      if (roleType)        params.roleType   = roleType
+
+      const res = await axiosInstance.get<StoresResponse>('/stores', { params })
+      setStores(res.data.stores)
+      setTotal(res.data.total)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al cargar empresas')
+    } finally {
+      setLoading(false)
+    }
+  }, [query, location, activeFilter])
+
+  useEffect(() => {
+    setPage(1)
+    fetchStores(1)
+  }, [activeFilter])
+
+  useEffect(() => {
+    fetchStores(page)
+  }, [page])
+
+  function handleSearch() {
+    setPage(1)
+    fetchStores(1)
+  }
 
   const tileUrl = satellite
     ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
     : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-
   const tileAttr = satellite
-    ? '&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS'
+    ? '&copy; Esri &mdash; Source: Esri'
     : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+
+  const mappableStores = stores.filter(s => s.lat && s.lng)
 
   return (
     <div className="flex flex-col bg-gray-50 min-h-screen">
@@ -441,6 +357,7 @@ export function RadarPage() {
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 placeholder="¿Qué buscas? (Tienda, productor, certificador...)"
                 className="flex-1 bg-transparent py-3 text-sm text-gray-700 outline-none placeholder:text-gray-400"
               />
@@ -452,16 +369,19 @@ export function RadarPage() {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="Ubicación"
+                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                placeholder="Estado (ej: Portuguesa)"
                 className="w-44 bg-transparent py-3 text-sm text-gray-700 outline-none placeholder:text-gray-400"
               />
             </div>
-            <button className="flex h-full items-center gap-2 bg-agrobot-700 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-agrobot-800">
+            <button
+              onClick={handleSearch}
+              className="flex h-full items-center gap-2 bg-agrobot-700 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-agrobot-800"
+            >
               <Search className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Filters */}
           <div className="mt-2.5 flex items-center gap-2 flex-wrap">
             {filters.map(({ label, Icon }) => (
               <button
@@ -495,7 +415,8 @@ export function RadarPage() {
         <div className="flex-1 min-w-0">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="text-sm font-bold text-gray-900">
-              Resultados en {location.split(',')[0]} <span className="text-gray-400 font-normal">({companies.length * 24} empresas)</span>
+              {location ? `Resultados en ${location}` : 'Todas las empresas'}{' '}
+              {!loading && <span className="text-gray-400 font-normal">({total} empresas)</span>}
             </h2>
             <div className="flex items-center gap-1.5 text-xs text-gray-500">
               Ordenar por:
@@ -503,39 +424,97 @@ export function RadarPage() {
             </div>
           </div>
 
+          {error && (
+            <div className="mb-3 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           <div className="flex flex-col gap-3">
-            {companies.map((company, i) => (
-              <CompanyCard key={company.id} company={company} index={i} />
-            ))}
+            {loading
+              ? Array.from({ length: 5 }).map((_, i) => <StoreCardSkeleton key={i} />)
+              : stores.length === 0
+              ? (
+                <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-gray-200 bg-white py-16">
+                  <Briefcase className="h-8 w-8 text-gray-300 mb-2" />
+                  <p className="text-sm font-semibold text-gray-500">Sin empresas registradas</p>
+                  <p className="text-xs text-gray-400 mt-1">Prueba cambiando el filtro o la ubicación</p>
+                </div>
+              )
+              : stores.map((store, i) => (
+                <StoreCard key={store.id} store={store} index={(page - 1) * LIMIT + i} />
+              ))
+            }
           </div>
 
-          <Pagination current={1} total={12} />
+          {/* Pagination */}
+          {!loading && total > LIMIT && (
+            <div className="flex items-center justify-center gap-1.5 py-6">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-agrobot-400 hover:text-agrobot-700 disabled:opacity-40"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => i + 1).map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                    p === page
+                      ? 'bg-agrobot-700 text-white'
+                      : 'border border-gray-200 text-gray-600 hover:border-agrobot-400 hover:text-agrobot-700'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+              <button
+                disabled={page === totalPages}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition-colors hover:border-agrobot-400 hover:text-agrobot-700 disabled:opacity-40"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right: map */}
         <div className="hidden lg:block w-95 shrink-0 sticky top-20">
           <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm" style={{ height: 580 }}>
             <MapContainer
-              center={[9.2, -69.4]}
-              zoom={7}
+              center={[8.0, -66.5]}
+              zoom={6}
               style={{ height: '100%', width: '100%' }}
               scrollWheelZoom={false}
-              zoomControl={true}
             >
               <TileLayer attribution={tileAttr} url={tileUrl} />
-              {companies.map((c, i) => (
-                <Marker key={c.id} position={[c.lat, c.lng]} icon={numberedIcon(i + 1)}>
+              {mappableStores.map((s, i) => (
+                <Marker
+                  key={s.id}
+                  position={[parseFloat(s.lat!), parseFloat(s.lng!)]}
+                  icon={numberedIcon((page - 1) * LIMIT + i + 1)}
+                >
                   <Popup>
                     <div style={{ minWidth: 160 }}>
-                      <p style={{ fontWeight: 700, color: '#14532d', marginBottom: 2, fontSize: 13 }}>{c.name}</p>
-                      <p style={{ fontSize: 11, color: '#64748b' }}>{c.location} · {c.distance}</p>
+                      <p style={{ fontWeight: 700, color: '#14532d', marginBottom: 2, fontSize: 13 }}>{s.name}</p>
+                      <p style={{ fontSize: 11, color: '#64748b' }}>{[s.municipality, s.department].filter(Boolean).join(', ')}</p>
                     </div>
                   </Popup>
                 </Marker>
               ))}
             </MapContainer>
 
-            {/* Satellite toggle */}
+            {mappableStores.length === 0 && !loading && (
+              <div className="absolute inset-0 flex items-end justify-center pb-4 pointer-events-none z-10">
+                <div className="rounded-lg bg-white/90 px-3 py-2 text-xs text-gray-500 shadow">
+                  Sin coordenadas disponibles para este filtro
+                </div>
+              </div>
+            )}
+
             <button
               onClick={() => setSatellite(v => !v)}
               className={`absolute top-3 left-3 z-999 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold shadow transition-colors ${
