@@ -4,6 +4,7 @@ import { HomePage } from '../app/pages/HomePage'
 import { OfertasPage } from '../app/pages/OfertasPage'
 import { CategoriasPage } from '../app/pages/CategoriasPage'
 import { AyudaPage } from '../app/pages/AyudaPage'
+import { AyudaArticlePage } from '../app/pages/AyudaArticlePage'
 import { BlogPage } from '../app/pages/BlogPage'
 import { BlogArticlePage } from '../app/pages/BlogArticlePage'
 import { RadarPage } from '../app/pages/RadarPage'
@@ -74,6 +75,7 @@ export default function AppRoutes() {
         <Route path="ofertas" element={<OfertasPage />} />
         <Route path="categorias" element={<CategoriasPage />} />
         <Route path="ayuda" element={<AyudaPage />} />
+        <Route path="ayuda/:slug" element={<AyudaArticlePage />} />
         <Route path="blog" element={<BlogPage />} />
         <Route path="blog/:slug" element={<BlogArticlePage />} />
         <Route path="radar" element={<RadarPage />} />
