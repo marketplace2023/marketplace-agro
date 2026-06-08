@@ -38,8 +38,17 @@ export function ServicioAgronomicoDetallePage() {
           <div className="flex flex-col gap-5">
 
             {/* Hero image */}
-            <div className="rounded-2xl overflow-hidden">
-              <img src="/farm-bg.png" alt="" className="h-56 w-full object-cover" />
+            <div className="relative overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
+              <img src="/farm-bg.png" alt="" className="h-64 w-full object-cover" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/40 to-transparent" />
+              <div className="absolute left-3 top-3">
+                <span className="rounded-full bg-agrobot-700/90 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">Servicio Agronómico</span>
+              </div>
+              <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                <span className="rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-gray-700 backdrop-blur-sm shadow-sm flex items-center gap-1">
+                  <Star className="h-3 w-3 fill-amber-400 text-amber-400" />4.9 · 34 reseñas
+                </span>
+              </div>
             </div>
 
             {/* Perfil del asesor */}
@@ -148,8 +157,11 @@ export function ServicioAgronomicoDetallePage() {
               <h2 className="font-display text-base font-bold text-gray-900 mb-3">Servicios Similares</h2>
               <div className="grid grid-cols-3 gap-3">
                 {similares.map(s => (
-                  <div key={s.name} className="rounded-xl border border-gray-200 bg-white overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-                    <img src={s.image} alt={s.name} className="h-28 w-full object-cover" />
+                  <div key={s.name} className="group rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer">
+                    <div className="relative h-28 overflow-hidden">
+                      <img src={s.image} alt={s.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+                    </div>
                     <div className="p-3">
                       <p className="text-xs font-bold text-gray-900">{s.name}</p>
                       <p className="mt-1 text-sm font-bold text-agrobot-700">{s.price}</p>

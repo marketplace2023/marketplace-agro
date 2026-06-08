@@ -15,14 +15,15 @@ interface HeroPerfilProps {
 export function HeroPerfil({ bg = '/farm-bg.png', children, height = 280 }: HeroPerfilProps) {
   return (
     <div
-      className="relative w-full"
+      className="relative w-full overflow-hidden"
       style={{
-        backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.45) 100%), url('${bg}')`,
+        backgroundImage: `url('${bg}')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         height,
       }}
     >
+      <div className="absolute inset-0 bg-linear-to-b from-black/10 via-black/35 to-black/65" />
       {children}
     </div>
   )
@@ -64,26 +65,29 @@ export const defaultReviews: Review[] = [
 
 export function ReviewCard({ review }: { review: Review }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
-      <div className="flex items-start justify-between mb-2">
+    <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+      <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2.5">
-          <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${review.color}`}>
+          <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white shadow-sm ${review.color}`}>
             {review.initials}
           </div>
           <div>
             <p className="text-sm font-bold text-gray-900">{review.name}</p>
-            <p className="text-xs text-gray-400">{review.role} · {review.ago}</p>
+            <p className="text-xs text-gray-400">{review.role}{review.role ? ' · ' : ''}{review.ago}</p>
           </div>
         </div>
-        <div className="flex">
+        <div className="flex gap-0.5">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Star key={i} className={`h-3 w-3 ${i < review.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`} />
+            <Star key={i} className={`h-3.5 w-3.5 ${i < review.rating ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`} />
           ))}
         </div>
       </div>
       <p className="text-sm text-gray-600 leading-relaxed italic">{review.text}</p>
       {review.verified && (
-        <p className="mt-2 text-xs font-semibold text-agrobot-700">✓ Compra verificada</p>
+        <p className="mt-2.5 flex items-center gap-1 text-xs font-semibold text-agrobot-700">
+          <span className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-agrobot-100 text-[10px]">✓</span>
+          Compra verificada
+        </p>
       )}
     </div>
   )

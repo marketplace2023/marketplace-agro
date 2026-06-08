@@ -39,6 +39,7 @@ import { SellerStoreGbp } from '../modules/seller/pages/seller-store-gbp'
 import { SellerAnalytics } from '../modules/seller/pages/seller-analytics'
 import { SellerReputation } from '../modules/seller/pages/seller-reputation'
 import { SellerConfig } from '../modules/seller/pages/seller-config'
+import { SellerOferta } from '../modules/seller/pages/seller-oferta'
 // Productor (P065–P075)
 import { ProducerLayout } from '../modules/producer/layout/producer-layout'
 import { ProducerDashboard } from '../modules/producer/pages/producer-dashboard'
@@ -102,6 +103,7 @@ export default function AppRoutes() {
         <Route index element={<Navigate to="/app/seller/dashboard" replace />} />
         <Route path="dashboard" element={<SellerDashboard />} />
         <Route path="perfil" element={<SellerPerfil />} />
+        <Route path="oferta" element={<SellerOferta />} />
         <Route path="publicaciones" element={<SellerListings />} />
         <Route path="cotizaciones" element={<SellerQuotes />} />
         <Route path="leads" element={<SellerLeads />} />

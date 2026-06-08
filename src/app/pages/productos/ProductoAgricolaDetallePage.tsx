@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { ChevronRight, Heart, BarChart2, MapPin, CheckCircle2, Star, Truck, Package, Calendar, Leaf } from 'lucide-react'
+import { ChevronRight, Heart, BarChart2, MapPin, CheckCircle2, Star, Truck, Package, Calendar, Leaf, LayoutGrid } from 'lucide-react'
 import { MapaUbicacion } from '../../../modules/empresa/components/perfil-shared'
 
 const transporte = [
@@ -33,9 +33,29 @@ export function ProductoAgricolaDetallePage() {
           <div className="flex flex-col gap-5">
 
             {/* Gallery */}
-            <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden">
-              <img src="/farm-bg.png" alt="" className="h-64 w-full object-cover" />
-              <img src="/bg-cafe.png" alt="" className="h-64 w-full object-cover" />
+            <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
+              <div className="grid grid-cols-[1fr_176px] gap-0.5 bg-gray-200">
+                <div className="relative h-72">
+                  <img src="/farm-bg.png" alt="" className="h-full w-full object-cover" />
+                  <div className="absolute left-3 top-3">
+                    <span className="rounded-full bg-agrobot-700/90 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">Cosecha Fresca</span>
+                  </div>
+                  <button className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 backdrop-blur-sm shadow-sm">
+                    <LayoutGrid className="h-3.5 w-3.5" />Ver fotos
+                  </button>
+                </div>
+                <div className="flex h-72 flex-col gap-0.5">
+                  <div className="flex-1 overflow-hidden">
+                    <img src="/bg-cafe.png" alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="flex flex-1 items-center justify-center bg-linear-to-br from-green-50 to-agrobot-50">
+                    <div className="text-center">
+                      <p className="text-xl font-bold text-agrobot-400">+4</p>
+                      <p className="text-[11px] text-agrobot-300">fotos</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Header */}
@@ -150,8 +170,11 @@ export function ProductoAgricolaDetallePage() {
               <h2 className="font-display text-base font-bold text-gray-900 mb-3">Cosechas Similares</h2>
               <div className="grid grid-cols-3 gap-3">
                 {similares.map(s => (
-                  <div key={s.name} className="rounded-xl border border-gray-200 bg-white overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-                    <img src={s.image} alt={s.name} className="h-28 w-full object-cover" />
+                  <div key={s.name} className="group rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer">
+                    <div className="relative h-28 overflow-hidden">
+                      <img src={s.image} alt={s.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+                    </div>
                     <div className="p-3">
                       <p className="text-xs font-bold text-gray-900">{s.name}</p>
                       <p className="mt-1 text-sm font-bold text-agrobot-700">{s.price}</p>

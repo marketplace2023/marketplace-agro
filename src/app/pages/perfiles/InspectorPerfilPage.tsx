@@ -29,7 +29,7 @@ export function InspectorPerfilPage() {
       {/* Hero */}
       <div className="relative" style={{ height: 220 }}>
         <HeroPerfil bg="/farm-bg.png" height={220} />
-        <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/50 to-transparent">
+        <div className="absolute bottom-0 left-0 right-0 p-5 bg-linear-to-t from-black/50 to-transparent">
           <div className="flex items-end justify-between">
             <div className="flex items-end gap-3">
               <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-white bg-white shadow-md">

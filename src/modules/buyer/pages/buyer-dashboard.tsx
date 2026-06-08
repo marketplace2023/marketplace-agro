@@ -46,9 +46,15 @@ export function BuyerDashboard() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Resumen de tus solicitudes de cotización</p>
+      {/* Welcome banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-agrobot-700 to-agrobot-500 p-6 text-white">
+        <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+        <div className="absolute -right-12 top-8 h-20 w-20 rounded-full bg-white/5 blur-lg" />
+        <div className="relative">
+          <p className="text-[11px] font-bold uppercase tracking-widest text-agrobot-200">Panel del Comprador</p>
+          <h1 className="font-display mt-1 text-2xl font-bold text-white">Mis cotizaciones</h1>
+          <p className="mt-1 text-sm text-agrobot-100">Sigue el estado de tus solicitudes a proveedores.</p>
+        </div>
       </div>
 
       {/* Stats */}
@@ -152,20 +158,17 @@ function StatCard({
   bg: string
 }) {
   return (
-    <Card>
-      <CardContent className="flex items-center gap-4 pt-6">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${bg}`}>
-          <Icon className={`h-5 w-5 ${color}`} />
-        </div>
-        <div>
-          <p className="text-xs font-medium text-gray-500">{title}</p>
-          {value === null ? (
-            <Skeleton className="mt-1 h-7 w-12" />
-          ) : (
-            <p className="text-2xl font-bold text-gray-900">{value}</p>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-agrobot-500 to-agrobot-300 rounded-t-2xl" />
+      <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${bg}`}>
+        <Icon className={`h-5 w-5 ${color}`} />
+      </div>
+      {value === null ? (
+        <Skeleton className="h-8 w-16 mb-1" />
+      ) : (
+        <p className="text-3xl font-bold text-gray-900">{value}</p>
+      )}
+      <p className="mt-0.5 text-[11px] font-semibold text-gray-500">{title}</p>
+    </div>
   )
 }

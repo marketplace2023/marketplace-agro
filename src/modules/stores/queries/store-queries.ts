@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getFeaturedStores, getStoreBySlug, getStoreReviews } from '../api/stores'
+import { getFeaturedStores, getStoreBySlug, getStoreReviews, getStoreListings } from '../api/stores'
 
 export function useFeaturedStoresQuery() {
   return useQuery({
@@ -21,6 +21,14 @@ export function useStoreReviewsQuery(slug: string | undefined) {
   return useQuery({
     queryKey: ['stores', slug, 'reviews'],
     queryFn: () => getStoreReviews(slug!),
+    enabled: !!slug,
+  })
+}
+
+export function useStoreListingsQuery(slug: string | undefined) {
+  return useQuery({
+    queryKey: ['stores', slug, 'listings'],
+    queryFn: () => getStoreListings(slug!),
     enabled: !!slug,
   })
 }

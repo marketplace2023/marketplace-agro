@@ -108,7 +108,7 @@ function CountdownUnit({ value, label }: { value: number; label: string }) {
 function OfertaCardSkeleton() {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
-      <Skeleton className="aspect-[4/3] w-full" />
+      <Skeleton className="aspect-4/3 w-full" />
       <div className="p-3.5 flex flex-col gap-2">
         <Skeleton className="h-3 w-20" />
         <Skeleton className="h-4 w-full" />
@@ -130,7 +130,7 @@ function OfertaCard({ listing }: { listing: ApiListing }) {
   return (
     <div className="group overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
       {/* Image */}
-      <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-gradient-to-br from-agrobot-700 to-agrobot-900">
+      <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden bg-linear-to-br from-agrobot-700 to-agrobot-900">
         {listing.primaryImage ? (
           <img
             src={listing.primaryImage}
@@ -199,7 +199,7 @@ function TiendaCard({ store }: { store: ApiStore }) {
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3 transition-shadow hover:shadow-md">
-      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full overflow-hidden bg-gradient-to-br from-agrobot-600 to-agrobot-800 shadow">
+      <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full overflow-hidden bg-linear-to-br from-agrobot-600 to-agrobot-800 shadow">
         {store.logoUrl ? (
           <img src={store.logoUrl} alt={store.name} className="h-full w-full object-cover" />
         ) : (

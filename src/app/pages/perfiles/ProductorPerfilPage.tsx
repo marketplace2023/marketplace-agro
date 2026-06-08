@@ -24,7 +24,7 @@ export function ProductorPerfilPage() {
 
       <div className="mx-auto max-w-5xl px-4">
         {/* Company card */}
-        <div className="relative -mt-20 rounded-2xl border border-gray-200 bg-white p-5 shadow-md mb-6">
+        <div className="relative -mt-20 overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-lg mb-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-start gap-4">
               <div className="h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-white shadow-md">
@@ -72,18 +72,21 @@ export function ProductorPerfilPage() {
             {activeTab === 'Cosechas Disponibles' && (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 {cosechas.map(c => (
-                  <div key={c.id} className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
-                    <div className="h-44 overflow-hidden">
-                      <img src={c.image} alt={c.name} className="h-full w-full object-cover" />
+                  <div key={c.id} className="group overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md">
+                    <div className="relative h-44 overflow-hidden">
+                      <img src={c.image} alt={c.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/35 to-transparent" />
+                      <span className="absolute bottom-2 right-2 rounded-full bg-black/50 px-2 py-0.5 text-[10px] font-bold text-white backdrop-blur-sm">
+                        Stock: {c.stock}
+                      </span>
                     </div>
                     <div className="p-4">
-                      <h3 className="font-bold text-gray-900 text-sm">{c.name}</h3>
-                      <div className="mt-1 flex items-baseline justify-between">
-                        <span className="text-xl font-bold text-agrobot-700">{c.price} <span className="text-xs font-normal text-gray-500">{c.unit}</span></span>
-                        <span className="text-xs text-gray-400 bg-gray-100 rounded-full px-2 py-0.5">Stock: {c.stock}</span>
-                      </div>
-                      <p className="mt-2 text-xs text-gray-500 leading-relaxed">{c.description}</p>
-                      <button className="mt-3 w-full rounded-lg bg-agrobot-600 py-2 text-xs font-bold text-white hover:bg-agrobot-700 transition-colors">
+                      <h3 className="font-display font-bold text-gray-900 text-sm">{c.name}</h3>
+                      <p className="mt-1.5 text-xl font-bold text-agrobot-700">
+                        {c.price} <span className="text-xs font-normal text-gray-500">{c.unit}</span>
+                      </p>
+                      <p className="mt-2 text-xs text-gray-500 leading-relaxed line-clamp-2">{c.description}</p>
+                      <button className="mt-3 w-full rounded-xl bg-agrobot-700 py-2.5 text-xs font-bold text-white hover:bg-agrobot-800 transition-colors">
                         Ver Cosecha
                       </button>
                     </div>

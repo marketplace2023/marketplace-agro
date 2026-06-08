@@ -6,6 +6,7 @@ export interface StoreListItem {
   slug: string
   description: string | null
   logoUrl: string | null
+  bannerUrl: string | null
   roleType: string
   department: string | null
   municipality: string | null
@@ -85,4 +86,31 @@ export async function getStoreBySlug(slug: string): Promise<StoreProfile> {
 export async function getStoreReviews(slug: string): Promise<StoreReview[]> {
   const res = await axiosInstance.get<StoreReview[]>(`/stores/${slug}/reviews`)
   return res.data
+}
+
+export interface StoreListing {
+  id: number
+  title: string
+  price: string | null
+  priceUnit: string | null
+  listingType: string
+  department: string | null
+  municipality: string | null
+  isFeatured: boolean
+  slug: string
+  viewCount: number
+  categoryName: string | null
+  storeName: string | null
+  storeSlug: string | null
+  storeLogoUrl: string | null
+  storeIsVerified: boolean | null
+  thumbnailUrl: string | null
+  createdAt: string
+}
+
+export async function getStoreListings(slug: string): Promise<StoreListing[]> {
+  const res = await axiosInstance.get<{ listings: StoreListing[] }>('/listings', {
+    params: { storeSlug: slug, limit: 50 },
+  })
+  return res.data.listings
 }

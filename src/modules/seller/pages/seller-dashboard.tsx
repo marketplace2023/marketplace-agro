@@ -1,7 +1,7 @@
 import { Link } from 'react-router'
 import {
   Package, FileText, Eye, TrendingUp, Store,
-  ArrowUpRight, AlertCircle, ShieldCheck,
+  ArrowUpRight, AlertCircle, ShieldCheck, Plus,
 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMyListingsQuery, useMyStoreQuery, useReceivedQuotesQuery } from '../queries/seller-queries'
@@ -57,10 +57,24 @@ export function SellerDashboard() {
   return (
     <div className="flex flex-col gap-6">
 
-      {/* Header */}
-      <div>
-        <h1 className="font-display text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-400 mt-0.5">Bienvenido, {userName} 👋</p>
+      {/* Welcome banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-linear-to-r from-agrobot-800 to-agrobot-600 p-6 text-white">
+        <div className="absolute -right-6 -top-6 h-28 w-28 rounded-full bg-white/10 blur-xl" />
+        <div className="absolute -right-12 top-8 h-20 w-20 rounded-full bg-white/5 blur-lg" />
+        <div className="relative flex items-center justify-between gap-4">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-agrobot-300">Panel del Vendedor</p>
+            <h1 className="font-display mt-1 text-2xl font-bold text-white">Hola, {userName} 👋</h1>
+            <p className="mt-1 text-sm text-agrobot-200">Aquí tienes un resumen de tu actividad reciente.</p>
+          </div>
+          <Link
+            to="/app/seller/publicaciones"
+            className="hidden sm:flex shrink-0 items-center gap-2 rounded-xl bg-white/20 px-4 py-2.5 text-sm font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/30"
+          >
+            <Plus className="h-4 w-4" />
+            Nueva publicación
+          </Link>
+        </div>
       </div>
 
       {/* Store banner */}
@@ -102,10 +116,10 @@ export function SellerDashboard() {
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard title="Publicaciones activas" value={loadingL ? null : published}  icon={Package}   trend="en el marketplace" />
-        <StatCard title="En revisión"           value={loadingL ? null : inReview}   icon={TrendingUp} trend={inReview > 0 ? 'pendientes de aprobación' : 'Al día'} trendNeutral />
-        <StatCard title="Vistas totales"        value={loadingL ? null : totalViews} icon={Eye}        trend="en todas tus publicaciones" trendNeutral />
-        <StatCard title="Cotizaciones nuevas"   value={loadingQ ? null : newQuotes}  icon={FileText}   trend={newQuotes > 0 ? 'esperan respuesta' : 'Al día'} trendNeutral={newQuotes === 0} />
+        <StatCard title="Publicaciones activas" value={loadingL ? null : published}  icon={Package}    trend="en el marketplace" iconBg="bg-agrobot-50" iconColor="text-agrobot-600" />
+        <StatCard title="En revisión"           value={loadingL ? null : inReview}   icon={TrendingUp} trend={inReview > 0 ? 'pendientes' : 'Al día'} trendNeutral iconBg="bg-amber-50" iconColor="text-amber-600" />
+        <StatCard title="Vistas totales"        value={loadingL ? null : totalViews} icon={Eye}        trend="en tus publicaciones" trendNeutral iconBg="bg-blue-50" iconColor="text-blue-600" />
+        <StatCard title="Cotizaciones nuevas"   value={loadingQ ? null : newQuotes}  icon={FileText}   trend={newQuotes > 0 ? 'esperan respuesta' : 'Al día'} trendNeutral={newQuotes === 0} iconBg="bg-violet-50" iconColor="text-violet-600" />
       </div>
 
       {/* Recent listings + recent quotes */}
@@ -197,25 +211,29 @@ export function SellerDashboard() {
 
 function StatCard({
   title, value, icon: Icon, trend, trendNeutral = false,
+  iconBg = 'bg-agrobot-50', iconColor = 'text-agrobot-600',
 }: {
   title: string
   value: number | null
   icon: React.ElementType
   trend: string
   trendNeutral?: boolean
+  iconBg?: string
+  iconColor?: string
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5">
-      <div className="flex items-start justify-between">
-        <p className="text-sm font-medium text-gray-500">{title}</p>
-        <Icon className="h-4 w-4 text-gray-300" />
+    <div className="relative overflow-hidden rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+      <div className="absolute inset-x-0 top-0 h-0.5 bg-linear-to-r from-agrobot-500 to-agrobot-300 rounded-t-2xl" />
+      <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl ${iconBg}`}>
+        <Icon className={`h-5 w-5 ${iconColor}`} />
       </div>
       {value === null ? (
-        <Skeleton className="mt-3 h-8 w-16" />
+        <Skeleton className="h-8 w-16 mb-1" />
       ) : (
-        <p className="mt-2 text-3xl font-bold text-gray-900">{value}</p>
+        <p className="text-3xl font-bold text-gray-900">{value}</p>
       )}
-      <p className={`mt-1 text-xs font-medium ${trendNeutral ? 'text-gray-400' : 'text-agrobot-600'}`}>
+      <p className="mt-0.5 text-[11px] font-semibold text-gray-500">{title}</p>
+      <p className={`mt-0.5 text-[10px] font-medium ${trendNeutral ? 'text-gray-400' : 'text-agrobot-600'}`}>
         {trend}
       </p>
     </div>

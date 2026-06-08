@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { ChevronRight, Heart, Share2, MapPin, CheckCircle2, Star, Droplets, Zap, Home, FileText, Calendar, BarChart2 } from 'lucide-react'
+import { ChevronRight, Heart, Share2, MapPin, CheckCircle2, Star, Droplets, Zap, Home, FileText, Calendar, BarChart2, LayoutGrid } from 'lucide-react'
 import { MapaUbicacion } from '../../../modules/empresa/components/perfil-shared'
 
 const infraestructura = [
@@ -43,9 +43,29 @@ export function FincaAgricolaDetallePage() {
           <div className="flex flex-col gap-5">
 
             {/* Gallery */}
-            <div className="grid grid-cols-2 gap-2 rounded-2xl overflow-hidden">
-              <img src="/farm-bg.png" alt="" className="h-64 w-full object-cover" />
-              <img src="/bg-cafe.png" alt="" className="h-64 w-full object-cover" />
+            <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
+              <div className="grid grid-cols-[1fr_176px] gap-0.5 bg-gray-200">
+                <div className="relative h-72">
+                  <img src="/farm-bg.png" alt="" className="h-full w-full object-cover" />
+                  <div className="absolute left-3 top-3">
+                    <span className="rounded-full bg-agrobot-700/90 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">Finca Agrícola</span>
+                  </div>
+                  <button className="absolute bottom-3 right-3 flex items-center gap-1.5 rounded-lg bg-white/90 px-3 py-1.5 text-xs font-semibold text-gray-700 backdrop-blur-sm shadow-sm">
+                    <LayoutGrid className="h-3.5 w-3.5" />Ver 8 fotos
+                  </button>
+                </div>
+                <div className="flex h-72 flex-col gap-0.5">
+                  <div className="flex-1 overflow-hidden">
+                    <img src="/bg-cafe.png" alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="flex flex-1 items-center justify-center bg-linear-to-br from-agrobot-50 to-agrobot-100">
+                    <div className="text-center">
+                      <p className="text-xl font-bold text-agrobot-400">+6</p>
+                      <p className="text-[11px] text-agrobot-300">fotos</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Header */}
@@ -158,8 +178,11 @@ export function FincaAgricolaDetallePage() {
               <h2 className="font-display text-base font-bold text-gray-900 mb-3">Fincas Similares</h2>
               <div className="grid grid-cols-3 gap-3">
                 {similares.map(s => (
-                  <div key={s.name} className="rounded-xl border border-gray-200 bg-white overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-                    <img src={s.image} alt={s.name} className="h-28 w-full object-cover" />
+                  <div key={s.name} className="group rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer">
+                    <div className="relative h-28 overflow-hidden">
+                      <img src={s.image} alt={s.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+                    </div>
                     <div className="p-3">
                       <p className="text-xs font-bold text-gray-900">{s.name}</p>
                       <p className="mt-1 text-sm font-bold text-agrobot-700">{s.price}</p>
@@ -172,24 +195,28 @@ export function FincaAgricolaDetallePage() {
 
           {/* Sidebar */}
           <aside className="sticky top-20 flex flex-col gap-4 h-fit">
-            <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-              <p className="text-xs text-gray-400 uppercase tracking-widest mb-1">Precio venta</p>
-              <p className="text-2xl font-bold text-gray-900 mb-1">$280,000</p>
-              <div className="flex items-center gap-2 mb-4 p-2 rounded-lg bg-gray-50">
-                <span className="text-xs text-gray-500">Arriendo:</span>
-                <span className="text-sm font-bold text-agrobot-700">$1,200 / mes</span>
+            <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+              <div className="bg-linear-to-r from-agrobot-800 to-agrobot-700 px-5 py-4">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-agrobot-300">Precio venta</p>
+                <p className="font-display text-3xl font-bold text-white mt-0.5">$280,000</p>
               </div>
-              <div className="flex flex-col gap-2">
-                <button className="w-full flex items-center justify-center gap-2 rounded-xl bg-agrobot-700 py-3 text-sm font-bold text-white hover:bg-agrobot-800 transition-colors">
-                  <Calendar className="h-4 w-4" />Agendar visita
-                </button>
-                <button className="w-full rounded-xl border border-agrobot-700 py-3 text-sm font-bold text-agrobot-700 hover:bg-agrobot-50 transition-colors">Cotizar</button>
-                <button className="w-full rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-700 hover:border-agrobot-400 transition-colors">Contactar propietario</button>
-              </div>
-              <div className="mt-4 flex justify-center gap-4">
-                <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"><Heart className="h-3.5 w-3.5" />Guardar</button>
-                <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"><Share2 className="h-3.5 w-3.5" />Compartir</button>
-                <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"><BarChart2 className="h-3.5 w-3.5" />Comparar</button>
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-4 rounded-lg bg-agrobot-50 px-3 py-2">
+                  <span className="text-xs text-gray-500">Arriendo:</span>
+                  <span className="text-sm font-bold text-agrobot-700">$1,200 / mes</span>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button className="w-full flex items-center justify-center gap-2 rounded-xl bg-agrobot-700 py-3 text-sm font-bold text-white hover:bg-agrobot-800 transition-colors">
+                    <Calendar className="h-4 w-4" />Agendar visita
+                  </button>
+                  <button className="w-full rounded-xl border border-agrobot-700 py-3 text-sm font-bold text-agrobot-700 hover:bg-agrobot-50 transition-colors">Cotizar</button>
+                  <button className="w-full rounded-xl border border-gray-200 py-3 text-sm font-semibold text-gray-700 hover:border-agrobot-400 transition-colors">Contactar propietario</button>
+                </div>
+                <div className="mt-4 flex justify-center gap-4">
+                  <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"><Heart className="h-3.5 w-3.5" />Guardar</button>
+                  <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"><Share2 className="h-3.5 w-3.5" />Compartir</button>
+                  <button className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600"><BarChart2 className="h-3.5 w-3.5" />Comparar</button>
+                </div>
               </div>
             </div>
 

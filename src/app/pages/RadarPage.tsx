@@ -347,6 +347,33 @@ export function RadarPage() {
     <div className="flex flex-col bg-gray-50 min-h-screen">
       <FiltrosPanel open={filtrosOpen} onClose={() => setFiltrosOpen(false)} />
 
+      {/* Hero strip */}
+      <div className="relative overflow-hidden bg-linear-to-r from-agrobot-900 to-agrobot-700">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 70% 50%, #4ade80 0%, transparent 60%)' }} />
+        <div className="relative mx-auto max-w-6xl px-4 py-7 flex items-center justify-between gap-6">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-agrobot-300">Directorio Agrícola</p>
+            <h1 className="font-display mt-1 text-2xl font-extrabold text-white">Radar Agrícola</h1>
+            <p className="mt-1 text-sm text-agrobot-200 max-w-md">Descubre productores, tiendas, laboratorios y certificadores agrícolas en todo Venezuela.</p>
+          </div>
+          <div className="hidden md:flex items-center gap-6">
+            {[
+              { label: 'Empresas', value: '1,200+' },
+              { label: 'Estados', value: '23' },
+              { label: 'Verificadas', value: '98%' },
+            ].map(({ label, value }, i) => (
+              <div key={label} className="flex items-center gap-6">
+                {i > 0 && <div className="h-8 w-px bg-white/20" />}
+                <div className="text-center">
+                  <p className="text-xl font-bold text-white">{value}</p>
+                  <p className="text-[11px] text-agrobot-300">{label}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Search bar */}
       <div className="bg-white border-b border-gray-200 px-4 py-3">
         <div className="mx-auto max-w-6xl">

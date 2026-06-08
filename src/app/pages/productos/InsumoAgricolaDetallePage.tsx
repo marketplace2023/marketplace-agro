@@ -45,11 +45,22 @@ export function InsumoAgricolaDetallePage() {
           <div className="flex flex-col gap-5">
 
             {/* Gallery */}
-            <div className="grid grid-cols-[1fr_80px] gap-2">
-              <img src="/bg-cafe.png" alt="" className="h-72 w-full rounded-xl object-cover" />
-              <div className="flex flex-col gap-2">
-                <img src="/farm-bg.png" alt="" className="h-[calc(50%-4px)] w-full rounded-xl object-cover" />
-                <img src="/bg-cafe.png" alt="" className="h-[calc(50%-4px)] w-full rounded-xl object-cover" />
+            <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-sm">
+              <div className="grid grid-cols-[1fr_88px] gap-0.5 bg-gray-200">
+                <div className="relative h-72">
+                  <img src="/bg-cafe.png" alt="" className="h-full w-full object-cover" />
+                  <div className="absolute left-3 top-3">
+                    <span className="rounded-full bg-lime-700/90 px-2.5 py-1 text-[11px] font-bold text-white backdrop-blur-sm">Fertilizante · 46% N</span>
+                  </div>
+                </div>
+                <div className="flex h-72 flex-col gap-0.5">
+                  <div className="flex-1 overflow-hidden">
+                    <img src="/farm-bg.png" alt="" className="h-full w-full object-cover" />
+                  </div>
+                  <div className="flex-1 overflow-hidden">
+                    <img src="/bg-cafe.png" alt="" className="h-full w-full object-cover" />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -179,8 +190,11 @@ export function InsumoAgricolaDetallePage() {
               <h2 className="font-display text-base font-bold text-gray-900 mb-3">Insumos Similares</h2>
               <div className="grid grid-cols-3 gap-3">
                 {similares.map(s => (
-                  <div key={s.name} className="rounded-xl border border-gray-200 bg-white overflow-hidden hover:shadow-md transition-shadow cursor-pointer">
-                    <img src={s.image} alt={s.name} className="h-28 w-full object-cover" />
+                  <div key={s.name} className="group rounded-xl border border-gray-100 bg-white overflow-hidden shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md cursor-pointer">
+                    <div className="relative h-28 overflow-hidden">
+                      <img src={s.image} alt={s.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/20 to-transparent" />
+                    </div>
                     <div className="p-3">
                       <p className="text-xs font-bold text-gray-900">{s.name}</p>
                       <p className="mt-1 text-sm font-bold text-agrobot-700">{s.price}</p>

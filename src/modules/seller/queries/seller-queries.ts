@@ -1,5 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { createMyStore, getMyListings, getMyStore, getReceivedQuotes } from '../api/seller-api'
+import {
+  createMyStore, getMyListings, getMyStore, getReceivedQuotes,
+  createListing, updateListing, changeListingStatus, updateMyStore,
+} from '../api/seller-api'
+import type { CreateListingPayload, UpdateListingPayload, ListingStatus, UpdateStorePayload } from '../api/seller-api'
 
 export const SELLER_QUERY_KEYS = {
   myListings: ['seller', 'my-listings'] as const,
@@ -38,6 +42,48 @@ export function useCreateStoreMutation() {
     mutationFn: createMyStore,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
+    },
+  })
+}
+
+export function useUpdateMyStoreMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: UpdateStorePayload) => updateMyStore(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
+    },
+  })
+}
+
+export function useCreateListingMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: CreateListingPayload) => createListing(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myListings })
+    },
+  })
+}
+
+export function useUpdateListingMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: number; payload: UpdateListingPayload }) =>
+      updateListing(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myListings })
+    },
+  })
+}
+
+export function useChangeListingStatusMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: ({ id, status, reason }: { id: number; status: ListingStatus; reason?: string }) =>
+      changeListingStatus(id, status, reason),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myListings })
     },
   })
 }

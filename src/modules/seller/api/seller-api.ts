@@ -25,6 +25,7 @@ export interface MyListing {
   department: string | null
   municipality: string | null
   isFeatured: boolean
+  featuredUntil: string | null
   viewCount: number
   categoryId: number | null
   subcategoryId: number | null
@@ -97,6 +98,30 @@ export async function createMyStore(payload: CreateStorePayload): Promise<{ id: 
   return res.data
 }
 
+export interface UpdateStorePayload {
+  name?: string
+  description?: string
+  logoUrl?: string
+  bannerUrl?: string
+  department?: string
+  municipality?: string
+}
+
+export async function updateMyStore(payload: UpdateStorePayload): Promise<void> {
+  await axiosInstance.put('/stores/my/store', payload)
+}
+
+export async function uploadStoreFile(file: File): Promise<{ url: string }> {
+  const BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+  const form = new FormData()
+  form.append('file', file)
+  const res = await axiosInstance.post<{ url: string }>('/stores/my/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  const { url } = res.data
+  return { url: url.startsWith('http') ? url : `${BASE}${url}` }
+}
+
 // ─── Received Quotes ──────────────────────────────────────────────────────────
 
 export type QuoteStatus =
@@ -125,4 +150,81 @@ export interface ReceivedQuote {
 export async function getReceivedQuotes(): Promise<ReceivedQuote[]> {
   const res = await axiosInstance.get<ReceivedQuote[]>('/quotes/received')
   return res.data
+}
+
+// ─── Listing CRUD ─────────────────────────────────────────────────────────────
+
+export interface CreateListingPayload {
+  categoryId: number
+  subcategoryId?: number
+  title: string
+  description?: string
+  price?: string
+  priceUnit?: string
+  listingType: ListingType
+  department?: string
+  municipality?: string
+  expiresAt?: string
+}
+
+export type UpdateListingPayload = Omit<Partial<CreateListingPayload>, 'categoryId' | 'expiresAt'>
+
+export interface ListingMedia {
+  id: number
+  listingId: number
+  mediaType: 'image' | 'video' | 'document'
+  url: string
+  caption: string | null
+  isPrimary: boolean
+  sortOrder: number
+}
+
+export interface ListingDetail extends MyListing {
+  media: ListingMedia[]
+}
+
+export async function getMyListingDetail(id: number): Promise<ListingDetail> {
+  const res = await axiosInstance.get<ListingDetail>(`/listings/manage/listings/${id}`)
+  return res.data
+}
+
+export async function uploadListingFile(file: File): Promise<{ url: string }> {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await axiosInstance.post<{ url: string }>('/stores/my/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  })
+  return res.data
+}
+
+export async function addListingMedia(
+  listingId: number,
+  payload: { url: string; isPrimary?: boolean; sortOrder?: number; caption?: string },
+): Promise<{ id: number }> {
+  const res = await axiosInstance.post<{ id: number }>(
+    `/listings/manage/listings/${listingId}/media`,
+    { mediaType: 'image', isPrimary: false, sortOrder: 0, ...payload },
+  )
+  return res.data
+}
+
+export async function deleteListingMedia(listingId: number, mediaId: number): Promise<void> {
+  await axiosInstance.delete(`/listings/manage/listings/${listingId}/media/${mediaId}`)
+}
+
+export async function createListing(payload: CreateListingPayload): Promise<{ id: number }> {
+  const res = await axiosInstance.post<{ id: number }>('/listings/manage/listings', payload)
+  return res.data
+}
+
+export async function updateListing(id: number, payload: UpdateListingPayload): Promise<void> {
+  await axiosInstance.put(`/listings/manage/listings/${id}`, payload)
+}
+
+export async function changeListingStatus(
+  id: number,
+  status: ListingStatus,
+  reason?: string,
+): Promise<void> {
+  await axiosInstance.patch(`/listings/manage/listings/${id}/status`, { status, reason })
 }

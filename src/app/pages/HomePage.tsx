@@ -1,22 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import {
-  Search,
-  MapPin,
-  Star,
-  CheckCircle2,
-  Wheat,
-  TreePine,
-  Package,
-  Wrench,
-  Briefcase,
-  FlaskConical,
-  Bell,
-  ClipboardList,
-  ShieldCheck,
-  ArrowRight,
-  BadgeCheck,
-  ClipboardCheck,
+  Search, MapPin, CheckCircle2,
+  Wheat, TreePine, Package, Wrench, Briefcase, FlaskConical,
+  Bell, ClipboardList, ShieldCheck, ArrowRight,
+  BadgeCheck, ClipboardCheck, Star, Users, BarChart2,
+  TrendingUp, Zap, Quote,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -33,7 +22,6 @@ import { useFeaturedStoresQuery } from '../../modules/stores/queries/store-queri
 import type { FeaturedListing } from '../../modules/listings/api/listings'
 import type { StoreListItem } from '../../modules/stores/api/stores'
 
-// Fix Leaflet default marker icons in Vite
 delete (L.Icon.Default.prototype as Record<string, unknown>)._getIconUrl
 L.Icon.Default.mergeOptions({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
@@ -41,57 +29,101 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 })
 
-// ─── Icon & style maps ────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
-  cosechas: Wheat,
-  fincas: TreePine,
-  insumos: Package,
-  maquinaria: Wrench,
-  servicios: Briefcase,
-  laboratorios: FlaskConical,
-  certificadores: BadgeCheck,
-  inspectores: ClipboardCheck,
+  cosechas: Wheat, fincas: TreePine, insumos: Package,
+  maquinaria: Wrench, servicios: Briefcase, laboratorios: FlaskConical,
+  certificadores: BadgeCheck, inspectores: ClipboardCheck,
 }
-
+const CATEGORY_GRADIENTS: Record<string, string> = {
+  cosechas:     'from-agrobot-600  to-agrobot-900',
+  fincas:       'from-emerald-600  to-emerald-900',
+  insumos:      'from-lime-600     to-lime-900',
+  maquinaria:   'from-orange-500   to-orange-800',
+  servicios:    'from-sky-500      to-sky-900',
+  laboratorios: 'from-cyan-600     to-cyan-900',
+  certificadores:'from-violet-600  to-violet-900',
+  inspectores:  'from-teal-600     to-teal-900',
+}
 function getCategoryIcon(name: string): LucideIcon {
   return CATEGORY_ICON_MAP[name.toLowerCase()] ?? Wheat
 }
-
-const CATEGORY_GRADIENTS: Record<string, string> = {
-  cosechas: 'from-agrobot-700 to-agrobot-900',
-  fincas: 'from-green-600 to-green-900',
-  insumos: 'from-agrobot-600 to-agrobot-900',
-  maquinaria: 'from-agro-earth-500 to-agro-earth-700',
-  servicios: 'from-agro-tech-500 to-agro-tech-700',
-  laboratorios: 'from-agro-tech-500 to-agro-tech-700',
-}
-
 function getCategoryGradient(name: string | null): string {
   if (!name) return 'from-agrobot-700 to-agrobot-900'
   return CATEGORY_GRADIENTS[name.toLowerCase()] ?? 'from-agrobot-700 to-agrobot-900'
 }
-
-const AVATAR_COLORS = ['bg-agro-tech-700', 'bg-agro-earth-500', 'bg-agrobot-600']
-
 function getInitials(name: string): string {
-  return name
-    .split(' ')
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase()
+  return name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
 }
 
 // ─── Static data ──────────────────────────────────────────────────────────────
 
-interface VzZone {
-  name: string
-  state: string
-  crops: string
-  lat: number
-  lng: number
-}
+const heroSlides = [
+  {
+    badge: 'Campaña Estacional',
+    title: 'Gran Venta de Cosecha 2026',
+    desc: 'Maquinaria, semillas y fertilizantes con descuentos de hasta el 40%.',
+    cta: 'Ver ofertas', ctaTo: '/ofertas',
+    bg: '/farm-bg.png', overlay: 'rgba(5,46,22,0.58)',
+  },
+  {
+    badge: 'Mercado Agrícola',
+    title: 'Conecta con proveedores certificados',
+    desc: 'Miles de productores y distribuidores verificados en toda Venezuela.',
+    cta: 'Explorar categorías', ctaTo: '/categorias',
+    bg: '/bg-cafe.png', overlay: 'rgba(4,30,18,0.62)',
+  },
+  {
+    badge: 'Nuevo Servicio',
+    title: 'Radar Agrícola: Alertas en tiempo real',
+    desc: 'Activá alertas por zona y categoría. Te avisamos cuando publiquen lo que necesitás.',
+    cta: 'Activar Radar', ctaTo: '/radar',
+    bg: '/farm-bg.png', overlay: 'rgba(2,20,10,0.70)',
+  },
+]
+
+const STATS = [
+  { Icon: Users,     value: '8,000+',  label: 'Vendedores activos'    },
+  { Icon: Package,   value: '120,000', label: 'Publicaciones'         },
+  { Icon: BarChart2, value: '14',      label: 'Categorías agrícolas'  },
+  { Icon: TrendingUp,value: '98%',     label: 'Satisfacción de compra' },
+]
+
+const STEPS = [
+  { n: '01', Icon: Search,        title: 'Buscá',   desc: 'Filtrá por zona, categoría y reputación para encontrar exactamente lo que necesitás.'  },
+  { n: '02', Icon: ClipboardList, title: 'Cotizá',  desc: 'Comparás precios, revisás reseñas y solicitás cotizaciones directas al vendedor.'         },
+  { n: '03', Icon: ShieldCheck,   title: 'Conectá', desc: 'Cerrás el trato de forma segura y coordinás la logística con el vendedor.'               },
+]
+
+const TESTIMONIALS = [
+  {
+    name:    'Carlos Medina',
+    role:    'Productor de Maíz · Portuguesa',
+    text:    'Desde que empecé a usar TierraMarket, duplicar mis ventas fue cuestión de semanas. El radar me avisa exactamente cuándo hay compradores en mi zona.',
+    avatar:  'CM',
+    rating:  5,
+    color:   'bg-agrobot-700',
+  },
+  {
+    name:    'Ingrid Rodríguez',
+    role:    'Distribuidora de Insumos · Lara',
+    text:    'La plataforma más seria del agro venezolano. El sistema de verificación me da confianza para trabajar con nuevos clientes sin riesgos.',
+    avatar:  'IR',
+    rating:  5,
+    color:   'bg-orange-600',
+  },
+  {
+    name:    'José Torrealba',
+    role:    'Comprador institucional · Guárico',
+    text:    'Consigo proveedores de maquinaria confiables sin salir de la oficina. El proceso de cotización es muy ágil y los precios son competitivos.',
+    avatar:  'JT',
+    rating:  5,
+    color:   'bg-sky-700',
+  },
+]
+
+interface VzZone { name: string; state: string; crops: string; lat: number; lng: number }
 
 const venezuelaZones: VzZone[] = [
   { name: 'Acarigua–Araure',            state: 'Portuguesa',    crops: 'Maíz, arroz, sorgo, caña, agroindustria',        lat:  9.5545, lng: -69.1956 },
@@ -121,152 +153,20 @@ const venezuelaZones: VzZone[] = [
   { name: 'Tucupita / Delta Orinoco',    state: 'Delta Amacuro', crops: 'Arroz, cacao, raíces, pesca-agro',               lat:  9.0581, lng: -62.0504 },
 ]
 
-const heroSlides = [
-  {
-    badge: 'Campaña Estacional',
-    title: 'Gran Venta de Cosecha 2026',
-    description: 'Maquinaria, semillas y fertilizantes con descuentos de hasta el 40%.',
-    cta: 'Ver ofertas',
-    ctaTo: '/ofertas',
-    bg: '/farm-bg.png',
-    overlay: 'rgba(5,46,22,0.55)',
-  },
-  {
-    badge: 'Mercado Agrícola',
-    title: 'Conecta con proveedores certificados',
-    description: 'Miles de productores y distribuidores verificados en toda Venezuela.',
-    cta: 'Explorar categorías',
-    ctaTo: '/categorias',
-    bg: '/bg-cafe.png',
-    overlay: 'rgba(4,30,18,0.60)',
-  },
-  {
-    badge: 'Nuevo servicio',
-    title: 'Radar Agrícola: Alertas en tiempo real',
-    description: 'Activá alertas por zona y categoría. Te avisamos cuando publiquen lo que necesitás.',
-    cta: 'Activar Radar',
-    ctaTo: '/radar',
-    bg: '/farm-bg.png',
-    overlay: 'rgba(2,20,10,0.68)',
-  },
-]
+const vzIcon = new L.DivIcon({
+  className: '',
+  html: `<div style="width:10px;height:10px;background:#10B981;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.3)"></div>`,
+  iconSize: [10, 10], iconAnchor: [5, 5],
+})
+const vzStates = [...new Set(venezuelaZones.map((z) => z.state))]
 
-interface Step {
-  number: string
-  title: string
-  Icon: LucideIcon
-  description: string
+function FlyToZone({ lat, lng, zoom }: { lat: number; lng: number; zoom: number }) {
+  const map = useMap()
+  useEffect(() => { map.flyTo([lat, lng], zoom, { duration: 1.2 }) }, [lat, lng, zoom, map])
+  return null
 }
-
-const steps: Step[] = [
-  {
-    number: '1',
-    title: 'Busca',
-    Icon: Search,
-    description: 'Encuentra productos, servicios o maquinaria con filtros avanzados de zona y reputación.',
-  },
-  {
-    number: '2',
-    title: 'Cotiza',
-    Icon: ClipboardList,
-    description: 'Compara precios, revisa reseñas de otros productores y solicita cotizaciones directas.',
-  },
-  {
-    number: '3',
-    title: 'Conecta',
-    Icon: ShieldCheck,
-    description: 'Cierra el trato de forma segura y coordina la logística directamente con el vendedor.',
-  },
-]
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
-function FeaturedListingCard({ listing }: { listing: FeaturedListing }) {
-  const gradient = getCategoryGradient(listing.categoryName)
-  const Icon = getCategoryIcon(listing.categoryName ?? '')
-
-  return (
-    <div className="group overflow-hidden rounded-xl border border-border bg-card shadow-card transition-all hover:-translate-y-0.5 hover:border-agrobot-100 hover:shadow-card-hover">
-      <div className={`relative flex aspect-video items-center justify-center bg-linear-to-br ${gradient}`}>
-        <Icon className="h-14 w-14 text-white/20" />
-        {listing.categoryName && (
-          <span className="absolute left-2 top-2 rounded bg-agrobot-600 px-2 py-0.5 text-xs font-bold text-white">
-            {listing.categoryName.toUpperCase()}
-          </span>
-        )}
-      </div>
-      <div className="p-3">
-        <p className="mt-1 text-sm font-semibold text-foreground line-clamp-2">{listing.title}</p>
-        {listing.price && (
-          <div className="mt-1 flex items-baseline gap-1">
-            <span className="text-base font-bold text-agrobot-700">${listing.price}</span>
-            {listing.priceUnit && (
-              <span className="text-xs text-muted-foreground">{listing.priceUnit}</span>
-            )}
-          </div>
-        )}
-        {listing.department && (
-          <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-            <MapPin className="h-3 w-3" />
-            {listing.department}
-          </div>
-        )}
-        <a
-          href={`/anuncios/${listing.slug}`}
-          className="mt-3 block w-full rounded-lg border border-border py-1.5 text-center text-xs font-semibold text-foreground transition-colors hover:border-agrobot-200 hover:bg-agrobot-50 hover:text-agrobot-800"
-        >
-          Ver Detalle
-        </a>
-      </div>
-    </div>
-  )
-}
-
-function StoreCard({ store, index }: { store: StoreListItem; index: number }) {
-  return (
-    <div className="rounded-xl border border-border bg-surface-soft p-4 shadow-card transition-shadow hover:shadow-card-hover">
-      <div className="flex items-start gap-3">
-        {store.logoUrl ? (
-          <img
-            src={store.logoUrl}
-            alt={store.name}
-            className="h-11 w-11 shrink-0 rounded-full object-cover"
-          />
-        ) : (
-          <div
-            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${AVATAR_COLORS[index % AVATAR_COLORS.length]}`}
-          >
-            {getInitials(store.name)}
-          </div>
-        )}
-        <div className="min-w-0">
-          <div className="flex items-center gap-1">
-            <p className="truncate text-sm font-bold text-foreground">{store.name}</p>
-            {store.isVerified && <CheckCircle2 className="h-4 w-4 shrink-0 text-agrobot-600" />}
-          </div>
-          {store.department && (
-            <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-              <MapPin className="h-3 w-3" />
-              {store.municipality ? `${store.municipality}, ` : ''}{store.department}
-            </div>
-          )}
-        </div>
-      </div>
-      {store.description && (
-        <p className="mt-3 text-xs leading-relaxed text-muted-foreground line-clamp-2">
-          {store.description}
-        </p>
-      )}
-      <div className="mt-3">
-        <span className="inline-block rounded-full bg-agrobot-50 px-2.5 py-0.5 text-xs font-bold text-agrobot-800">
-          {store.roleType?.toUpperCase().replace('_', ' ')}
-        </span>
-      </div>
-    </div>
-  )
-}
-
-// ─── Sections ────────────────────────────────────────────────────────────────
 
 function HeroSection() {
   const [query, setQuery] = useState('')
@@ -274,92 +174,114 @@ function HeroSection() {
   const navigate = useNavigate()
 
   function handleSearch() {
-    const params = new URLSearchParams()
-    if (query) params.set('q', query)
-    if (location) params.set('location', location)
-    navigate(`/catalogo${params.toString() ? `?${params}` : ''}`)
+    const p = new URLSearchParams()
+    if (query) p.set('q', query)
+    if (location) p.set('location', location)
+    navigate(`/catalogo${p.toString() ? `?${p}` : ''}`)
   }
 
   return (
     <section>
       <Swiper
         modules={[Autoplay, Navigation, Pagination]}
-        autoplay={{ delay: 5000, disableOnInteraction: false }}
-        navigation
-        pagination={{ clickable: true }}
+        autoplay={{ delay: 5500, disableOnInteraction: false }}
+        navigation pagination={{ clickable: true }}
         loop
-        style={{ height: 420 }}
+        style={{ height: 520 }}
       >
-        {heroSlides.map((slide) => (
-          <SwiperSlide key={slide.title}>
+        {heroSlides.map((s) => (
+          <SwiperSlide key={s.title}>
             <div
-              className="relative flex h-full w-full flex-col justify-end p-8 md:p-14"
+              className="relative flex h-full w-full flex-col justify-end px-6 pb-20 md:px-16 md:pb-24"
               style={{
-                backgroundImage: `linear-gradient(to top, ${slide.overlay} 0%, rgba(0,0,0,0.25) 55%, rgba(0,0,0,0.05) 100%), url('${slide.bg}')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundImage: `linear-gradient(to top, ${s.overlay} 0%, rgba(0,0,0,0.2) 55%, rgba(0,0,0,0.05) 100%), url('${s.bg}')`,
+                backgroundSize: 'cover', backgroundPosition: 'center',
               }}
             >
-              <span className="mb-3 inline-block w-fit rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur-sm">
-                {slide.badge}
+              {/* Trust pill */}
+              <div className="absolute top-6 right-6 hidden md:flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 backdrop-blur-sm">
+                <CheckCircle2 className="h-3.5 w-3.5 text-agrobot-400" />
+                <span className="text-xs font-semibold text-white">Vendedores verificados</span>
+              </div>
+
+              <span className="mb-3 inline-block w-fit rounded-full bg-white/20 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur-sm">
+                {s.badge}
               </span>
-              <h1 className="font-display max-w-lg text-3xl font-extrabold leading-tight text-white md:text-4xl">
-                {slide.title}
+              <h1 className="font-display max-w-xl text-3xl font-extrabold leading-tight text-white md:text-5xl">
+                {s.title}
               </h1>
-              <p className="mt-2 max-w-md text-sm leading-relaxed text-white/80">{slide.description}</p>
-              <a
-                href={slide.ctaTo}
-                className="mt-5 inline-flex w-fit items-center gap-2 rounded-xl bg-agrobot-600 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-agrobot-700"
+              <p className="mt-3 max-w-md text-sm leading-relaxed text-white/80 md:text-base">{s.desc}</p>
+              <Link
+                to={s.ctaTo}
+                className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-agrobot-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg transition-all hover:bg-agrobot-700 hover:shadow-xl hover:-translate-y-0.5"
               >
-                {slide.cta}
+                {s.cta}
                 <ArrowRight className="h-4 w-4" />
-              </a>
+              </Link>
             </div>
           </SwiperSlide>
         ))}
       </Swiper>
 
-      <div className="bg-white border-b border-border py-5">
-        <div className="mx-auto max-w-3xl px-4">
-          <div
-            className="flex items-center overflow-hidden rounded-2xl bg-white"
-            style={{ border: '1px solid #D1FAE5', boxShadow: '0 8px 30px rgba(15,23,42,0.08)' }}
-          >
-            <div className="flex flex-1 items-center gap-2 px-4">
-              <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="¿Qué producto, finca, insumo o servicio buscas?"
-                className="flex-1 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground"
-              />
-            </div>
-            <div className="h-8 w-px bg-border" />
-            <div className="flex items-center gap-2 px-4">
-              <MapPin className="h-4 w-4 shrink-0 text-muted-foreground" />
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="¿Dónde?"
-                className="w-28 bg-transparent py-3.5 text-sm outline-none placeholder:text-muted-foreground"
-              />
-            </div>
-            <div className="pr-2">
-              <button
-                onClick={handleSearch}
-                className="rounded-xl px-5 py-2.5 text-sm font-bold text-white transition-colors"
-                style={{ background: '#10B981' }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = '#059669')}
-                onMouseLeave={(e) => (e.currentTarget.style.background = '#10B981')}
-              >
-                Buscar
-              </button>
-            </div>
+      {/* Floating search bar */}
+      <div className="relative -mt-8 z-10 mx-auto max-w-3xl px-4">
+        <div
+          className="flex items-center overflow-hidden rounded-2xl bg-white shadow-xl"
+          style={{ border: '1.5px solid #D1FAE5' }}
+        >
+          <div className="flex flex-1 items-center gap-2 px-5">
+            <Search className="h-4 w-4 shrink-0 text-gray-400" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              placeholder="¿Qué producto, insumo o maquinaria buscás?"
+              className="flex-1 bg-transparent py-4 text-sm text-gray-700 outline-none placeholder:text-gray-400"
+            />
           </div>
+          <div className="hidden h-8 w-px bg-gray-200 sm:block" />
+          <div className="hidden items-center gap-2 px-5 sm:flex">
+            <MapPin className="h-4 w-4 shrink-0 text-gray-400" />
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              placeholder="¿Dónde?"
+              className="w-28 bg-transparent py-4 text-sm text-gray-700 outline-none placeholder:text-gray-400"
+            />
+          </div>
+          <div className="p-2">
+            <button
+              onClick={handleSearch}
+              className="rounded-xl bg-agrobot-700 px-6 py-2.5 text-sm font-bold text-white transition-colors hover:bg-agrobot-800"
+            >
+              Buscar
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function StatsSection() {
+  return (
+    <section className="mt-6 bg-white border-y border-gray-100">
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
+          {STATS.map(({ Icon, value, label }) => (
+            <div key={label} className="flex items-center gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-agrobot-50">
+                <Icon className="h-5 w-5 text-agrobot-700" />
+              </div>
+              <div>
+                <p className="font-display text-xl font-extrabold text-gray-900 leading-none">{value}</p>
+                <p className="text-xs text-gray-500 mt-0.5">{label}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -369,147 +291,274 @@ function HeroSection() {
 function CategoriesSection() {
   const { data: categories, isLoading } = useCategoriesQuery()
 
-  if (isLoading) {
-    return (
-      <section className="border-y border-border bg-white py-8">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="flex justify-center gap-6 md:gap-10">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex flex-col items-center gap-2">
-                <div className="h-14 w-14 rounded-full bg-gray-100 animate-pulse" />
-                <div className="h-3 w-14 rounded bg-gray-100 animate-pulse" />
-              </div>
+  return (
+    <section className="bg-gray-50 py-16">
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-agrobot-600 mb-1">Explorar</p>
+            <h2 className="font-display text-2xl font-extrabold text-gray-900 md:text-3xl">
+              Categorías del Mercado
+            </h2>
+          </div>
+          <Link to="/categorias" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-agrobot-700 hover:text-agrobot-900 transition-colors">
+            Ver todas <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="h-36 rounded-2xl bg-gray-200 animate-pulse" />
             ))}
           </div>
-        </div>
-      </section>
-    )
-  }
-
-  const items = categories ?? []
-
-  return (
-    <section className="border-y border-border bg-white py-8">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="flex justify-center gap-6 md:gap-10 flex-wrap">
-          {items.map(({ id, name, imageUrl }) => {
-            const Icon = getCategoryIcon(name)
-            return (
-              <a
-                key={id}
-                href={`/catalogo?categoryId=${id}`}
-                className="group flex flex-col items-center gap-2 text-muted-foreground transition-colors hover:text-agrobot-700"
-              >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-border bg-white shadow-sm transition-all group-hover:border-agrobot-100 group-hover:bg-agrobot-50 overflow-hidden">
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {(categories ?? []).map(({ id, name, imageUrl }, i) => {
+              const Icon = getCategoryIcon(name)
+              const gradient = getCategoryGradient(name)
+              return (
+                <Link
+                  key={id}
+                  to={`/catalogo?categoryId=${id}`}
+                  className="group relative overflow-hidden rounded-2xl shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                  style={{ height: 140 }}
+                >
                   {imageUrl ? (
-                    <img src={imageUrl} alt={name} className="h-full w-full object-cover rounded-full" />
+                    <img src={imageUrl} alt={name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   ) : (
-                    <Icon className="h-6 w-6 group-hover:text-agrobot-600" />
+                    <div className={`flex h-full w-full items-center justify-center bg-linear-to-br ${gradient}`}>
+                      <Icon className="h-12 w-12 text-white/30" />
+                    </div>
                   )}
-                </div>
-                <span className="text-xs font-semibold">{name}</span>
-              </a>
-            )
-          })}
-        </div>
+                  <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+                    <p className="font-display text-sm font-bold text-white leading-snug drop-shadow">{name}</p>
+                    <ArrowRight className="h-4 w-4 text-white/70 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
       </div>
     </section>
+  )
+}
+
+function FeaturedListingCard({ listing }: { listing: FeaturedListing }) {
+  const gradient = getCategoryGradient(listing.categoryName)
+  const Icon = getCategoryIcon(listing.categoryName ?? '')
+
+  return (
+    <Link
+      to={`/anuncios/${listing.slug}`}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg hover:border-agrobot-100"
+    >
+      <div className={`relative flex aspect-4/3 items-center justify-center bg-linear-to-br ${gradient} overflow-hidden`}>
+        <Icon className="h-16 w-16 text-white/20" />
+        {listing.categoryName && (
+          <span className="absolute left-3 top-3 rounded-full bg-white/20 backdrop-blur-sm px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
+            {listing.categoryName}
+          </span>
+        )}
+        {listing.price && (
+          <span className="absolute bottom-3 right-3 rounded-xl bg-black/40 backdrop-blur-sm px-2.5 py-1 text-sm font-extrabold text-white">
+            ${listing.price}
+            {listing.priceUnit && <span className="text-[10px] font-normal ml-1 opacity-80">/{listing.priceUnit}</span>}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-1 flex-col p-4">
+        <p className="text-sm font-semibold text-gray-900 line-clamp-2 flex-1">{listing.title}</p>
+        <div className="mt-3 flex items-center justify-between">
+          {listing.department ? (
+            <div className="flex items-center gap-1 text-xs text-gray-400">
+              <MapPin className="h-3 w-3" />
+              {listing.department}
+            </div>
+          ) : <span />}
+          <span className="text-xs font-semibold text-agrobot-700 group-hover:underline">Ver →</span>
+        </div>
+      </div>
+    </Link>
   )
 }
 
 function FeaturedProductsSection() {
   const { data: listings, isLoading } = useFeaturedListingsQuery()
 
-  if (isLoading) {
-    return (
-      <section className="bg-surface py-10">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-5 flex items-center justify-between">
-            <h2 className="font-display text-xl font-bold text-foreground">Anuncios Destacados</h2>
+  return (
+    <section className="bg-white py-16">
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-agrobot-600 mb-1">Destacados</p>
+            <h2 className="font-display text-2xl font-extrabold text-gray-900 md:text-3xl">
+              Anuncios del Momento
+            </h2>
           </div>
+          <Link to="/catalogo?sort=featured" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-agrobot-700 hover:text-agrobot-900 transition-colors">
+            Ver todos <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        {isLoading ? (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
-                <div className="aspect-video bg-gray-100 animate-pulse" />
-                <div className="p-3 space-y-2">
-                  <div className="h-3 w-3/4 bg-gray-100 animate-pulse rounded" />
-                  <div className="h-4 w-1/2 bg-gray-100 animate-pulse rounded" />
+              <div key={i} className="rounded-2xl border border-gray-100 bg-white overflow-hidden animate-pulse">
+                <div className="aspect-4/3 bg-gray-100" />
+                <div className="p-4 space-y-2">
+                  <div className="h-3 w-3/4 rounded bg-gray-100" />
+                  <div className="h-3 w-1/2 rounded bg-gray-100" />
                 </div>
               </div>
             ))}
           </div>
-        </div>
-      </section>
-    )
-  }
-
-  const items = listings ?? []
-
-  if (items.length === 0) return null
-
-  return (
-    <section className="bg-surface py-10">
-      <div className="mx-auto max-w-6xl px-4">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-display text-xl font-bold text-foreground">Anuncios Destacados</h2>
-          <a href="/catalogo" className="text-sm font-semibold text-agrobot-600 hover:underline">
-            Ver todos
-          </a>
-        </div>
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-          {items.slice(0, 8).map((listing) => (
-            <FeaturedListingCard key={listing.id} listing={listing} />
-          ))}
-        </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {(listings ?? []).slice(0, 8).map((l) => (
+              <FeaturedListingCard key={l.id} listing={l} />
+            ))}
+          </div>
+        )}
       </div>
     </section>
+  )
+}
+
+const BANNER_GRADIENTS = [
+  'bg-linear-to-br from-agrobot-800 to-agrobot-600',
+  'bg-linear-to-br from-orange-700 to-amber-500',
+  'bg-linear-to-br from-sky-700 to-cyan-500',
+  'bg-linear-to-br from-violet-700 to-purple-500',
+]
+
+function StoreCard({ store, i }: { store: StoreListItem; i: number }) {
+  return (
+    <Link to={`/tiendas/${store.slug}`} className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-lg hover:border-agrobot-100">
+      {/* Banner */}
+      <div className="relative h-20 w-full overflow-hidden">
+        {store.bannerUrl ? (
+          <img src={store.bannerUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          <div className={`h-full w-full ${BANNER_GRADIENTS[i % BANNER_GRADIENTS.length]}`}>
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
+          </div>
+        )}
+      </div>
+      {/* Logo + info */}
+      <div className="px-4 pb-4 -mt-6 flex flex-col flex-1">
+        <div className="flex items-end justify-between mb-3">
+          {store.logoUrl ? (
+            <img src={store.logoUrl} alt={store.name} className="h-12 w-12 rounded-xl border-2 border-white object-cover shadow-md" />
+          ) : (
+            <div className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 border-white text-sm font-bold text-white shadow-md ${BANNER_GRADIENTS[i % BANNER_GRADIENTS.length]}`}>
+              {getInitials(store.name)}
+            </div>
+          )}
+          {store.isVerified && (
+            <span className="flex items-center gap-1 rounded-full bg-agrobot-50 px-2 py-0.5 text-[10px] font-bold text-agrobot-700">
+              <CheckCircle2 className="h-3 w-3" /> Verificado
+            </span>
+          )}
+        </div>
+        <p className="font-display text-sm font-bold text-gray-900 truncate">{store.name}</p>
+        {store.department && (
+          <div className="mt-0.5 flex items-center gap-1 text-xs text-gray-400">
+            <MapPin className="h-3 w-3" />
+            {[store.municipality, store.department].filter(Boolean).join(', ')}
+          </div>
+        )}
+        {store.description && (
+          <p className="mt-2 text-xs text-gray-500 line-clamp-2 flex-1">{store.description}</p>
+        )}
+        <div className="mt-3 flex items-center justify-between">
+          {store.roleType && (
+            <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-[10px] font-bold text-gray-600 uppercase">
+              {store.roleType.replace('_', ' ')}
+            </span>
+          )}
+          <span className="text-xs font-semibold text-agrobot-700 group-hover:underline ml-auto">Ver →</span>
+        </div>
+      </div>
+    </Link>
   )
 }
 
 function FeaturedStoresSection() {
   const { data: stores, isLoading } = useFeaturedStoresQuery()
 
-  if (isLoading) {
-    return (
-      <section className="bg-white py-10">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="font-display mb-5 text-xl font-bold text-foreground">
-            Tiendas y Productores Destacados
-          </h2>
+  if (!isLoading && (!stores || stores.length === 0)) return null
+
+  return (
+    <section className="bg-gray-50 py-16">
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-agrobot-600 mb-1">Vendedores</p>
+            <h2 className="font-display text-2xl font-extrabold text-gray-900 md:text-3xl">
+              Tiendas Destacadas
+            </h2>
+          </div>
+          <Link to="/catalogo" className="hidden sm:flex items-center gap-1 text-sm font-semibold text-agrobot-700 hover:text-agrobot-900 transition-colors">
+            Ver todas <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+
+        {isLoading ? (
           <div className="grid gap-4 md:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="rounded-xl border border-border p-4 space-y-3">
-                <div className="flex items-start gap-3">
-                  <div className="h-11 w-11 rounded-full bg-gray-100 animate-pulse shrink-0" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-3 w-3/4 bg-gray-100 animate-pulse rounded" />
-                    <div className="h-3 w-1/2 bg-gray-100 animate-pulse rounded" />
-                  </div>
+              <div key={i} className="rounded-2xl border border-gray-100 overflow-hidden animate-pulse">
+                <div className="h-20 bg-gray-200" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 w-2/3 rounded bg-gray-200" />
+                  <div className="h-3 w-1/2 rounded bg-gray-200" />
                 </div>
-                <div className="h-3 w-full bg-gray-100 animate-pulse rounded" />
               </div>
             ))}
           </div>
-        </div>
-      </section>
-    )
-  }
+        ) : (
+          <div className="grid gap-4 md:grid-cols-3">
+            {(stores ?? []).map((store, i) => (
+              <StoreCard key={store.id} store={store} i={i} />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
 
-  const items = stores ?? []
-
-  if (items.length === 0) return null
-
+function HowItWorksSection() {
   return (
-    <section className="bg-white py-10">
+    <section className="bg-white py-16">
       <div className="mx-auto max-w-6xl px-4">
-        <h2 className="font-display mb-5 text-xl font-bold text-foreground">
-          Tiendas y Productores Destacados
-        </h2>
-        <div className="grid gap-4 md:grid-cols-3">
-          {items.map((store, i) => (
-            <a key={store.id} href={`/tiendas/${store.slug}`}>
-              <StoreCard store={store} index={i} />
-            </a>
+        <div className="mb-12 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-agrobot-600 mb-2">Simple y rápido</p>
+          <h2 className="font-display text-2xl font-extrabold text-gray-900 md:text-3xl">
+            ¿Cómo funciona TierraMarket?
+          </h2>
+          <p className="mt-3 mx-auto max-w-md text-sm text-gray-500 leading-relaxed">
+            En tres pasos conectás con el productor o proveedor que necesitás, sin intermediarios ni burocracia.
+          </p>
+        </div>
+
+        <div className="relative grid gap-8 md:grid-cols-3">
+          {/* Connecting line */}
+          <div className="absolute top-8 left-1/6 right-1/6 hidden h-px bg-linear-to-r from-transparent via-agrobot-200 to-transparent md:block" />
+
+          {STEPS.map(({ n, Icon, title, desc }) => (
+            <div key={n} className="flex flex-col items-center text-center relative">
+              <div className="relative mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-agrobot-700 shadow-lg">
+                <Icon className="h-7 w-7 text-white" />
+                <span className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white border-2 border-agrobot-200 text-[10px] font-black text-agrobot-800 shadow-sm">
+                  {n}
+                </span>
+              </div>
+              <h3 className="font-display text-lg font-bold text-gray-900 mb-2">{title}</h3>
+              <p className="text-sm text-gray-500 max-w-xs leading-relaxed">{desc}</p>
+            </div>
           ))}
         </div>
       </div>
@@ -517,42 +566,62 @@ function FeaturedStoresSection() {
   )
 }
 
-const vzIcon = new L.DivIcon({
-  className: '',
-  html: `<div style="width:12px;height:12px;background:#15803d;border:2px solid #fff;border-radius:50%;box-shadow:0 0 5px rgba(0,0,0,0.35)"></div>`,
-  iconSize: [12, 12],
-  iconAnchor: [6, 6],
-})
-
-const vzStates = [...new Set(venezuelaZones.map((z) => z.state))]
-
-function FlyToZone({ lat, lng, zoom }: { lat: number; lng: number; zoom: number }) {
-  const map = useMap()
-  useEffect(() => {
-    map.flyTo([lat, lng], zoom, { duration: 1.2 })
-  }, [lat, lng, zoom, map])
-  return null
+function TestimonialsSection() {
+  return (
+    <section className="bg-gray-50 py-16">
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="mb-10 text-center">
+          <p className="text-xs font-bold uppercase tracking-widest text-agrobot-600 mb-2">Testimonios</p>
+          <h2 className="font-display text-2xl font-extrabold text-gray-900 md:text-3xl">
+            Lo que dice la comunidad
+          </h2>
+        </div>
+        <div className="grid gap-5 md:grid-cols-3">
+          {TESTIMONIALS.map(({ name, role, text, avatar, rating, color }) => (
+            <div key={name} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm flex flex-col gap-4">
+              <Quote className="h-6 w-6 text-agrobot-200" />
+              <p className="text-sm text-gray-600 leading-relaxed flex-1">"{text}"</p>
+              <div className="flex items-center gap-1 mb-1">
+                {Array.from({ length: rating }).map((_, i) => (
+                  <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                ))}
+              </div>
+              <div className="flex items-center gap-3 border-t border-gray-100 pt-4">
+                <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white ${color}`}>
+                  {avatar}
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-gray-900">{name}</p>
+                  <p className="text-[11px] text-gray-400">{role}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
 }
 
 function PopularZonesSection() {
   const [activeState, setActiveState] = useState<string | null>(null)
 
-  const filtered = activeState
-    ? venezuelaZones.filter((z) => z.state === activeState)
-    : venezuelaZones
-
+  const filtered = activeState ? venezuelaZones.filter((z) => z.state === activeState) : venezuelaZones
   const flyTarget = activeState
     ? { lat: filtered[0].lat, lng: filtered[0].lng, zoom: 8 }
     : { lat: 8.5, lng: -66.5, zoom: 6 }
 
   return (
-    <section className="bg-surface py-10">
+    <section className="bg-white py-16">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="font-display text-xl font-bold text-foreground">
-            Zonas Agrícolas · Venezuela
-          </h2>
-          <span className="text-xs text-muted-foreground">
+        <div className="mb-8 flex items-end justify-between flex-wrap gap-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-widest text-agrobot-600 mb-1">Territorio</p>
+            <h2 className="font-display text-2xl font-extrabold text-gray-900 md:text-3xl">
+              Zonas Agrícolas · Venezuela
+            </h2>
+          </div>
+          <span className="text-xs font-medium text-gray-400 bg-gray-100 px-3 py-1.5 rounded-full">
             {venezuelaZones.length} zonas registradas
           </span>
         </div>
@@ -560,40 +629,28 @@ function PopularZonesSection() {
         <div className="mb-4 flex flex-wrap gap-2">
           <button
             onClick={() => setActiveState(null)}
-            className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-all ${
-              activeState === null
-                ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-800'
-                : 'border-border text-[#334155] hover:border-agrobot-300 hover:bg-agrobot-50 hover:text-agrobot-800'
+            className={`rounded-full border px-4 py-1.5 text-xs font-semibold transition-all ${
+              activeState === null ? 'border-agrobot-500 bg-agrobot-700 text-white' : 'border-gray-200 text-gray-600 hover:border-agrobot-300 hover:text-agrobot-700'
             }`}
           >
             Todas
           </button>
-          {vzStates.map((state) => (
+          {vzStates.map((s) => (
             <button
-              key={state}
-              onClick={() => setActiveState(state)}
-              className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition-all ${
-                activeState === state
-                  ? 'border-agrobot-500 bg-agrobot-50 text-agrobot-800'
-                  : 'border-border text-[#334155] hover:border-agrobot-300 hover:bg-agrobot-50 hover:text-agrobot-800'
+              key={s}
+              onClick={() => setActiveState(s)}
+              className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-semibold transition-all ${
+                activeState === s ? 'border-agrobot-500 bg-agrobot-700 text-white' : 'border-gray-200 text-gray-600 hover:border-agrobot-300 hover:text-agrobot-700'
               }`}
             >
               <MapPin className="h-3 w-3" />
-              {state}
+              {s}
             </button>
           ))}
         </div>
 
-        <div
-          className="overflow-hidden rounded-2xl border border-border shadow-card"
-          style={{ height: 420 }}
-        >
-          <MapContainer
-            center={[8.5, -66.5]}
-            zoom={6}
-            style={{ height: '100%', width: '100%' }}
-            scrollWheelZoom={false}
-          >
+        <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-card" style={{ height: 420 }}>
+          <MapContainer center={[8.5, -66.5]} zoom={6} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
             <TileLayer
               attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -602,12 +659,8 @@ function PopularZonesSection() {
               <Marker key={z.name} position={[z.lat, z.lng]} icon={vzIcon}>
                 <Popup>
                   <div style={{ minWidth: 170 }}>
-                    <p style={{ fontWeight: 700, marginBottom: 3, color: '#14532d', fontSize: 13 }}>
-                      {z.name}
-                    </p>
-                    <p style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>
-                      Estado: <strong>{z.state}</strong>
-                    </p>
+                    <p style={{ fontWeight: 700, color: '#14532d', fontSize: 13, marginBottom: 3 }}>{z.name}</p>
+                    <p style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Estado: <strong>{z.state}</strong></p>
                     <p style={{ fontSize: 11, color: '#64748b' }}>Rubros: {z.crops}</p>
                   </div>
                 </Popup>
@@ -621,55 +674,45 @@ function PopularZonesSection() {
   )
 }
 
-function HowItWorksSection() {
-  return (
-    <section className="bg-agrobot-50 py-14">
-      <div className="mx-auto max-w-6xl px-4">
-        <h2 className="font-display mb-10 text-center text-2xl font-bold text-agrobot-900">
-          ¿Cómo funciona TierraMarket?
-        </h2>
-        <div className="grid gap-8 md:grid-cols-3">
-          {steps.map((step) => (
-            <div key={step.number} className="flex flex-col items-center text-center">
-              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 border-agrobot-100 bg-white shadow-sm">
-                <step.Icon className="h-7 w-7 text-agrobot-600" />
-              </div>
-              <p className="font-semibold text-agrobot-900">
-                {step.number}. {step.title}
-              </p>
-              <p className="mt-2 max-w-xs text-sm text-[#475569]">{step.description}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function RadarCtaSection() {
   return (
-    <section className="py-8">
+    <section className="py-16 bg-gray-50">
       <div className="mx-auto max-w-6xl px-4">
-        <div className="relative overflow-hidden rounded-2xl bg-agrobot-800 p-8 md:p-12">
-          <div className="relative z-10 max-w-lg">
-            <span className="mb-4 inline-block rounded-full bg-agrobot-700 px-3 py-1 text-xs font-bold text-agrobot-100">
-              NUEVO SERVICIO
-            </span>
-            <h2 className="font-display text-2xl font-bold text-white md:text-3xl">
-              Radar Agrícola: No te pierdas nada
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-agrobot-100">
-              ¿No encuentras lo que buscas? Activa alertas personalizadas por zona y categoría. Te
-              avisaremos apenas alguien publique lo que necesitas.
-            </p>
-            <a
-              href="/radar"
-              className="mt-6 inline-block rounded-xl bg-agrobot-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-[#043927]"
-            >
-              Activar Radar Ahora
-            </a>
+        <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-agrobot-800 via-agrobot-900 to-[#021f11] px-8 py-14 md:px-16">
+          {/* Background decoration */}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute -top-20 -right-20 h-72 w-72 rounded-full bg-agrobot-700/30 blur-3xl" />
+            <div className="absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-agrobot-600/20 blur-3xl" />
           </div>
-          <Bell className="absolute right-8 top-1/2 h-48 w-48 -translate-y-1/2 text-white opacity-10" />
+          <Bell className="absolute right-10 top-1/2 h-64 w-64 -translate-y-1/2 text-white opacity-5" />
+
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-8">
+            <div className="max-w-lg">
+              <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-agrobot-600 bg-agrobot-700/40 px-4 py-1.5">
+                <Zap className="h-3.5 w-3.5 text-agrobot-300" />
+                <span className="text-xs font-bold uppercase tracking-widest text-agrobot-200">Nuevo Servicio</span>
+              </div>
+              <h2 className="font-display text-3xl font-extrabold text-white md:text-4xl leading-tight">
+                Radar Agrícola:<br />
+                <span className="text-agrobot-300">No te pierdas nada</span>
+              </h2>
+              <p className="mt-4 text-sm leading-relaxed text-agrobot-200 max-w-sm">
+                ¿No encontrás lo que buscás? Activá alertas personalizadas por zona y categoría. Te avisamos en el momento en que alguien publique lo que necesitás.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3 shrink-0">
+              <Link
+                to="/radar"
+                className="flex items-center justify-center gap-2 rounded-xl bg-white px-8 py-4 text-sm font-bold text-agrobot-900 shadow-lg transition-all hover:bg-agrobot-50 hover:shadow-xl hover:-translate-y-0.5"
+              >
+                <Bell className="h-4 w-4" />
+                Activar Radar Ahora
+              </Link>
+              <p className="text-center text-[11px] text-agrobot-400">
+                Gratis · Sin tarjeta · Cancelá cuando quieras
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -682,11 +725,13 @@ export function HomePage() {
   return (
     <div>
       <HeroSection />
+      <StatsSection />
       <CategoriesSection />
       <FeaturedProductsSection />
       <FeaturedStoresSection />
-      <PopularZonesSection />
       <HowItWorksSection />
+      <TestimonialsSection />
+      <PopularZonesSection />
       <RadarCtaSection />
     </div>
   )
