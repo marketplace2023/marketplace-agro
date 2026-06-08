@@ -4,10 +4,8 @@ import {
   BadgeCheck, MessageCircle, ExternalLink, ChevronLeft, ChevronRight,
   Layers, X, ClipboardCheck, Briefcase, Building2,
 } from 'lucide-react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
+import { Map as GoogleMap, AdvancedMarker, InfoWindow } from '@vis.gl/react-google-maps'
 import { Link } from 'react-router'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
 import { Skeleton } from '@/components/ui/skeleton'
 import { axiosInstance } from '@/modules/shared/lib/axios'
 
@@ -78,15 +76,6 @@ const ROLE_LABELS: Record<string, string> = {
 const especialidades = ['Semillas', 'Fertilizantes', 'Riego Tech', 'Agroquímicos', 'Bio-Insumos', 'Exportación', 'Carbono', 'Suelos', 'Orgánico', 'Ganadería', 'Maquinaria', 'Asesoría']
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function numberedIcon(n: number) {
-  return new L.DivIcon({
-    className: '',
-    html: `<div style="width:30px;height:30px;background:#15803d;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff">${n}</div>`,
-    iconSize: [30, 30],
-    iconAnchor: [15, 15],
-  })
-}
 
 function StarRating({ value }: { value: number }) {
   return (
@@ -283,6 +272,37 @@ function StoreCardSkeleton() {
   )
 }
 
+// ─── Geocoding fallback ───────────────────────────────────────────────────────
+
+const geocodeCache = new Map<string, { lat: string; lng: string } | null>()
+
+async function geocodeMissingStores(stores: StoreResult[]): Promise<StoreResult[]> {
+  const missing = stores.filter(s => !s.lat && !s.lng && (s.municipality || s.department))
+  if (missing.length === 0) return stores
+
+  const uniqueKeys = new Set(missing.map(s => `${s.municipality ?? ''},${s.department ?? ''},Venezuela`))
+
+  for (const key of uniqueKeys) {
+    if (geocodeCache.has(key)) continue
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(key)}&format=json&limit=1`
+      const res = await fetch(url, { headers: { 'Accept-Language': 'es' } })
+      const data = await res.json() as Array<{ lat: string; lon: string }>
+      geocodeCache.set(key, data[0] ? { lat: data[0].lat, lng: data[0].lon } : null)
+    } catch {
+      geocodeCache.set(key, null)
+    }
+  }
+
+  return stores.map(s => {
+    if (s.lat && s.lng) return s
+    const key = `${s.municipality ?? ''},${s.department ?? ''},Venezuela`
+    const coords = geocodeCache.get(key)
+    if (!coords) return s
+    return { ...s, lat: coords.lat, lng: coords.lng }
+  })
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export function RadarPage() {
@@ -297,6 +317,7 @@ export function RadarPage() {
   const [total,    setTotal]    = useState(0)
   const [loading,  setLoading]  = useState(true)
   const [error,    setError]    = useState<string | null>(null)
+  const [openMarkerId, setOpenMarkerId] = useState<number | null>(null)
 
   const totalPages = Math.max(1, Math.ceil(total / LIMIT))
 
@@ -311,7 +332,8 @@ export function RadarPage() {
       if (roleType)        params.roleType   = roleType
 
       const res = await axiosInstance.get<StoresResponse>('/stores', { params })
-      setStores(res.data.stores)
+      const storesWithCoords = await geocodeMissingStores(res.data.stores)
+      setStores(storesWithCoords)
       setTotal(res.data.total)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Error al cargar empresas')
@@ -333,13 +355,6 @@ export function RadarPage() {
     setPage(1)
     fetchStores(1)
   }
-
-  const tileUrl = satellite
-    ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-  const tileAttr = satellite
-    ? '&copy; Esri &mdash; Source: Esri'
-    : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 
   const mappableStores = stores.filter(s => s.lat && s.lng)
 
@@ -511,28 +526,52 @@ export function RadarPage() {
         {/* Right: map */}
         <div className="hidden lg:block w-95 shrink-0 sticky top-20">
           <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm" style={{ height: 580 }}>
-            <MapContainer
-              center={[8.0, -66.5]}
-              zoom={6}
+            <GoogleMap
+              defaultCenter={{ lat: 8.0, lng: -66.5 }}
+              defaultZoom={6}
+              mapId="DEMO_MAP_ID"
+              mapTypeId={satellite ? 'satellite' : 'roadmap'}
+              gestureHandling="greedy"
+              disableDefaultUI
+              zoomControl
               style={{ height: '100%', width: '100%' }}
-              scrollWheelZoom={false}
             >
-              <TileLayer attribution={tileAttr} url={tileUrl} />
-              {mappableStores.map((s, i) => (
-                <Marker
-                  key={s.id}
-                  position={[parseFloat(s.lat!), parseFloat(s.lng!)]}
-                  icon={numberedIcon((page - 1) * LIMIT + i + 1)}
-                >
-                  <Popup>
+              {mappableStores.map((s, i) => {
+                const n = (page - 1) * LIMIT + i + 1
+                return (
+                  <AdvancedMarker
+                    key={s.id}
+                    position={{ lat: parseFloat(s.lat!), lng: parseFloat(s.lng!) }}
+                    onClick={() => setOpenMarkerId(s.id)}
+                  >
+                    <div style={{ position: 'relative', width: 40, height: 40 }}>
+                      <div style={{ width: 40, height: 40, borderRadius: '50%', border: '2.5px solid #15803d', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden', background: '#fff', cursor: 'pointer' }}>
+                        {s.logoUrl
+                          ? <img src={s.logoUrl} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : <div style={{ width: '100%', height: '100%', background: '#15803d', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff' }}>{n}</div>
+                        }
+                      </div>
+                      <div style={{ position: 'absolute', bottom: -2, right: -2, width: 16, height: 16, background: '#15803d', borderRadius: '50%', border: '1.5px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 700, color: '#fff' }}>{n}</div>
+                    </div>
+                  </AdvancedMarker>
+                )
+              })}
+              {openMarkerId !== null && (() => {
+                const s = mappableStores.find(s => s.id === openMarkerId)
+                if (!s) return null
+                return (
+                  <InfoWindow
+                    position={{ lat: parseFloat(s.lat!), lng: parseFloat(s.lng!) }}
+                    onClose={() => setOpenMarkerId(null)}
+                  >
                     <div style={{ minWidth: 160 }}>
                       <p style={{ fontWeight: 700, color: '#14532d', marginBottom: 2, fontSize: 13 }}>{s.name}</p>
                       <p style={{ fontSize: 11, color: '#64748b' }}>{[s.municipality, s.department].filter(Boolean).join(', ')}</p>
                     </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
+                  </InfoWindow>
+                )
+              })()}
+            </GoogleMap>
 
             {mappableStores.length === 0 && !loading && (
               <div className="absolute inset-0 flex items-end justify-center pb-4 pointer-events-none z-10">
@@ -544,7 +583,7 @@ export function RadarPage() {
 
             <button
               onClick={() => setSatellite(v => !v)}
-              className={`absolute top-3 left-3 z-999 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold shadow transition-colors ${
+              className={`absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold shadow transition-colors ${
                 satellite ? 'bg-agrobot-700 text-white' : 'bg-white text-gray-700 border border-gray-200'
               }`}
             >

@@ -55,6 +55,33 @@ export type StoreRoleType =
   | 'certifier'
   | 'quality_inspector'
 
+export interface StoreContact {
+  id: number
+  contactType: 'phone' | 'whatsapp' | 'email' | 'website' | 'instagram' | 'facebook'
+  value: string
+  label: string | null
+  isPrimary: boolean
+  sortOrder: number
+}
+
+export interface StoreMedia {
+  id: number
+  url: string
+  mediaType: string
+  caption: string | null
+  isPrimary: boolean
+  sortOrder: number
+}
+
+export interface StoreProfileData {
+  id: number
+  tagline: string | null
+  about: string | null
+  yearFounded: number | null
+  specialties: string | null
+  certifications: string[] | null
+}
+
 export interface MyStore {
   id: number
   userId: number
@@ -70,6 +97,9 @@ export interface MyStore {
   status: string
   createdAt: string
   updatedAt: string
+  profile: StoreProfileData | null
+  contacts: StoreContact[]
+  media: StoreMedia[]
 }
 
 export async function getMyStore(): Promise<MyStore | null> {
@@ -109,6 +139,52 @@ export interface UpdateStorePayload {
 
 export async function updateMyStore(payload: UpdateStorePayload): Promise<void> {
   await axiosInstance.put('/stores/my/store', payload)
+}
+
+export interface UpdateStoreProfilePayload {
+  tagline?: string
+  about?: string
+  yearFounded?: number
+  specialties?: string
+  certifications?: string[]
+}
+
+export async function updateMyStoreProfile(payload: UpdateStoreProfilePayload): Promise<void> {
+  await axiosInstance.put('/stores/my/store/profile', payload)
+}
+
+export interface AddContactPayload {
+  contactType: 'phone' | 'whatsapp' | 'email' | 'website' | 'instagram' | 'facebook'
+  value: string
+  label?: string
+  isPrimary?: boolean
+  sortOrder?: number
+}
+
+export async function addStoreContact(payload: AddContactPayload): Promise<{ id: number }> {
+  const res = await axiosInstance.post<{ id: number }>('/stores/my/store/contacts', payload)
+  return res.data
+}
+
+export async function deleteStoreContact(id: number): Promise<void> {
+  await axiosInstance.delete(`/stores/my/store/contacts/${id}`)
+}
+
+export interface AddMediaPayload {
+  url: string
+  mediaType?: 'image' | 'video'
+  caption?: string
+  isPrimary?: boolean
+  sortOrder?: number
+}
+
+export async function addStoreMedia(payload: AddMediaPayload): Promise<{ id: number }> {
+  const res = await axiosInstance.post<{ id: number }>('/stores/my/store/media', payload)
+  return res.data
+}
+
+export async function deleteStoreMedia(id: number): Promise<void> {
+  await axiosInstance.delete(`/stores/my/store/media/${id}`)
 }
 
 export async function uploadStoreFile(file: File): Promise<{ url: string }> {

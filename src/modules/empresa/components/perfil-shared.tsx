@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { Star, Heart, Share2, MessageCircle, MapPin } from 'lucide-react'
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { Map, AdvancedMarker } from '@vis.gl/react-google-maps'
 
 // ─── Hero Banner ──────────────────────────────────────────────────────────────
 
@@ -109,24 +107,23 @@ export function ReviewsSection({ reviews = defaultReviews, title = 'Reseñas Rec
 
 // ─── Map section ──────────────────────────────────────────────────────────────
 
-const singleMarker = new L.DivIcon({
-  className: '',
-  html: `<div style="width:14px;height:14px;background:#15803d;border:2px solid #fff;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,0.3)"></div>`,
-  iconSize: [14, 14],
-  iconAnchor: [7, 7],
-})
-
-export function MapaUbicacion({ lat, lng, label, note }: { lat: number; lng: number; label: string; note?: string }) {
+export function MapaUbicacion({ lat, lng, note }: { lat: number; lng: number; label: string; note?: string }) {
   return (
     <div className="mt-8">
       <h2 className="font-display text-lg font-bold text-gray-900 mb-3">Ubicación Aproximada</h2>
       <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm" style={{ height: 220 }}>
-        <MapContainer center={[lat, lng]} zoom={10} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false} zoomControl={false}>
-          <TileLayer attribution='&copy; OpenStreetMap' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          <Marker position={[lat, lng]} icon={singleMarker}>
-            <Popup><strong style={{ color: '#14532d' }}>{label}</strong></Popup>
-          </Marker>
-        </MapContainer>
+        <Map
+          defaultCenter={{ lat, lng }}
+          defaultZoom={10}
+          mapId="DEMO_MAP_ID"
+          disableDefaultUI
+          gestureHandling="none"
+          style={{ height: '100%', width: '100%' }}
+        >
+          <AdvancedMarker position={{ lat, lng }}>
+            <div style={{ width: 14, height: 14, background: '#15803d', border: '2px solid #fff', borderRadius: '50%', boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }} />
+          </AdvancedMarker>
+        </Map>
       </div>
       {note && <p className="mt-2 flex items-center gap-1 text-xs text-gray-400"><MapPin className="h-3 w-3" />{note}</p>}
     </div>

@@ -2,8 +2,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   createMyStore, getMyListings, getMyStore, getReceivedQuotes,
   createListing, updateListing, changeListingStatus, updateMyStore,
+  updateMyStoreProfile, addStoreContact, deleteStoreContact,
+  addStoreMedia, deleteStoreMedia,
 } from '../api/seller-api'
-import type { CreateListingPayload, UpdateListingPayload, ListingStatus, UpdateStorePayload } from '../api/seller-api'
+import type {
+  CreateListingPayload, UpdateListingPayload, ListingStatus, UpdateStorePayload,
+  UpdateStoreProfilePayload, AddContactPayload, AddMediaPayload,
+} from '../api/seller-api'
 
 export const SELLER_QUERY_KEYS = {
   myListings: ['seller', 'my-listings'] as const,
@@ -50,6 +55,56 @@ export function useUpdateMyStoreMutation() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: (payload: UpdateStorePayload) => updateMyStore(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
+    },
+  })
+}
+
+export function useUpdateMyStoreProfileMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: UpdateStoreProfilePayload) => updateMyStoreProfile(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
+    },
+  })
+}
+
+export function useAddStoreContactMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: AddContactPayload) => addStoreContact(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
+    },
+  })
+}
+
+export function useDeleteStoreContactMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => deleteStoreContact(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
+    },
+  })
+}
+
+export function useAddStoreMediaMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (payload: AddMediaPayload) => addStoreMedia(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
+    },
+  })
+}
+
+export function useDeleteStoreMediaMutation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => deleteStoreMedia(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SELLER_QUERY_KEYS.myStore })
     },

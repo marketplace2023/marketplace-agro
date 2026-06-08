@@ -8,19 +8,11 @@ import {
   ShoppingCart, CheckCircle2,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { MapContainer, TileLayer } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { Map } from '@vis.gl/react-google-maps'
 import { useCategoriesQuery } from '../../modules/categories/queries/category-queries'
 import { useSearchQuery } from '../../modules/search/queries/search-queries'
 import type { SearchParams, SearchListing } from '../../modules/search/api/search'
 
-delete (L.Icon.Default.prototype as Record<string, unknown>)._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-})
 
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
   cosechas: Wheat, fincas: TreePine, insumos: Package,
@@ -292,8 +284,6 @@ export function CatalogoPage() {
   const total       = searchResult?.total    ?? 0
   const totalPages  = Math.ceil(total / 20)
 
-  const tileUrl  = satellite ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}' : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
-  const tileAttr = satellite ? '&copy; Esri' : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 
   function handleSearch() {
     setPage(1)
@@ -485,12 +475,17 @@ export function CatalogoPage() {
         {/* Right: map */}
         <div className="hidden lg:block w-80 shrink-0 sticky top-36">
           <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm" style={{ height: 520 }}>
-            <MapContainer center={[9.2, -69.4]} zoom={6} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
-              <TileLayer attribution={tileAttr} url={tileUrl} />
-            </MapContainer>
+            <Map
+              defaultCenter={{ lat: 9.2, lng: -69.4 }}
+              defaultZoom={6}
+              mapTypeId={satellite ? 'satellite' : 'roadmap'}
+              gestureHandling="cooperative"
+              disableDefaultUI
+              style={{ height: '100%', width: '100%' }}
+            />
             <button
               onClick={() => setSatellite((v) => !v)}
-              className={`absolute top-3 left-3 z-999 flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold shadow transition-colors ${satellite ? 'bg-agrobot-700 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:border-agrobot-300'}`}
+              className={`absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold shadow transition-colors ${satellite ? 'bg-agrobot-700 text-white' : 'bg-white text-gray-700 border border-gray-200 hover:border-agrobot-300'}`}
             >
               <Layers className="h-3.5 w-3.5" />
               Satelital

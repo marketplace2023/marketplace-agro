@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import { Map, AdvancedMarker } from '@vis.gl/react-google-maps'
 import { Link } from 'react-router'
 import {
   MapPin, Clock, Globe, Image, Star, ExternalLink, CheckCircle2,
@@ -488,7 +489,6 @@ function LocationSection({ store }: { store: MyStore }) {
   const [lng,      setLng]      = useState('')
   const [geocoding, setGeocoding] = useState(false)
   const [saving,   setSaving]   = useState(false)
-  const [mapKey,   setMapKey]   = useState(0)
 
   async function geocode() {
     const q = address.trim() || [store.municipality, store.department, 'Venezuela'].filter(Boolean).join(', ')
@@ -503,7 +503,6 @@ function LocationSection({ store }: { store: MyStore }) {
       if (data[0]) {
         setLat(parseFloat(data[0].lat).toFixed(6))
         setLng(parseFloat(data[0].lon).toFixed(6))
-        setMapKey(k => k + 1)
       } else {
         toast.error('No se encontró la dirección')
       }
@@ -534,9 +533,10 @@ function LocationSection({ store }: { store: MyStore }) {
   }
 
   const hasCoords = lat && lng
-  const mapSrc = hasCoords
-    ? `https://www.openstreetmap.org/export/embed.html?bbox=${(parseFloat(lng)-0.05).toFixed(5)},${(parseFloat(lat)-0.05).toFixed(5)},${(parseFloat(lng)+0.05).toFixed(5)},${(parseFloat(lat)+0.05).toFixed(5)}&layer=mapnik&marker=${lat},${lng}`
-    : null
+  const mapCenter = useMemo(
+    () => hasCoords ? { lat: parseFloat(lat), lng: parseFloat(lng) } : null,
+    [lat, lng, hasCoords],
+  )
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5">
@@ -578,9 +578,21 @@ function LocationSection({ store }: { store: MyStore }) {
           </div>
         )}
 
-        {mapSrc && (
+        {mapCenter && (
           <div className="rounded-xl overflow-hidden border border-gray-200 h-52">
-            <iframe key={mapKey} src={mapSrc} title="Mapa" className="h-full w-full" loading="lazy" />
+            <Map
+              key={`${mapCenter.lat},${mapCenter.lng}`}
+              defaultCenter={mapCenter}
+              defaultZoom={13}
+              mapId="DEMO_MAP_ID"
+              disableDefaultUI
+              gestureHandling="none"
+              style={{ height: '100%', width: '100%' }}
+            >
+              <AdvancedMarker position={mapCenter}>
+                <div style={{ width: 14, height: 14, background: '#15803d', border: '2px solid #fff', borderRadius: '50%', boxShadow: '0 2px 5px rgba(0,0,0,0.3)' }} />
+              </AdvancedMarker>
+            </Map>
           </div>
         )}
 

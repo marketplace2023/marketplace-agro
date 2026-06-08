@@ -13,21 +13,13 @@ import { Autoplay, Navigation, Pagination } from 'swiper/modules'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/pagination'
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import { Map, AdvancedMarker, InfoWindow, useMap } from '@vis.gl/react-google-maps'
 import { useCategoriesQuery } from '../../modules/categories/queries/category-queries'
 import { useFeaturedListingsQuery } from '../../modules/listings/queries/listing-queries'
 import { useFeaturedStoresQuery } from '../../modules/stores/queries/store-queries'
 import type { FeaturedListing } from '../../modules/listings/api/listings'
 import type { StoreListItem } from '../../modules/stores/api/stores'
 
-delete (L.Icon.Default.prototype as Record<string, unknown>)._getIconUrl
-L.Icon.Default.mergeOptions({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-})
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -153,16 +145,15 @@ const venezuelaZones: VzZone[] = [
   { name: 'Tucupita / Delta Orinoco',    state: 'Delta Amacuro', crops: 'Arroz, cacao, raíces, pesca-agro',               lat:  9.0581, lng: -62.0504 },
 ]
 
-const vzIcon = new L.DivIcon({
-  className: '',
-  html: `<div style="width:10px;height:10px;background:#10B981;border:2px solid #fff;border-radius:50%;box-shadow:0 0 6px rgba(0,0,0,0.3)"></div>`,
-  iconSize: [10, 10], iconAnchor: [5, 5],
-})
 const vzStates = [...new Set(venezuelaZones.map((z) => z.state))]
 
 function FlyToZone({ lat, lng, zoom }: { lat: number; lng: number; zoom: number }) {
   const map = useMap()
-  useEffect(() => { map.flyTo([lat, lng], zoom, { duration: 1.2 }) }, [lat, lng, zoom, map])
+  useEffect(() => {
+    if (!map) return
+    map.panTo({ lat, lng })
+    map.setZoom(zoom)
+  }, [lat, lng, zoom, map])
   return null
 }
 
@@ -605,6 +596,7 @@ function TestimonialsSection() {
 
 function PopularZonesSection() {
   const [activeState, setActiveState] = useState<string | null>(null)
+  const [openZone, setOpenZone] = useState<string | null>(null)
 
   const filtered = activeState ? venezuelaZones.filter((z) => z.state === activeState) : venezuelaZones
   const flyTarget = activeState
@@ -650,24 +642,38 @@ function PopularZonesSection() {
         </div>
 
         <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-card" style={{ height: 420 }}>
-          <MapContainer center={[8.5, -66.5]} zoom={6} style={{ height: '100%', width: '100%' }} scrollWheelZoom={false}>
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
+          <Map
+            defaultCenter={{ lat: 8.5, lng: -66.5 }}
+            defaultZoom={6}
+            mapId="DEMO_MAP_ID"
+            gestureHandling="cooperative"
+            disableDefaultUI
+            style={{ height: '100%', width: '100%' }}
+          >
             {filtered.map((z) => (
-              <Marker key={z.name} position={[z.lat, z.lng]} icon={vzIcon}>
-                <Popup>
+              <AdvancedMarker
+                key={z.name}
+                position={{ lat: z.lat, lng: z.lng }}
+                onClick={() => setOpenZone(z.name)}
+              >
+                <div style={{ width: 10, height: 10, background: '#10B981', border: '2px solid #fff', borderRadius: '50%', boxShadow: '0 0 6px rgba(0,0,0,0.3)' }} />
+              </AdvancedMarker>
+            ))}
+            {openZone && (() => {
+              const z = venezuelaZones.find(z => z.name === openZone)
+              if (!z) return null
+              return (
+                <InfoWindow position={{ lat: z.lat, lng: z.lng }} onClose={() => setOpenZone(null)}>
                   <div style={{ minWidth: 170 }}>
                     <p style={{ fontWeight: 700, color: '#14532d', fontSize: 13, marginBottom: 3 }}>{z.name}</p>
                     <p style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Estado: <strong>{z.state}</strong></p>
                     <p style={{ fontSize: 11, color: '#64748b' }}>Rubros: {z.crops}</p>
                   </div>
-                </Popup>
-              </Marker>
-            ))}
+                </InfoWindow>
+              )
+            })()}
             <FlyToZone lat={flyTarget.lat} lng={flyTarget.lng} zoom={flyTarget.zoom} />
-          </MapContainer>
+          </Map>
         </div>
       </div>
     </section>
