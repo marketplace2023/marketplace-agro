@@ -11,6 +11,7 @@ export interface FeaturedListing {
   storeName: string | null
   storeSlug: string | null
   storeLogoUrl: string | null
+  primaryImage: string | null
 }
 
 export interface ListingDetail {

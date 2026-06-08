@@ -347,7 +347,10 @@ function FeaturedListingCard({ listing }: { listing: FeaturedListing }) {
       className="group flex flex-col overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg hover:border-agrobot-100"
     >
       <div className={`relative flex aspect-4/3 items-center justify-center bg-linear-to-br ${gradient} overflow-hidden`}>
-        <Icon className="h-16 w-16 text-white/20" />
+        {listing.primaryImage
+          ? <img src={listing.primaryImage} alt={listing.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+          : <Icon className="h-16 w-16 text-white/20" />
+        }
         {listing.categoryName && (
           <span className="absolute left-3 top-3 rounded-full bg-white/20 backdrop-blur-sm px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">
             {listing.categoryName}
@@ -378,6 +381,8 @@ function FeaturedListingCard({ listing }: { listing: FeaturedListing }) {
 
 function FeaturedProductsSection() {
   const { data: listings, isLoading } = useFeaturedListingsQuery()
+
+  if (!isLoading && (!listings || listings.length === 0)) return null
 
   return (
     <section className="bg-white py-16">
