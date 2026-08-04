@@ -5,7 +5,7 @@ import {
   Wheat, TreePine, Package, Wrench, Briefcase, FlaskConical,
   BadgeCheck, ClipboardCheck, ChevronLeft, ChevronRight,
   Layers, X, Loader2, LayoutGrid, LayoutList, Star,
-  ShoppingCart, CheckCircle2,
+  ShoppingCart, CheckCircle2, Navigation,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { Map } from '@vis.gl/react-google-maps'
@@ -162,7 +162,8 @@ function GridCard({ listing }: { listing: SearchListing }) {
           </div>
           {listing.department && (
             <div className="flex items-center gap-0.5 text-[10px] text-gray-400 shrink-0">
-              <MapPin className="h-3 w-3" />{listing.department}
+              <MapPin className="h-3 w-3" />
+              {listing.distanceKm !== undefined ? `${listing.distanceKm.toFixed(1)} km` : listing.department}
             </div>
           )}
         </div>
@@ -220,7 +221,9 @@ function ListCard({ listing, index }: { listing: SearchListing; index: number })
           {listing.department && (
             <div className="mt-1.5 flex items-center gap-1 text-xs text-gray-400">
               <MapPin className="h-3 w-3 shrink-0" />
-              {[listing.municipality, listing.department].filter(Boolean).join(', ')}
+              {listing.distanceKm !== undefined
+                ? `A ${listing.distanceKm.toFixed(1)} km de ti`
+                : [listing.municipality, listing.department].filter(Boolean).join(', ')}
             </div>
           )}
         </div>
@@ -268,13 +271,45 @@ export function CatalogoPage() {
   const [satellite,        setSatellite]        = useState(false)
   const [filtrosOpen,      setFiltrosOpen]      = useState(false)
   const [viewMode,         setViewMode]         = useState<'grid' | 'list'>('grid')
+  const [nearMe,           setNearMe]           = useState<{ lat: number; lng: number } | null>(null)
+  const [nearMeLoading,    setNearMeLoading]    = useState(false)
+  const [nearMeError,      setNearMeError]      = useState<string | null>(null)
 
   const searchParams: SearchParams = {
     q: queryText || undefined,
     categoryId: activeCategoryId,
     maxPrice: maxPrice < 100000 ? maxPrice : undefined,
     isVerifiedStore: soloVerificados || undefined,
-    sort, page, limit: 20,
+    lat: nearMe?.lat,
+    lng: nearMe?.lng,
+    sort: nearMe ? 'distance' : sort,
+    page, limit: 20,
+  }
+
+  function handleNearMeToggle() {
+    if (nearMe) {
+      setNearMe(null)
+      setNearMeError(null)
+      return
+    }
+    if (!navigator.geolocation) {
+      setNearMeError('Tu navegador no soporta geolocalización')
+      return
+    }
+    setNearMeLoading(true)
+    setNearMeError(null)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setNearMe({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setNearMeLoading(false)
+        setPage(1)
+      },
+      () => {
+        setNearMeError('No pudimos acceder a tu ubicación')
+        setNearMeLoading(false)
+      },
+      { enableHighAccuracy: false, timeout: 10000 },
+    )
   }
 
   const { data: searchResult, isFetching } = useSearchQuery(searchParams)
@@ -329,6 +364,27 @@ export function CatalogoPage() {
             <button onClick={handleSearch} className="flex items-center bg-agrobot-700 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-agrobot-800">
               <Search className="h-4 w-4" />
             </button>
+          </div>
+
+          <div className="mt-2 flex items-center gap-2">
+            <button
+              onClick={handleNearMeToggle}
+              disabled={nearMeLoading}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors disabled:opacity-60 ${
+                nearMe
+                  ? 'border-agrobot-600 bg-agrobot-600 text-white'
+                  : 'border-gray-200 bg-white text-gray-600 hover:border-agrobot-300 hover:text-agrobot-700'
+              }`}
+            >
+              {nearMeLoading ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Navigation className="h-3.5 w-3.5" />
+              )}
+              {nearMe ? 'Cerca de mí (activo)' : 'Cerca de mí'}
+              {nearMe && <X className="h-3 w-3" />}
+            </button>
+            {nearMeError && <span className="text-xs text-red-500">{nearMeError}</span>}
           </div>
 
           {/* Category pills */}

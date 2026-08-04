@@ -21,6 +21,7 @@ export interface SearchListing {
   storeIsVerified: boolean | null
   createdAt: string
   primaryImage: string | null
+  distanceKm?: number
 }
 
 export interface SearchResult {
@@ -39,7 +40,10 @@ export interface SearchParams {
   minPrice?: number
   maxPrice?: number
   isVerifiedStore?: boolean
-  sort?: 'recent' | 'price_asc' | 'price_desc' | 'featured'
+  lat?: number
+  lng?: number
+  radiusKm?: number
+  sort?: 'recent' | 'price_asc' | 'price_desc' | 'featured' | 'distance'
   page?: number
   limit?: number
 }

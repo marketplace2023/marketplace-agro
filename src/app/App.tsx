@@ -7,6 +7,7 @@ import { APIProvider } from '@vis.gl/react-google-maps'
 import { AuthProvider } from '../modules/auth/context/auth-context'
 import { isAxios401, isAxios404 } from '../modules/shared/lib/axios'
 import AppRoutes from '../routing/app-routes'
+import { AntGuide } from '../modules/assistant/components/ant-guide'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,7 @@ export default function App() {
             <BrowserRouter>
               <Toaster richColors position="top-right" />
               <AppRoutes />
+              <AntGuide />
             </BrowserRouter>
           </TooltipProvider>
         </AuthProvider>

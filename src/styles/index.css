@@ -212,3 +212,40 @@
     padding-bottom: 0.5rem;
   }
 }
+
+/* ── Asistente Hormi (guía flotante) ────────────────────────────── */
+@keyframes ant-patrol {
+  0%   { transform: translateX(0) scaleX(1); }
+  2%   { transform: translateX(0) scaleX(-1); }
+  48%  { transform: translateX(-96px) scaleX(-1); }
+  52%  { transform: translateX(-96px) scaleX(1); }
+  98%  { transform: translateX(0) scaleX(1); }
+  100% { transform: translateX(0) scaleX(1); }
+}
+@keyframes ant-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+@keyframes ant-leg-swing-a {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(8deg); }
+}
+@keyframes ant-leg-swing-b {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-8deg); }
+}
+@keyframes ant-antenna-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(-6deg); }
+}
+@keyframes ant-bubble-pop {
+  0%   { opacity: 0; transform: translateY(8px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-ant-patrol { animation: ant-patrol 15s ease-in-out infinite; }
+.animate-ant-bob { animation: ant-bob 1s ease-in-out infinite; }
+.ant-legs-a { transform-box: fill-box; transform-origin: top center; animation: ant-leg-swing-a 0.5s ease-in-out infinite; }
+.ant-legs-b { transform-box: fill-box; transform-origin: top center; animation: ant-leg-swing-b 0.5s ease-in-out infinite; }
+.ant-antennae { transform-box: fill-box; transform-origin: bottom center; animation: ant-antenna-wiggle 2.2s ease-in-out infinite; }
+.animate-ant-bubble-pop { animation: ant-bubble-pop 0.18s ease-out; }

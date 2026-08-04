@@ -86,7 +86,7 @@ function getCategoryIcon(slug: string): React.ElementType {
 
 function formatPrice(price: string | null, priceUnit: string | null): string {
   if (!price) return 'A consultar'
-  const formatted = `$${Number(price).toLocaleString('es-AR')}`
+  const formatted = `$${Number(price).toLocaleString('es-VE')}`
   return priceUnit ? `${formatted} / ${priceUnit}` : formatted
 }
 

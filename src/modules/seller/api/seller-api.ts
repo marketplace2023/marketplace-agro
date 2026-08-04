@@ -8,6 +8,7 @@ export type ListingStatus =
   | 'pending_review'
   | 'published'
   | 'paused'
+  | 'sold'
   | 'rejected'
   | 'expired'
   | 'deleted'

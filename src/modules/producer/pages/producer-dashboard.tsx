@@ -13,13 +13,14 @@ const LISTING_STATUS_COLORS: Record<ListingStatus, string> = {
   pending_review: 'bg-amber-50 text-amber-700',
   published:      'bg-agrobot-50 text-agrobot-700',
   paused:         'bg-gray-100 text-gray-500',
+  sold:           'bg-blue-50 text-blue-600',
   rejected:       'bg-red-50 text-red-600',
   expired:        'bg-gray-100 text-gray-400',
   deleted:        'bg-red-50 text-red-400',
 }
 const LISTING_STATUS_LABEL: Record<ListingStatus, string> = {
   draft: 'Borrador', pending_review: 'En revisión', published: 'Publicado',
-  paused: 'Pausado', rejected: 'Rechazado', expired: 'Expirado', deleted: 'Eliminado',
+  paused: 'Pausado', sold: 'Vendida', rejected: 'Rechazado', expired: 'Expirado', deleted: 'Eliminado',
 }
 const QUOTE_STATUS_COLORS: Record<QuoteStatus, string> = {
   sent:       'bg-blue-50 text-blue-600',

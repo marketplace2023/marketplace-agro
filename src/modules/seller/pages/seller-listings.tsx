@@ -5,6 +5,7 @@ import {
   PauseCircle, PlayCircle, SendHorizonal, X, ChevronDown,
   ImagePlus, Loader2, CheckCircle2, ArrowLeft, ChevronLeft,
   Wheat, Tractor, FlaskConical, GraduationCap, Truck, MapPinned,
+  BadgeCheck,
 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -27,13 +28,14 @@ const STATUS_COLOR: Record<ListingStatus, string> = {
   pending_review: 'bg-amber-50 text-amber-700',
   published:      'bg-agrobot-50 text-agrobot-700',
   paused:         'bg-gray-100 text-gray-500',
+  sold:           'bg-blue-50 text-blue-600',
   rejected:       'bg-red-50 text-red-600',
   expired:        'bg-gray-100 text-gray-400',
   deleted:        'bg-red-50 text-red-400',
 }
 const STATUS_LABEL: Record<ListingStatus, string> = {
   draft: 'Borrador', pending_review: 'En revisión', published: 'Publicado',
-  paused: 'Pausado', rejected: 'Rechazado', expired: 'Expirado', deleted: 'Eliminado',
+  paused: 'Pausado', sold: 'Vendida', rejected: 'Rechazado', expired: 'Expirado', deleted: 'Eliminado',
 }
 const TYPE_LABEL: Record<ListingType, string> = {
   sale: 'Venta', rent: 'Arriendo', service: 'Servicio', quote: 'Cotización', alliance: 'Alianza',
@@ -54,6 +56,7 @@ const FILTER_TABS: { key: FilterTab; label: string }[] = [
   { key: 'pending_review', label: 'En revisión' },
   { key: 'draft', label: 'Borradores' },
   { key: 'paused', label: 'Pausadas' },
+  { key: 'sold', label: 'Vendidas' },
   { key: 'rejected', label: 'Rechazadas' },
 ]
 
@@ -961,11 +964,12 @@ export function SellerListings() {
     return tab === 'all' ? allListings.length : allListings.filter((l) => l.status === tab).length
   }
 
-  const canEdit   = (l: MyListing) => !['expired', 'deleted'].includes(l.status)
-  const canDelete = (l: MyListing) => ['draft', 'paused', 'rejected'].includes(l.status)
-  const canPause  = (l: MyListing) => l.status === 'published'
-  const canResume = (l: MyListing) => l.status === 'paused'
-  const canSubmit = (l: MyListing) => l.status === 'draft'
+  const canEdit     = (l: MyListing) => !['expired', 'deleted', 'sold'].includes(l.status)
+  const canDelete   = (l: MyListing) => ['draft', 'paused', 'rejected', 'sold'].includes(l.status)
+  const canPause    = (l: MyListing) => l.status === 'published'
+  const canResume   = (l: MyListing) => l.status === 'paused'
+  const canSubmit   = (l: MyListing) => l.status === 'draft'
+  const canMarkSold = (l: MyListing) => l.status === 'published'
 
   return (
     <div className="flex flex-col gap-6">
@@ -1129,6 +1133,16 @@ export function SellerListings() {
                             className="rounded-lg p-1.5 text-gray-300 hover:bg-amber-50 hover:text-amber-600 transition-colors disabled:opacity-40"
                           >
                             <PauseCircle className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                        {canMarkSold(l) && (
+                          <button
+                            onClick={() => changeMut.mutate({ id: l.id, status: 'sold' })}
+                            title="Marcar como vendida"
+                            disabled={changeMut.isPending}
+                            className="rounded-lg p-1.5 text-gray-300 hover:bg-blue-50 hover:text-blue-600 transition-colors disabled:opacity-40"
+                          >
+                            <BadgeCheck className="h-3.5 w-3.5" />
                           </button>
                         )}
                         {canResume(l) && (

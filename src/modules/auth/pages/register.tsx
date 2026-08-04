@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router'
 import { useQueryClient } from '@tanstack/react-query'
-import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react'
+import { User, Mail, Phone, Lock, Eye, EyeOff, ArrowRight, IdCard } from 'lucide-react'
 import { registerSchema, type RegisterFormSchema } from '../zod-schema/auth-schemas'
 import { useRegisterMutation, ME_QUERY_KEY } from '../queries/auth-queries'
 import { handleFormError } from '../../shared/util/handle-form-error'
@@ -20,6 +20,8 @@ export function RegisterPage() {
       name: '',
       email: '',
       phone: '',
+      documentType: 'cedula',
+      documentNumber: '',
       password: '',
       passwordConfirmation: '',
       acceptTermsOfService: false,
@@ -154,6 +156,35 @@ export function RegisterPage() {
                   {...form.register('phone')}
                 />
               </div>
+            </div>
+
+            {/* Document */}
+            <div>
+              <label className={labelClass} htmlFor="documentNumber">Documento de identidad</label>
+              <div className="flex gap-2">
+                <select
+                  className="w-28 shrink-0 rounded-xl border border-gray-200 bg-white py-3.5 px-3 text-sm text-gray-900 outline-none transition-all focus:border-agrobot-500 focus:ring-2 focus:ring-agrobot-500/20"
+                  {...form.register('documentType')}
+                >
+                  <option value="cedula">Cédula</option>
+                  <option value="rif">RIF</option>
+                </select>
+                <div className="relative flex-1">
+                  <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center">
+                    <IdCard className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    id="documentNumber"
+                    type="text"
+                    placeholder={form.watch('documentType') === 'rif' ? 'J-12345678-9' : 'V-12345678'}
+                    className={`${inputClass} pl-11`}
+                    {...form.register('documentNumber')}
+                  />
+                </div>
+              </div>
+              {form.formState.errors.documentNumber && (
+                <p className="mt-1 text-xs text-red-500">{form.formState.errors.documentNumber.message}</p>
+              )}
             </div>
 
             {/* Password */}
