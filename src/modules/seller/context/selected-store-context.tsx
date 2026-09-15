@@ -34,8 +34,8 @@ export function SelectedStoreProvider({ children }: PropsWithChildren) {
     )
   }
 
-  // null = no store registered → show creation wizard
-  if (store === null) {
+  // null/undefined = no store registered → show creation wizard
+  if (store == null) {
     return <CreateStorePage />
   }
 

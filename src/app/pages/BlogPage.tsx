@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { Search, Clock, Share2, Bookmark, UserPlus, Tag, Loader2, AlertCircle } from 'lucide-react'
+import { Search, Clock, Share2, Bookmark, UserPlus, Tag, AlertCircle } from 'lucide-react'
 import { useBlogPostsQuery, useBlogCategoriesQuery } from '@/modules/blog/queries/blog-queries'
 import type { BlogPost } from '@/modules/blog/api/blog'
 

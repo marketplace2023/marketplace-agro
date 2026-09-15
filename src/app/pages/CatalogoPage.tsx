@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, useSearchParams, Link } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import {
   Search, MapPin, Heart, SlidersHorizontal,
   Wheat, TreePine, Package, Wrench, Briefcase, FlaskConical,

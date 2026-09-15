@@ -60,7 +60,7 @@ export function CompradorConfiguracion() {
       return
     }
     updatePassword.mutate(
-      { currentPassword, newPassword },
+      { currentPassword, newPassword, newPasswordConfirmation: confirmPassword },
       {
         onSuccess: () => {
           setCurrentPassword('')

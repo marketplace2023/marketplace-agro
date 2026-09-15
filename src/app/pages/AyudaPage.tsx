@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
-  Search, ArrowRight, MessageCircle, ChevronRight, Loader2, AlertCircle,
+  Search, ArrowRight, MessageCircle, ChevronRight, AlertCircle,
   FileText, BookOpen, HelpCircle, Megaphone, Scale,
 } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
@@ -147,8 +147,6 @@ export function AyudaPage() {
     search: searchQuery || undefined,
   })
 
-  const { data: featuredArticles } = useHelpArticlesQuery({ featured: true })
-
   function handleSearch() {
     setSearchQuery(searchInput)
     setActiveCategoryId(undefined)
@@ -160,7 +158,6 @@ export function AyudaPage() {
     setSearchInput('')
   }
 
-  const filteredFeatured = featuredArticles?.slice(0, 5) ?? []
   const activeCategory = categories?.find((c) => c.id === activeCategoryId)
 
   return (

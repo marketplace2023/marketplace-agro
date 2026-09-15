@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Clock, ShieldCheck, MapPin, Heart, Share2, MessageCircle, FileText, Star, ThumbsUp, Send } from 'lucide-react'
-import { StarRating, ReviewCard, defaultReviews, MapaUbicacion } from '../../../modules/empresa/components/perfil-shared'
+import { Clock, ShieldCheck, Heart, Share2, MessageCircle, FileText, Star, ThumbsUp, Send } from 'lucide-react'
+import { StarRating, defaultReviews, MapaUbicacion } from '../../../modules/empresa/components/perfil-shared'
 
 const ofertasTemporada = [
   { id: 1, badge: '-15% HOY', badgeColor: 'bg-red-500', category: 'MAQUINARIA ENERGÉTICA', name: 'Generador Diesel...', price: 'USD 8.200', original: 'USD 9.650', image: '/bg-cafe.png' },

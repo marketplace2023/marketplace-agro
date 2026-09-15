@@ -118,7 +118,7 @@ export function FincaAgricolaDetallePage() {
             <div className="rounded-xl border border-gray-200 bg-white p-5">
               <h2 className="font-display text-base font-bold text-gray-900 mb-3">Infraestructura Disponible</h2>
               <div className="grid grid-cols-2 gap-2">
-                {infraestructura.map(({ Icon, item }) => (
+                {infraestructura.map(({ item }) => (
                   <div key={item} className="flex items-center gap-2 rounded-lg bg-gray-50 px-3 py-2">
                     <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-agrobot-600" />
                     <span className="text-xs text-gray-700">{item}</span>

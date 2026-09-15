@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react'
 import { Link } from 'react-router'
-import { Search, Radar, Trash2, Play, Edit2, Clock } from 'lucide-react'
+import { Search, Radar, Trash2, Play, Clock } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,

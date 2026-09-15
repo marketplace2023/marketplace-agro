@@ -1,7 +1,6 @@
 ﻿import { Link, useParams } from 'react-router'
 import { ArrowLeft, CheckCircle2, XCircle, MessageCircle, Loader2, FileText, Send, Paperclip } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-import { Skeleton } from '@/components/ui/skeleton'
 import { useQuoteDetailQuery } from '../queries/buyer-queries'
 import type { QuoteStatus } from '../../seller/api/seller-api'
 

@@ -305,7 +305,7 @@ function CategoriesSection() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {(categories ?? []).map(({ id, name, imageUrl }, i) => {
+            {(categories ?? []).map(({ id, name, imageUrl }) => {
               const Icon = getCategoryIcon(name)
               const gradient = getCategoryGradient(name)
               return (
