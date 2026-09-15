@@ -134,7 +134,7 @@ function OfertaCard({ listing }: { listing: ApiListing }) {
       <div className="relative flex aspect-4/3 items-center justify-center overflow-hidden bg-linear-to-br from-agrobot-700 to-agrobot-900">
         {listing.primaryImage ? (
           <img
-            src={listing.primaryImage}
+            src={resolveMediaUrl(listing.primaryImage)}
             alt={listing.title}
             className="h-full w-full object-cover"
           />

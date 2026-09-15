@@ -124,7 +124,7 @@ export function AnuncioDetallePage() {
                             activeImg === i ? 'border-agrobot-500' : 'border-transparent hover:border-gray-300'
                           }`}
                         >
-                          <img src={img.url} alt="" className="h-full w-full object-cover" />
+                          <img src={resolveMediaUrl(img.url)} alt="" className="h-full w-full object-cover" />
                         </button>
                       ))}
                     </div>
@@ -133,7 +133,7 @@ export function AnuncioDetallePage() {
                   {/* Main image */}
                   <div className="relative flex-1">
                     <img
-                      src={images[activeImg]?.url}
+                      src={resolveMediaUrl(images[activeImg]?.url)}
                       alt={listing.title}
                       className="h-[460px] w-full object-contain bg-white p-4"
                     />

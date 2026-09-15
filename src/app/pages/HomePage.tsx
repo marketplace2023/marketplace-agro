@@ -317,7 +317,7 @@ function CategoriesSection() {
                   style={{ height: 140 }}
                 >
                   {imageUrl ? (
-                    <img src={imageUrl} alt={name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    <img src={resolveMediaUrl(imageUrl)} alt={name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                   ) : (
                     <div className={`flex h-full w-full items-center justify-center bg-linear-to-br ${gradient}`}>
                       <Icon className="h-12 w-12 text-white/30" />
@@ -349,7 +349,7 @@ function FeaturedListingCard({ listing }: { listing: FeaturedListing }) {
     >
       <div className={`relative flex aspect-4/3 items-center justify-center bg-linear-to-br ${gradient} overflow-hidden`}>
         {listing.primaryImage
-          ? <img src={listing.primaryImage} alt={listing.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+          ? <img src={resolveMediaUrl(listing.primaryImage)} alt={listing.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
           : <Icon className="h-16 w-16 text-white/20" />
         }
         {listing.categoryName && (

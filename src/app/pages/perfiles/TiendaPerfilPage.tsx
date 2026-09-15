@@ -62,7 +62,7 @@ function ListingCard({ listing }: { listing: StoreListing }) {
     >
       <div className="relative h-44 bg-gray-50 overflow-hidden">
         {listing.thumbnailUrl ? (
-          <img src={listing.thumbnailUrl} alt={listing.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          <img src={resolveMediaUrl(listing.thumbnailUrl)} alt={listing.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
             <Package className="h-10 w-10 text-gray-200" />
@@ -421,7 +421,7 @@ export function TiendaPerfilPage() {
               <div className="grid grid-cols-2 gap-1.5">
                 {galleryMedia.slice(0, 4).map(m => (
                   <div key={m.id} className="aspect-square overflow-hidden rounded-xl bg-gray-100">
-                    <img src={m.url} alt={m.caption ?? store.name} className="h-full w-full object-cover hover:scale-105 transition-transform duration-200" />
+                    <img src={resolveMediaUrl(m.url)} alt={m.caption ?? store.name} className="h-full w-full object-cover hover:scale-105 transition-transform duration-200" />
                   </div>
                 ))}
               </div>

@@ -344,7 +344,7 @@ function PhotosSection({ initialMedia }: { initialMedia: StoreMedia[] }) {
         <div className="grid grid-cols-3 gap-2">
           {media.map((m) => (
             <div key={m.id} className="group relative aspect-square rounded-lg overflow-hidden border border-gray-200">
-              <img src={m.url} alt="" className="h-full w-full object-cover" />
+              <img src={resolveMediaUrl(m.url)} alt="" className="h-full w-full object-cover" />
               <button
                 onClick={() => remove(m.id)}
                 className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"

@@ -12,6 +12,7 @@ import { Map } from '@vis.gl/react-google-maps'
 import { useCategoriesQuery } from '../../modules/categories/queries/category-queries'
 import { useSearchQuery } from '../../modules/search/queries/search-queries'
 import type { SearchParams, SearchListing } from '../../modules/search/api/search'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 
 const CATEGORY_ICON_MAP: Record<string, LucideIcon> = {
@@ -125,7 +126,7 @@ function GridCard({ listing }: { listing: SearchListing }) {
       {/* Image / placeholder */}
       <div className={`relative flex aspect-4/3 items-center justify-center overflow-hidden bg-linear-to-br ${gradient}`}>
         {listing.primaryImage ? (
-          <img src={listing.primaryImage} alt={listing.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
+          <img src={resolveMediaUrl(listing.primaryImage)} alt={listing.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
         ) : (
           <Icon className="h-14 w-14 text-white/25" />
         )}
@@ -190,7 +191,7 @@ function ListCard({ listing, index }: { listing: SearchListing; index: number })
       {/* Thumb */}
       <div className={`h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-linear-to-br ${gradient}`}>
         {listing.primaryImage ? (
-          <img src={listing.primaryImage} alt={listing.title} className="h-full w-full object-cover" />
+          <img src={resolveMediaUrl(listing.primaryImage)} alt={listing.title} className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full w-full items-center justify-center">
             <Icon className="h-9 w-9 text-white/30" />

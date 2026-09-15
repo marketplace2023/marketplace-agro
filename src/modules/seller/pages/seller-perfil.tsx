@@ -122,7 +122,7 @@ function ContactRow({ contact, onDelete, deleting }: { contact: StoreContact; on
 function MediaThumb({ media, onDelete, deleting }: { media: StoreMedia; onDelete: () => void; deleting: boolean }) {
   return (
     <div className="group relative aspect-square overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
-      <img src={media.url} alt={media.caption ?? ''} className="h-full w-full object-cover" />
+      <img src={resolveMediaUrl(media.url)} alt={media.caption ?? ''} className="h-full w-full object-cover" />
       <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/40 transition-all duration-200">
         <button
           onClick={onDelete}
