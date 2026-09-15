@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { useMyListingsQuery, useMyStoreQuery, useReceivedQuotesQuery } from '../queries/seller-queries'
 import { useAuth } from '@/modules/auth/context/auth-context'
 import type { ListingStatus, QuoteStatus } from '../api/seller-api'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 const LISTING_STATUS_COLORS: Record<ListingStatus, string> = {
   draft:          'bg-gray-100 text-gray-500',
@@ -94,7 +95,7 @@ export function SellerDashboard() {
       {!loadingS && store && (
         <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 shadow-sm">
           {store.logoUrl ? (
-            <img src={store.logoUrl} alt={store.name} className="h-9 w-9 rounded-lg object-cover" />
+            <img src={resolveMediaUrl(store.logoUrl)} alt={store.name} className="h-9 w-9 rounded-lg object-cover" />
           ) : (
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-agrobot-50">
               <Store className="h-4 w-4 text-agrobot-600" />

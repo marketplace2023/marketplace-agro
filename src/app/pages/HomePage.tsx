@@ -19,6 +19,7 @@ import { useFeaturedListingsQuery } from '../../modules/listings/queries/listing
 import { useFeaturedStoresQuery } from '../../modules/stores/queries/store-queries'
 import type { FeaturedListing } from '../../modules/listings/api/listings'
 import type { StoreListItem } from '../../modules/stores/api/stores'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -436,7 +437,7 @@ function StoreCard({ store, i }: { store: StoreListItem; i: number }) {
       {/* Banner */}
       <div className="relative h-20 w-full overflow-hidden">
         {store.bannerUrl ? (
-          <img src={store.bannerUrl} alt="" className="h-full w-full object-cover" />
+          <img src={resolveMediaUrl(store.bannerUrl)} alt="" className="h-full w-full object-cover" />
         ) : (
           <div className={`h-full w-full ${BANNER_GRADIENTS[i % BANNER_GRADIENTS.length]}`}>
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
@@ -447,7 +448,7 @@ function StoreCard({ store, i }: { store: StoreListItem; i: number }) {
       <div className="px-4 pb-4 -mt-6 flex flex-col flex-1">
         <div className="flex items-end justify-between mb-3">
           {store.logoUrl ? (
-            <img src={store.logoUrl} alt={store.name} className="h-12 w-12 rounded-xl border-2 border-white object-cover shadow-md" />
+            <img src={resolveMediaUrl(store.logoUrl)} alt={store.name} className="h-12 w-12 rounded-xl border-2 border-white object-cover shadow-md" />
           ) : (
             <div className={`flex h-12 w-12 items-center justify-center rounded-xl border-2 border-white text-sm font-bold text-white shadow-md ${BANNER_GRADIENTS[i % BANNER_GRADIENTS.length]}`}>
               {getInitials(store.name)}

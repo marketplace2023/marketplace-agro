@@ -8,6 +8,7 @@ import * as LucideIcons from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useHelpCategoriesQuery, useHelpArticlesQuery } from '@/modules/help/queries/help-queries'
 import type { HelpArticle, HelpCategory } from '@/modules/help/api/help'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -65,7 +66,7 @@ function CategoryCard({ cat, isActive, onClick }: { cat: HelpCategory; isActive:
       <div className="relative w-full overflow-hidden" style={{ height: 80 }}>
         {cat.imageUrl && !imgError ? (
           <img
-            src={cat.imageUrl}
+            src={resolveMediaUrl(cat.imageUrl)}
             alt={cat.name}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             onError={() => setImgError(true)}

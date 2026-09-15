@@ -16,6 +16,7 @@ import {
 } from '../queries/seller-queries'
 import { uploadStoreFile } from '../api/seller-api'
 import type { StoreRoleType, StoreContact, StoreMedia, AddContactPayload } from '../api/seller-api'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 const ROLE_LABEL: Record<StoreRoleType, string> = {
   seller: 'Vendedor / Tienda', producer: 'Productor agrícola', farm_owner: 'Dueño de finca',
@@ -363,7 +364,7 @@ export function SellerPerfil() {
               onClick={() => logoRef.current?.click()}
             >
               {images.logoUrl ? (
-                <img src={images.logoUrl} alt="Logo" className="h-28 w-28 rounded-2xl object-cover border-2 border-gray-100 shadow-sm" />
+                <img src={resolveMediaUrl(images.logoUrl)} alt="Logo" className="h-28 w-28 rounded-2xl object-cover border-2 border-gray-100 shadow-sm" />
               ) : (
                 <div className="flex h-28 w-28 items-center justify-center rounded-2xl bg-agrobot-50 border-2 border-dashed border-agrobot-200">
                   <Store className="h-10 w-10 text-agrobot-300" />
@@ -386,7 +387,7 @@ export function SellerPerfil() {
               onClick={() => bannerRef.current?.click()}
             >
               {images.bannerUrl ? (
-                <img src={images.bannerUrl} alt="Banner" className="h-full w-full object-cover" />
+                <img src={resolveMediaUrl(images.bannerUrl)} alt="Banner" className="h-full w-full object-cover" />
               ) : (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5">
                   <Image className="h-8 w-8 text-gray-300" />

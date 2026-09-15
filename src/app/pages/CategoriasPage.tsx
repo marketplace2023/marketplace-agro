@@ -4,6 +4,7 @@ import * as Icons from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useCategoriesQuery } from '@/modules/categories/queries/category-queries'
 import type { Category } from '@/modules/categories/api/categories'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 // ─── Icon resolver ──────────────────────────────────────────────────────────
 // Maps the string icon name stored in the DB (e.g. "leaf") to a Lucide component.
@@ -58,7 +59,7 @@ function CategoriaCard({ cat, index }: { cat: Category; index: number }) {
       <div className="relative overflow-hidden" style={{ height: 140 }}>
         {cat.imageUrl && !imgError ? (
           <img
-            src={cat.imageUrl}
+            src={resolveMediaUrl(cat.imageUrl)}
             alt={cat.name}
             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
             onError={() => setImgError(true)}

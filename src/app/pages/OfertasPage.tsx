@@ -5,6 +5,7 @@ import {
 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { axiosInstance } from '@/modules/shared/lib/axios'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 // ─── API types ────────────────────────────────────────────────────────────────
 
@@ -201,7 +202,7 @@ function TiendaCard({ store }: { store: ApiStore }) {
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3 transition-shadow hover:shadow-md">
       <div className="relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full overflow-hidden bg-linear-to-br from-agrobot-600 to-agrobot-800 shadow">
         {store.logoUrl ? (
-          <img src={store.logoUrl} alt={store.name} className="h-full w-full object-cover" />
+          <img src={resolveMediaUrl(store.logoUrl)} alt={store.name} className="h-full w-full object-cover" />
         ) : (
           <span className="text-lg font-bold text-white">{initials}</span>
         )}

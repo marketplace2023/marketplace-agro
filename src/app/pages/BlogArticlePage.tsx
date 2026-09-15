@@ -4,6 +4,7 @@ import {
   Bell, Megaphone, Search, AlignLeft, Loader2, AlertCircle,
 } from 'lucide-react'
 import { useBlogPostQuery } from '@/modules/blog/queries/blog-queries'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -112,7 +113,7 @@ export function BlogArticlePage() {
       {article.imageUrl && (
         <div className="mx-auto max-w-5xl px-4 mb-8">
           <div className="overflow-hidden rounded-2xl" style={{ height: 380 }}>
-            <img src={article.imageUrl} alt={article.title} className="h-full w-full object-cover" />
+            <img src={resolveMediaUrl(article.imageUrl)} alt={article.title} className="h-full w-full object-cover" />
           </div>
         </div>
       )}
@@ -230,7 +231,7 @@ export function BlogArticlePage() {
                   <div className="overflow-hidden" style={{ height: 140 }}>
                     {art.imageUrl ? (
                       <img
-                        src={art.imageUrl}
+                        src={resolveMediaUrl(art.imageUrl)}
                         alt={art.title}
                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                       />

@@ -11,6 +11,7 @@ import { axiosInstance } from '../../shared/lib/axios'
 import type { MyStore } from '../api/seller-api'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -700,7 +701,7 @@ export function SellerStoreGbp() {
         <div className="rounded-lg border border-gray-100 bg-gray-50 p-4">
           <div className="flex items-start gap-3">
             {store.logoUrl ? (
-              <img src={store.logoUrl} alt={store.name} className="h-12 w-12 shrink-0 rounded-xl object-cover" />
+              <img src={resolveMediaUrl(store.logoUrl)} alt={store.name} className="h-12 w-12 shrink-0 rounded-xl object-cover" />
             ) : (
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-agrobot-100">
                 <span className="text-sm font-bold text-agrobot-700">{store.name.slice(0, 2).toUpperCase()}</span>

@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { Search, Clock, Share2, Bookmark, UserPlus, Tag, AlertCircle } from 'lucide-react'
 import { useBlogPostsQuery, useBlogCategoriesQuery } from '@/modules/blog/queries/blog-queries'
 import type { BlogPost } from '@/modules/blog/api/blog'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -57,7 +58,7 @@ function ArticleListCard({ article }: { article: BlogPost }) {
     >
       <div className="h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-gray-100">
         {article.imageUrl && (
-          <img src={article.imageUrl} alt={article.title} className="h-full w-full object-cover" />
+          <img src={resolveMediaUrl(article.imageUrl)} alt={article.title} className="h-full w-full object-cover" />
         )}
       </div>
       <div className="flex flex-1 flex-col justify-between min-w-0">
@@ -258,7 +259,7 @@ export function BlogPage() {
               >
                 {featured.imageUrl ? (
                   <img
-                    src={featured.imageUrl}
+                    src={resolveMediaUrl(featured.imageUrl)}
                     alt={featured.title}
                     className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />

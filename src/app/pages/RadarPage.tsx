@@ -8,6 +8,7 @@ import { Map as GoogleMap, AdvancedMarker, InfoWindow } from '@vis.gl/react-goog
 import { Link } from 'react-router'
 import { Skeleton } from '@/components/ui/skeleton'
 import { axiosInstance } from '@/modules/shared/lib/axios'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -193,7 +194,7 @@ function StoreCard({ store, index }: { store: StoreResult; index: number }) {
       {/* Logo / avatar */}
       <div className="h-28 w-28 shrink-0 overflow-hidden rounded-lg bg-gray-100 flex items-center justify-center">
         {store.logoUrl ? (
-          <img src={store.logoUrl} alt={store.name} className="h-full w-full object-cover" />
+          <img src={resolveMediaUrl(store.logoUrl)} alt={store.name} className="h-full w-full object-cover" />
         ) : (
           <Building2 className="h-10 w-10 text-gray-300" />
         )}
@@ -547,7 +548,7 @@ export function RadarPage() {
                     <div style={{ position: 'relative', width: 40, height: 40 }}>
                       <div style={{ width: 40, height: 40, borderRadius: '50%', border: '2.5px solid #15803d', boxShadow: '0 2px 8px rgba(0,0,0,0.35)', overflow: 'hidden', background: '#fff', cursor: 'pointer' }}>
                         {s.logoUrl
-                          ? <img src={s.logoUrl} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          ? <img src={resolveMediaUrl(s.logoUrl)} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           : <div style={{ width: '100%', height: '100%', background: '#15803d', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff' }}>{n}</div>
                         }
                       </div>

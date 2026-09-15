@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { useStoreBySlugQuery, useStoreReviewsQuery, useStoreListingsQuery } from '../../../modules/stores/queries/store-queries'
 import type { StoreReview, StoreListing } from '../../../modules/stores/api/stores'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -224,7 +225,7 @@ export function TiendaPerfilPage() {
       {/* ── Banner ── */}
       <div className="relative h-56 md:h-72 w-full overflow-hidden bg-agrobot-900">
         {store.bannerUrl ? (
-          <img src={store.bannerUrl} alt="" className="h-full w-full object-cover" />
+          <img src={resolveMediaUrl(store.bannerUrl)} alt="" className="h-full w-full object-cover" />
         ) : (
           <div className="absolute inset-0 bg-linear-to-br from-agrobot-900 via-agrobot-800 to-emerald-800">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
@@ -243,7 +244,7 @@ export function TiendaPerfilPage() {
               {/* Logo */}
               <div className="shrink-0 -mt-10 rounded-2xl border-4 border-white shadow-lg overflow-hidden">
                 {store.logoUrl ? (
-                  <img src={store.logoUrl} alt={store.name} className="h-20 w-20 object-cover" />
+                  <img src={resolveMediaUrl(store.logoUrl)} alt={store.name} className="h-20 w-20 object-cover" />
                 ) : (
                   <div className="flex h-20 w-20 items-center justify-center bg-agrobot-50">
                     <span className="text-2xl font-bold text-agrobot-700">{store.name.slice(0,2).toUpperCase()}</span>

@@ -6,6 +6,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { useMyStoreQuery } from '../queries/seller-queries'
 import type { StoreRoleType } from '../api/seller-api'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 const ROLE_LABEL: Record<StoreRoleType, string> = {
   seller:             'Vendedor / Tienda',
@@ -106,7 +107,7 @@ export function SellerStore() {
         {/* Banner */}
         <div className="relative h-28 bg-linear-to-r from-agrobot-900 via-agrobot-700 to-emerald-600">
           {store.bannerUrl && (
-            <img src={store.bannerUrl} alt="" className="absolute inset-0 h-full w-full object-cover" />
+            <img src={resolveMediaUrl(store.bannerUrl)} alt="" className="absolute inset-0 h-full w-full object-cover" />
           )}
         </div>
 
@@ -116,7 +117,7 @@ export function SellerStore() {
             <div className="flex items-end gap-4">
               {store.logoUrl ? (
                 <img
-                  src={store.logoUrl}
+                  src={resolveMediaUrl(store.logoUrl)}
                   alt={store.name}
                   className="h-20 w-20 rounded-2xl border-4 border-white object-cover shadow-md shrink-0"
                 />

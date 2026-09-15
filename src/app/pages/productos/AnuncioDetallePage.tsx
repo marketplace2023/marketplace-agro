@@ -6,6 +6,7 @@ import {
   Star, Send, ChevronLeft, Zap, ShieldCheck, Truck,
 } from 'lucide-react'
 import { useListingBySlugQuery } from '../../../modules/listings/queries/listing-queries'
+import { resolveMediaUrl } from '@/modules/shared/lib/media-url'
 
 const LISTING_TYPE_LABELS: Record<string, string> = {
   sale: 'Venta', rent: 'Arriendo', service: 'Servicio',
@@ -388,7 +389,7 @@ export function AnuncioDetallePage() {
                 <div className="flex items-center gap-3 mb-4">
                   {listing.store.logoUrl ? (
                     <img
-                      src={listing.store.logoUrl}
+                      src={resolveMediaUrl(listing.store.logoUrl)}
                       alt={listing.store.name}
                       className="h-12 w-12 rounded-xl object-cover ring-1 ring-gray-100"
                     />
