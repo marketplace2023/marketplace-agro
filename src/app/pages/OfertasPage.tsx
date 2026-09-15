@@ -35,7 +35,7 @@ interface ApiStore {
   description: string | null
   avgRating: number | null
   reviewCount: number
-  specialties: string[]
+  specialties: string | null
 }
 
 interface ApiCategory {
@@ -196,7 +196,7 @@ function OfertaCard({ listing }: { listing: ApiListing }) {
 
 function TiendaCard({ store }: { store: ApiStore }) {
   const initials = store.name.split(' ').slice(0, 2).map((w) => w[0]).join('').toUpperCase()
-  const description = store.description ?? (store.specialties.length > 0 ? store.specialties.join(', ') : null)
+  const description = store.description ?? store.specialties ?? null
 
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm flex flex-col items-center text-center gap-3 transition-shadow hover:shadow-md">
