@@ -78,7 +78,7 @@ export function AntGuide() {
   }
 
   return (
-    <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end sm:bottom-6 sm:right-6">
+    <div className="fixed bottom-20 right-4 z-50 flex flex-col items-end sm:bottom-20 sm:right-6">
       {isOpen && (
         <div className="animate-ant-bubble-pop mb-2 flex h-110 w-[320px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-agrobot-100 bg-white shadow-card-hover">
           <div className="flex items-center justify-between gap-2 bg-agrobot-700 px-4 py-3 text-white">
